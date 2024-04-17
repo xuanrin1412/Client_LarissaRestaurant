@@ -34,8 +34,6 @@ function Register() {
 
     const ShowPassword = () => {
         const elementPassword = document.getElementsByClassName("password");
-        // if (elementPassword.length > 0) {
-        //     console.log("input element", (elementPassword[0] as HTMLInputElement).type);
         if ((elementPassword[0] as HTMLInputElement).type === "password") {
             (elementPassword[0] as HTMLInputElement).type = "text"
             setShowPassword(true)

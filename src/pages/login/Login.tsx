@@ -19,8 +19,6 @@ function Login() {
             password
         }, { withCredentials: true })
             .then((res) => {
-                console.log(res.data);
-                // toast.success(res.data.message)
                 return navigate("/")
             })
             .catch(err => {
@@ -30,8 +28,6 @@ function Login() {
 
     const ShowPassword = () => {
         const elementPassword = document.getElementsByClassName("password");
-        // if (elementPassword.length > 0) {
-        //     console.log("input element", (elementPassword[0] as HTMLInputElement).type);
         if ((elementPassword[0] as HTMLInputElement).type === "password") {
             (elementPassword[0] as HTMLInputElement).type = "text"
             setShowPassword(true)

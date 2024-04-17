@@ -1,3 +1,4 @@
+import Account from "../pages/account/Account";
 import BookATable from "../pages/bookATable/BookATable";
 import Home from "../pages/home/Home";
 import Login from "../pages/login/Login";
@@ -34,6 +35,10 @@ const LinkPage = [
     {
         link: "/register",
         element: <Register />
+    },
+    {
+        link: "/account",
+        element: <Account />
     },
 ]
 
