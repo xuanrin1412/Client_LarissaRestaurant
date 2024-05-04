@@ -11,7 +11,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     const location = useLocation();
 
     const shouldHideNavFooter = () => {
-        const hideOnPaths = ['/login', '/register']; // Array of paths to hide on
+        const hideOnPaths = ['/login', '/register', '/404']; // Array of paths to hide on
         return hideOnPaths.some((path) => location.pathname.startsWith(path));
     };
 

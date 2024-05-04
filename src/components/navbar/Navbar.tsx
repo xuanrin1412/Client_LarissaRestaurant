@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import IconLogo from "../../assets/ICON.jpg"
 import { FaUser } from "react-icons/fa";
 import Cookies from 'js-cookie';
@@ -16,9 +16,11 @@ function Navbar() {
     const location = useLocation();
     const pathname = location.pathname;
     const dispatch = useDispatch();
+    const navigate = useNavigate()
     const { userName, userRole } = useSelector((state: RootState) => state.user);
 
     useEffect(() => {
+
         const takeToken = Cookies.get("tokenRestaurants")
         if (takeToken) {
             const decoded = jwtDecode<MyJwtPayload>(takeToken);
@@ -26,23 +28,26 @@ function Navbar() {
             dispatch(setUserRole(decoded.role));
         }
     }, [dispatch])
+    if ((userRole === "moderator" || userRole === "user") && pathname === "/manager") {
+        navigate("/404");
+        return null;
+    }
 
     return <div className=" font-josefin z-50 h-header flex items-center fixed top-0 left-0 w-full bg-white bg-opacity-80 ">
         <div className=" flex pt-2 justify-between font-medium styleLink items-center border-2 border-black bg-white  w-3/4 mx-auto space-x-4">
-            <div className="flex-1 flex items-center justify-end space-x-8">
-                <div className={`${pathname === "/" ? " text-red-700 font-bold transform  scale-[110%] duration-500 delay-75  flex justify-center" : ""}`}>
-                    <Link to="/">Home</Link>
-                </div>
-                {userRole == "admin" ? <div className={`${pathname === "/manager" ? "text-red-700 font-bold transform  scale-[110%] duration-500 delay-75  justify-center" : ""}`}>
-                    <Link to="/manager">Manager</Link>
-                </div> : ""}
-
-                <div className={`${pathname === "/menu" ? "text-red-700 font-bold transform  scale-[110%] duration-500 delay-75  justify-center" : ""}`}>
-                    <Link to="/menu">Menu</Link>
-                </div>
+            <div className={`${userRole === "admin" || userRole === "moderator" ? "hidden" : "flex flex-1  items-center justify-end space-x-8"}`}>
+                {userRole == "moderator" ? "" :
+                    <div className={`${pathname === "/" ? " text-red-700 font-bold transform  scale-[110%] duration-500 delay-75  flex justify-center" : ""}`}>
+                        <Link to="/">Home</Link>
+                    </div>}
+                {userRole == "moderator" ? "" :
+                    <div className={`${pathname === "/menu" ? "text-red-700 font-bold transform  scale-[110%] duration-500 delay-75  justify-center" : ""}`}>
+                        <Link to="/menu">Menu</Link>
+                    </div>}
             </div>
 
-            <Link className=" font-bold font-greatVibes  flex text-3xl items-center w-fit  text-center" to="/">
+            {/* {userRole == "moderator" ? "" : */}
+            <div className=" font-bold font-greatVibes  flex text-3xl items-center w-fit  text-center">
                 <span className="">Larissa</span>
                 <div className="h-8 w-8 mx-2">
                     <img
@@ -52,19 +57,23 @@ function Navbar() {
                     />
                 </div>
                 <span className=" ">Restaurants</span>
-            </Link>
+            </div>
+            {/* } */}
 
             <div className="flex-1 flex items-center justify-start space-x-8">
+                {userRole == "admin" ? <div className={`${pathname === "/manager" ? "text-red-700 font-bold transform  scale-[110%] duration-500 delay-75  justify-center" : ""}`}>
+                    <Link to="/manager">Manager</Link>
+                </div> : ""}
                 {userRole === "admin" || userRole === "moderator" ? (
                     <div className={`${pathname === "/order" ? "text-red-700 font-bold transform  scale-[120%] duration-500 delay-75" : ""}`}>
                         <Link to="/order">Order</Link>
                     </div>
                 ) : null}
-
-                <div className={`${pathname === "/book-a-table" ? "text-red-700 font-bold transform  scale-[120%] duration-500 delay-75 " : ""}`}>
-                    <Link to="/book-a-table">
-                        <span className="underline whitespace-nowrap ">Book A Table</span></Link>
-                </div>
+                {userRole == "moderator" ? "" :
+                    <div className={`${pathname === "/book-a-table" ? "text-red-700 font-bold transform  scale-[120%] duration-500 delay-75 " : ""}`}>
+                        <Link to="/book-a-table">
+                            <span className="underline whitespace-nowrap ">Book A Table</span></Link>
+                    </div>}
                 {userName ?
                     <div className={`${pathname === "/account" ? "text-red-700 font-bold transform  scale-[120%] duration-500 delay-75 " : ""}`}>
                         <Link to="/account">

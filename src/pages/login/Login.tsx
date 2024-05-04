@@ -19,6 +19,8 @@ function Login() {
             password
         }, { withCredentials: true })
             .then((res) => {
+                console.log(res);
+
                 return navigate("/")
             })
             .catch(err => {

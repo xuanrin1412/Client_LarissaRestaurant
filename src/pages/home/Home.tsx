@@ -1,5 +1,5 @@
-import BannerIntro from "../../components/bannerIntro/BannerIntro";
-import Intro from "../../components/intro/intro";
+import BannerIntro from "./bannerIntro/BannerIntro";
+import Intro from "./intro/intro";
 
 function Home() {
     return <div>
