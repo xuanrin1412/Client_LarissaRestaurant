@@ -11,7 +11,6 @@ import { setUserName, setUserRole } from "../../Redux/userSlice";
 interface MyJwtPayload extends JwtPayload {
     userName?: string;
 }
-
 function Navbar() {
     const location = useLocation();
     const pathname = location.pathname;
@@ -67,6 +66,11 @@ function Navbar() {
                 {userRole === "admin" || userRole === "moderator" ? (
                     <div className={`${pathname === "/order" ? "text-red-700 font-bold transform  scale-[120%] duration-500 delay-75" : ""}`}>
                         <Link to="/order">Order</Link>
+                    </div>
+                ) : null}
+                {userRole === "admin" || userRole === "moderator" ? (
+                    <div className={`${pathname === "/menuOrderTable" ? "text-red-700 font-bold transform  scale-[120%] duration-500 delay-75" : ""}`}>
+                        <Link to="/menuOrderTable">Menu</Link>
                     </div>
                 ) : null}
                 {userRole == "moderator" ? "" :

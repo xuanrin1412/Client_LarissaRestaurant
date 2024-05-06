@@ -5,7 +5,9 @@ import Home from "../pages/home/Home";
 import Login from "../pages/login/Login";
 import Manager from "../pages/manager/Manager";
 import Menu from "../pages/menu/Menu";
+import MenuOrderTable from "../pages/menuOrderTable/MenuOrderTable";
 import Order from "../pages/order/Order";
+import OrderFood from "../pages/order/orderFood/OrderFood";
 import Register from "../pages/register/Register";
 
 const LinkPage = [
@@ -20,6 +22,14 @@ const LinkPage = [
     {
         link: "/menu",
         element: <Menu />
+    },
+    {
+        link: "/menuOrderTable",
+        element: <MenuOrderTable />
+    },
+    {
+        link: "/order/:id",
+        element: <OrderFood />
     },
     {
         link: "/order",

@@ -1,32 +1,40 @@
-import axios from "axios";
+
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebook, FaRegEye, FaRegEyeSlash } from "react-icons/fa";
 import { toast } from "react-toastify";
-
+import { JwtPayload, jwtDecode } from "jwt-decode";
+import { apiLogin } from "../../API/api";
+interface MyJwtPayload extends JwtPayload {
+    role?: string;
+}
 
 function Login() {
     const navigate = useNavigate()
     const [userName, setUserName] = useState<string>("")
     const [password, setPassword] = useState<string>("")
     const [showPassword, setShowPassword] = useState<boolean>(false)
-    // const [userNotExis, setUserNotExis] = useState<boolean>(false)
-    const handleSubmit = (e: { preventDefault: () => void; }) => {
-        e.preventDefault()
-        axios.post("http://localhost:3004/api/login", {
-            userName,
-            password
-        }, { withCredentials: true })
-            .then((res) => {
-                console.log(res);
 
-                return navigate("/")
+    const handleSubmit = (e: { preventDefault: () => void; }) => {
+        e.preventDefault();
+        apiLogin({ userName, password })
+            .then((res) => {
+                const test = jwtDecode<MyJwtPayload>(res.data.tokenJWT);
+                const userRole = test.role;
+                if (userRole === "admin") {
+                    navigate("/manager");
+                } else if (userRole === "moderator") {
+                    navigate("/order");
+                } else {
+                    navigate("/");
+                }
             })
             .catch(err => {
-                toast.error(err.response.data.message)
-            })
-    }
+                toast.error(err.response.data.message);
+            });
+    };
+
 
     const ShowPassword = () => {
         const elementPassword = document.getElementsByClassName("password");
