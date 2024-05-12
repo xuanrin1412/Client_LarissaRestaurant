@@ -1,36 +1,18 @@
-import axios from "axios";
-import { useEffect, useState } from "react";
-
-interface IFoodItem {
-    picture: string;
-    foodName: string;
-    sellingPrice?: number;
-    description?: string;
-}
-
-interface Food {
-    categoryName: string,
-    food: IFoodItem[]
-}
+import { useEffect } from "react";
+import { RootState, useAppDispatch, useAppSelector } from "../../Redux/store";
+import { getCategoryWFood } from "../../Redux/foodsSlice";
+import { IMenu } from "../../common/type";
 
 function Menu() {
-    const [data, setData] = useState<Food[]>([])
-
+    const dispatch = useAppDispatch();
+    const categoryWFood: IMenu[] = useAppSelector((state: RootState) => state.foods.categoryWFood);
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const res = await axios.get("http://localhost:3004/api/category/getCategoryWithFood", { withCredentials: true })
-                setData(res.data)
-            } catch (error) {
-                console.log(error);
-            }
-        }
-        fetchData()
-    }, [])
+        dispatch(getCategoryWFood())
+    }, [dispatch])
 
     return <div className=" mt-header">
         <div className="banner text-white font-greatVibes text-4xl  mb-5 "> The Tast Of The Food Life</div>
-        {data.map((category, categoryIndex) => (
+        {categoryWFood.map((category, categoryIndex) => (
             <div key={categoryIndex}>
                 {category.food.length > 0 && (
                     <div className="text-xl font-bold text-center mt-10">{category.categoryName}</div>
@@ -49,7 +31,7 @@ function Menu() {
                             <div className="flex-1 px-4 space-y-2">
                                 <div className="flex justify-between text-xl">
                                     <div>{item.foodName}</div>
-                                    {item.sellingPrice && <div>{item.sellingPrice}k</div>}
+                                    {item.revenue && <div>{item.revenue}k</div>}
                                 </div>
                                 <div className="text-justify">{item.description || "No description available"}</div>
                             </div>
@@ -58,10 +40,7 @@ function Menu() {
                     ))}</div>
             </div>
         ))}
-
-
     </div >
-
 }
 
 export default Menu;

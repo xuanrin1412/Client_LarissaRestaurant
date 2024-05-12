@@ -5,8 +5,8 @@ import Cookies from 'js-cookie';
 import { useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
 import { JwtPayload } from 'jsonwebtoken';
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../Redux/store";
+import { useDispatch } from "react-redux";
+import { RootState, useAppSelector } from "../../Redux/store";
 import { setUserName, setUserRole } from "../../Redux/userSlice";
 interface MyJwtPayload extends JwtPayload {
     userName?: string;
@@ -16,7 +16,7 @@ function Navbar() {
     const pathname = location.pathname;
     const dispatch = useDispatch();
     const navigate = useNavigate()
-    const { userName, userRole } = useSelector((state: RootState) => state.user);
+    const { userName, userRole } = useAppSelector((state: RootState) => state.user);
 
     useEffect(() => {
 

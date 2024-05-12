@@ -2,66 +2,117 @@ import React, { useEffect, useState } from "react";
 import MenuOrderTable from "../../menuOrderTable/MenuOrderTable";
 import { IoClose } from "react-icons/io5";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../../Redux/store";
+import { RootState, useAppDispatch, useAppSelector } from "../../../Redux/store";
 import { MdOutlineReportProblem } from "react-icons/md";
-import { IFoodSlice, increaseQuantity } from "../../../Redux/foodsSlice";
-import { apiGetFoodInfo } from "../../../API/api";
-import { IFood } from "../../../common/type";
+import { IFoodSlice, IOrder } from "../../../common/type";
+import { confirmOrder, decreaseQuantity, deleteFoodArr, increaseQuantity } from "../../../Redux/foodsSlice";
+import { toast } from "react-toastify";
+
+
 function OrderFood() {
     const location = useLocation();
+    const dispatch = useAppDispatch()
     const navigate = useNavigate()
-    const dispatch = useDispatch()
     const { tableName } = location.state
-    const userName: string | undefined = useSelector((state: RootState) => state.user.userName);
-    const foods: IFoodSlice[] = useSelector((state: RootState) => state.foods.foods);
-    const [data, setData] = useState<IFood[]>([])
-    const [quantity, setQuantity] = useState<number>(1)
-    console.log("data", data.concat());
-    useEffect(() => {
-        foods.map(item =>
-            apiGetFoodInfo(item._id)
-                .then(res => {
-                    const updateData = [...data]
-                    const updatedFood = { ...res.data.getOneFood, quantity: item.quantity }
-                    updateData.push(updatedFood)
-                    setData(updateData)
-                })
-        )
-    }, [foods])
+    const { tableId } = location.state
+    const { idTableHaveOrder } = location.state
+    console.log("idTableHaveOrder", idTableHaveOrder);
 
-    const handleIncrease = (id: string) => {
-        dispatch(increaseQuantity({ _id: id }))
+    const order: IOrder[] = useAppSelector((state: RootState) => state.foods.order);
+    console.log("order in area", order);
+    const arrIdTableHaveOrder: IOrder | undefined = order.find(item => (
+        item.tableId === idTableHaveOrder
+    ))
+    console.log("....", arrIdTableHaveOrder);
+
+    const userName: string | undefined = useAppSelector((state: RootState) => state.user.userName);
+    const foods: IFoodSlice[] = useAppSelector((state: RootState) => state.foods.foods);
+    const total: number = useAppSelector((state: RootState) => state.foods.total);
+
+    const [totalAll, setTotalAll] = useState<number | undefined>()
+    console.log("totalAll", totalAll);
+
+
+    const [data, setData] = useState<IFoodSlice[]>()
+    const [data2, setData2] = useState<IOrder | undefined>()
+    console.log("data in order", data2);
+
+    console.log("foods useSelector", foods);
+
+    const handleIncreaseQuantity = (_id: string) => {
+        dispatch(increaseQuantity({ _id }))
     }
-    // const handleChangeQuantity = (e: React.ChangeEvent<HTMLInputElement>) => {
-    //     setQuantity(e.target.value)
-    // }
+    const handleDecreaseQuantity = (_id: string) => {
+        dispatch(decreaseQuantity({ _id }))
+    }
+
+    const handleConfirmOrder = (food: IFoodSlice[], total: number, userName: string | undefined) => {
+        console.log("confirm order", { food, total, tableName, userName });
+        if (food.length !== 0) {
+            dispatch(confirmOrder({ food, total, tableId, userName }))
+            dispatch(deleteFoodArr())
+            // dispatch(deleteTotal())
+            setTotalAll(0)
+            navigate("/order")
+        } else {
+            toast.error("Please choose food!!")
+        }
+    }
+
+    useEffect(() => {
+        if (arrIdTableHaveOrder) {
+            setData2(arrIdTableHaveOrder)
+            setTotalAll(arrIdTableHaveOrder.total)
+            console.log("HAVE ORDER");
+
+        } else {
+            setData(foods)
+        }
+
+    }, [foods, total, arrIdTableHaveOrder])
+
     return <div className="flex w-full  ">
-        <div className="flex-1"><MenuOrderTable /></div>
+        <div className="flex-1"><MenuOrderTable arrIdTableHaveOrder={arrIdTableHaveOrder} /></div>
 
         <div className=" w-[400px] mt-header ">
             <div className="relative w-[400px] top-0 left-0 height-order ">
                 <div className="absolute top-0 right-0 w-[400px] height-order ">
                     <div className="fixed  border-2 border-black height-order w-[400px]  flex flex-col  justify-end  ">
                         <div className="h-10 flex  items-center justify-between border-b-2 border-black bg-primary text-white">
+
                             <div className="ml-4">
                                 <span>{tableName}</span>
-                                <span> - NV: {userName}</span>
+                                <span> - NV: {data2 ? data2.userName : userName}</span>
                             </div>
                             <span onClick={() => navigate("/order")} title="Close Order" className="h-10 w-10 flex items-center justify-center cursor-pointer hover:border-l-2 hover:border-l-black"><IoClose /></span>
                         </div>
                         <div className="flex-1 overflow-y-scroll">
-                            {/* each item */}
-                            {data.map((item, index) => (
+
+                            {data2?.food.map((item, index) => (
                                 <div key={index} className="flex border-b group border-b-1 items-center min-h-12 ">
                                     <span className="px-3">{index + 1}</span>
-                                    <span className="flex-1 max-w-[130px] py-2">{item.foodName}</span>
+                                    <span className="flex-1 max-w-[130px] py-2">{item.food.foodName}</span>
                                     <div className="flex items-center">
-                                        <span onClick={() => handleIncrease(item._id)} className="hover:bg-red-50 h-7 w-7 cursor-pointer flex items-center justify-center">+</span>
-                                        <input value={item.quantity} onChange={(e) => setQuantity(e.target.value)} className="h-7 border w-12 flex items-center justify-center px-2" min={1} type="number" />
-                                        <span className="hover:bg-red-50 h-7 w-7 cursor-pointer flex items-center justify-center">-</span>
+                                        <span onClick={() => handleIncreaseQuantity(item.food._id)} className="hover:bg-red-50 h-7 w-7 cursor-pointer flex items-center justify-center">+</span>
+                                        <input value={item.quantity} readOnly className="h-7 border w-12 flex items-center justify-center px-2" min={1} type="number" />
+                                        <span onClick={() => handleDecreaseQuantity(item.food._id)} className="hover:bg-red-50 h-7 w-7 cursor-pointer flex items-center justify-center">-</span>
                                     </div>
-                                    <span className="pl-5">34362K</span>
+                                    <span className="pl-5">{item.totalEachFood}</span>
+                                    <span title="Delete" className="px-3  group-hover:cursor-pointer  invisible group-hover:visible h-12 flex items-center"><IoClose /></span>
+                                </div>
+                            ))}
+
+
+                            {data?.map((item, index) => (
+                                <div key={index} className="flex border-b group border-b-1 items-center min-h-12 ">
+                                    <span className="px-3">{index + 1}</span>
+                                    <span className="flex-1 max-w-[130px] py-2">{item.food.foodName}</span>
+                                    <div className="flex items-center">
+                                        <span onClick={() => handleIncreaseQuantity(item.food._id)} className="hover:bg-red-50 h-7 w-7 cursor-pointer flex items-center justify-center">+</span>
+                                        <input value={item.quantity} readOnly className="h-7 border w-12 flex items-center justify-center px-2" min={1} type="number" />
+                                        <span onClick={() => handleDecreaseQuantity(item.food._id)} className="hover:bg-red-50 h-7 w-7 cursor-pointer flex items-center justify-center">-</span>
+                                    </div>
+                                    <span className="pl-5">{item.totalEachFood}</span>
                                     <span title="Delete" className="px-3  group-hover:cursor-pointer  invisible group-hover:visible h-12 flex items-center"><IoClose /></span>
                                 </div>
                             ))}
@@ -91,7 +142,7 @@ function OrderFood() {
                                 </div>
                             </dialog>
 
-                            <span className=" cursor-pointer bg-primary h-full flex items-center px-2 border-l-2 border-black text-white">Thanh Toán</span>
+                            <span onClick={() => handleConfirmOrder(foods, total, userName)} className=" cursor-pointer bg-primary h-full flex items-center px-2 border-l-2 border-black text-white">Xác nhận {totalAll}</span>
                         </div>
                     </div>
                 </div>
@@ -100,7 +151,7 @@ function OrderFood() {
         </div>
 
 
-    </div>
+
 
 
     // </div>;
