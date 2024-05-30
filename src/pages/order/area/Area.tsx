@@ -1,7 +1,10 @@
 import { useNavigate } from "react-router-dom";
-import  { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { IFoodInfoInFoodOrder } from "../../../common/type";
-import { apiGetAllOrder, apiGetAreaWithTable} from "../../../API/api";
+import { apiGetAllOrder, apiGetAreaWithTable } from "../../../API/api";
+import io from 'socket.io-client';
+const socket = io('http://localhost:3004');
+
 interface ITable {
     _id: string,
     tableName: string,
@@ -40,6 +43,9 @@ function Area() {
     const [data, setData] = useState<IAreaWTable[]>()
     const [tablesHaveOrders, setTablesHaveOrders] = useState<ITableHaveOrders[]>([])
 
+    console.log("tablesHaveOrders từ api ",tablesHaveOrders);
+    
+
     const handleClickOrder = (tableId: string, tableName: string) => {
         const takeOrderFromTable = tablesHaveOrders.find(item => (
             item.tableId === tableId
@@ -69,6 +75,21 @@ function Area() {
                 setData(res.data)
             })
     }, [])
+    useEffect(() => {
+        // Lắng nghe sự kiện 'new_order' từ server
+        socket.on('all_orders', (allOrders) => {
+            console.log("all_orders===============", allOrders.orders);
+            setTablesHaveOrders(allOrders.orders)
+        });
+
+        socket.on('area_with_table', (areaWithTable) => {
+            console.log("area_with_table===============", areaWithTable);
+        });
+        return () => {
+            socket.off('all_orders');
+            socket.off('area_with_table');
+        };
+    }, []);
 
     return <div className=" mt-header mx-4 lg:mx-10">
         {data?.map((area, index) => (
