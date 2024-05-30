@@ -11,7 +11,6 @@ export interface IFoodSlice {
     food: IFood;
     quantity: number;
     totalEachFood: number;
-    
 }
 export interface IMenu {
     categoryName: string,
@@ -23,4 +22,16 @@ export interface IOrder {
     total: number,
     userName:string|undefined,
     tableId: string
+}
+
+
+export interface IFoodInfoInFoodOrder {
+    _id:string,
+    categoryId:string,
+    foodName:string,
+    description:string,
+    picture:string,
+    costPrice:number,
+    revenue:number,
+    favourite:boolean,
 }

@@ -7,5 +7,4 @@ function Home() {
         <Intro />
     </div>;
 }
-
 export default Home;

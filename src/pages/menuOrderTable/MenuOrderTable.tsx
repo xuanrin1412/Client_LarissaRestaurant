@@ -1,21 +1,18 @@
-import React, { useEffect, useState } from "react";
-import { IFood, IMenu, IOrder } from "../../common/type";
-import { useLocation } from "react-router-dom";
-import { RootState, useAppDispatch, useAppSelector } from "../../Redux/store";
-import { createFoodArr, getCategoryWFood } from "../../Redux/foodsSlice";
+import { useEffect, useState } from "react";
 import { IoIosSearch } from "react-icons/io";
-interface IMenuOrderTable {
-    arrIdTableHaveOrder: IOrder | undefined
-}
+import { useLocation } from "react-router-dom";
+import { IFood, IMenu } from "../../common/type";
+import { createFoodArr, getCategoryWFood } from "../../Redux/foodsSlice";
+import { RootState, useAppDispatch, useAppSelector } from "../../Redux/store";
 
-function MenuOrderTable({ arrIdTableHaveOrder }: IMenuOrderTable) {
+function MenuOrderTable() {
     const param = useLocation()
     const dispatch = useAppDispatch();
     const [menuActive, setMenuActive] = useState<boolean>(false)
     const categoryWFood: IMenu[] = useAppSelector((state: RootState) => state.foods.categoryWFood);
     const handleClick = (food: IFood) => {
         if (param.pathname !== "/menuOrderTable") {
-            dispatch(createFoodArr({ food, quantity: 1, arrIdTableHaveOrder }))
+            dispatch(createFoodArr({ food, quantity: 1 }))
         }
     }
     useEffect(() => {
@@ -54,5 +51,4 @@ function MenuOrderTable({ arrIdTableHaveOrder }: IMenuOrderTable) {
             </div>))}
     </div >;
 }
-
 export default MenuOrderTable;

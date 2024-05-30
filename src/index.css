@@ -2,15 +2,25 @@
 @tailwind components;
 @tailwind utilities;
 
+.bg-shadow {
+    box-shadow: 0 0px 10px white;
+}
 
-.bg-shadow{
-    box-shadow:0 0px 10px white ;
+.box-shadow {
+    box-shadow: 0 0px 10px rgb(193, 193, 193);
 }
-.bg-shadow-Login{
-    text-shadow: -2px 2px 1px rgb(142, 142, 142) ;
+
+.bg-shadow-Login {
+    text-shadow: -2px 2px 1px rgb(142, 142, 142);
 }
-.text-shadow-Login{
-    text-shadow: 2px 2px 2px #000000 ;
+
+.text-shadow-Login {
+    text-shadow: 2px 2px 2px #000000;
+}
+
+
+.introTexShadow {
+    text-shadow: 3px 3px 1px #3a0000;
 }
 
 
@@ -19,14 +29,14 @@
     background-color: #000000;
     background-image:
         /* Top jagged */
-        linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 50%, rgba(255,255,255,0) 50%, rgba(255,255,255,0) 100%),
-        linear-gradient(-135deg, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 50%, rgba(255,255,255,0) 50%, rgba(255,255,255,0) 100%),
+        linear-gradient(135deg, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 1) 50%, rgba(255, 255, 255, 0) 50%, rgba(255, 255, 255, 0) 100%),
+        linear-gradient(-135deg, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 1) 50%, rgba(255, 255, 255, 0) 50%, rgba(255, 255, 255, 0) 100%),
         /* Bottom jagged */
-        linear-gradient(45deg, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 50%, rgba(255,255,255,0) 50%, rgba(255,255,255,0) 100%),
-        linear-gradient(-45deg, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 50%, rgba(255,255,255,0) 50%, rgba(255,255,255,0) 100%),
+        linear-gradient(45deg, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 1) 50%, rgba(255, 255, 255, 0) 50%, rgba(255, 255, 255, 0) 100%),
+        linear-gradient(-45deg, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 1) 50%, rgba(255, 255, 255, 0) 50%, rgba(255, 255, 255, 0) 100%),
         /* Top and bottom fade  */
-        linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 100%),
-        linear-gradient(to top, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 100%);
+        linear-gradient(to bottom, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0) 100%),
+        linear-gradient(to top, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0) 100%);
     background-position:
         /* Top jagged */
         top center, top center,
@@ -49,69 +59,202 @@
     position: relative;
     text-align: center;
     transition: all .25s ease-in-out;
-  
-  &.clear-side {
-    background-color: #fff;
-    background-image:
-        /* Top jagged */
-        linear-gradient(135deg, rgba(255,255,255,1) 50%, rgba(255,255,255,0) 50%),
-        linear-gradient(-135deg, rgba(255,255,255,1) 50%, rgba(255,255,255,0) 50%),
-        /* Bottom jagged */
-        linear-gradient(45deg, rgba(255,255,255,1) 50%, rgba(255,255,255,0) 50%),
-        linear-gradient(-45deg, rgba(255,255,255,1) 50%, rgba(255,255,255,0) 50%),
-        /* Top and bottom fade  */
-        linear-gradient(180deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 100%),
-        linear-gradient(0deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 100%),
-        /* Sides */
-        linear-gradient(90deg, rgba(200,200,200,1) 2%, rgba(200,200,200,0) 2%, rgba(200,200,200,0) 97%, rgba(200,200,200,1) 97%);
-    background-position:
-        /* Top jagged */
-        top center, top center,
-        /* Bottom jagged */
-        bottom center, bottom center,
-        /* Top fade */
-        top center,
-        /* Bottom fade */
-        bottom center,
-        /* Sides */
-        center center;
-    background-size:
-        /* Top + bottom jagged */
-        0.75rem 0.75rem, 0.75rem 0.75rem, 0.75rem 0.75rem, 0.75rem 0.75rem,
-        /* Top + bottom fade */
-        100% 1rem, 100% 1rem,
-        /* Sides */
-        100% 100%;
-    background-repeat:
-        /* All jagged and fade */
-        repeat-x, repeat-x, repeat-x, repeat-x, repeat-x, repeat-x,
-        /* Sides */
-        repeat-y;    
-  }}
 
-  .vertical-line {
-    border-left: 1px solid black; /* Đổi màu và định dạng của đường line tại đây */
-    height: 100%; /* Đổi chiều cao của đường line tại đây */
-  }
+    &.clear-side {
+        background-color: #fff;
+        background-image:
+            /* Top jagged */
+            linear-gradient(135deg, rgba(255, 255, 255, 1) 50%, rgba(255, 255, 255, 0) 50%),
+            linear-gradient(-135deg, rgba(255, 255, 255, 1) 50%, rgba(255, 255, 255, 0) 50%),
+            /* Bottom jagged */
+            linear-gradient(45deg, rgba(255, 255, 255, 1) 50%, rgba(255, 255, 255, 0) 50%),
+            linear-gradient(-45deg, rgba(255, 255, 255, 1) 50%, rgba(255, 255, 255, 0) 50%),
+            /* Top and bottom fade  */
+            linear-gradient(180deg, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0) 100%),
+            linear-gradient(0deg, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0) 100%),
+            /* Sides */
+            linear-gradient(90deg, rgba(200, 200, 200, 1) 2%, rgba(200, 200, 200, 0) 2%, rgba(200, 200, 200, 0) 97%, rgba(200, 200, 200, 1) 97%);
+        background-position:
+            /* Top jagged */
+            top center, top center,
+            /* Bottom jagged */
+            bottom center, bottom center,
+            /* Top fade */
+            top center,
+            /* Bottom fade */
+            bottom center,
+            /* Sides */
+            center center;
+        background-size:
+            /* Top + bottom jagged */
+            0.75rem 0.75rem, 0.75rem 0.75rem, 0.75rem 0.75rem, 0.75rem 0.75rem,
+            /* Top + bottom fade */
+            100% 1rem, 100% 1rem,
+            /* Sides */
+            100% 100%;
+        background-repeat:
+            /* All jagged and fade */
+            repeat-x, repeat-x, repeat-x, repeat-x, repeat-x, repeat-x,
+            /* Sides */
+            repeat-y;
+    }
+}
 
-  .height-order {
+.vertical-line {
+    border-left: 1px solid black;
+    /* Đổi màu và định dạng của đường line tại đây */
+    height: 100%;
+    /* Đổi chiều cao của đường line tại đây */
+}
+
+.height-order {
     height: calc(100vh - 5rem);
 }
 
 
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
+    -webkit-appearance: none;
+    margin: 0;
 }
 
 /* Firefox */
 input[type=number] {
-  -moz-appearance: textfield;
+    -moz-appearance: textfield;
 }
 
 
-.shadow{
+.shadow {
     box-shadow: 1px 2px 8px black;
+}
+
+
+/* BUTTON SHOW FOOD FOLLOW CATEGORY */
+.btnChooseCate {
+    /* margin: 0 5px; */
+    /* color: black; */
+    border: none;
+    padding: 4px;
+    /* border-radius: 0.625em; */
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+    border: 1px solid gray;
+}
+.btnChooseCate:hover {
+    color: white;
+}
+.btnChooseCate:after {
+    content: "";
+    background: black;
+    position: absolute;
+    z-index: -1;
+    left: -20%;
+    right: -20%;
+    top: 0;
+    bottom: 0;
+    transform: skewX(-45deg) scale(0, 1);
+    transition: all 0.5s;
+}
+.btnChooseCate:hover:after {
+    transform: skewX(-45deg) scale(1, 1);
+    -webkit-transition: all 0.5s;
+    transition: all 0.5s;
+}
+
+
+.react-datepicker-wrapper .react-datepicker__input-container {
+
+}
+
+.react-datepicker-ignore-onclickoutside{
+    background-color: #000000;
+}
+
+.react-datepicker{
+    background-color: black;
+    width: 249px;
+    border-radius: 0;
+}
+.react-datepicker__month-container{
+    background-color: #000000;
+}
+.react-datepicker__header{
+    background-color: #000000;
+    color: white;
+}
+.react-datepicker__header > * {
+    color: white;
+}
+.react-datepicker__header .react-datepicker__day-names > *{
+    color: white;
+}
+
+.react-datepicker__month .react-datepicker__week > *{
+    color: white;
+}
+
+.react-datepicker-popper{
+    left: -18px !important;
+}
+
+.react-datepicker__triangle{
+    display: none;
+}
+.react-datepicker__day--selected,
+.react-datepicker__day:hover{
+    background-color: red;
+}
+
+.react-datepicker__day--keyboard-selected{
+    background-color: rgb(11, 35, 101);
+}
+
+
+.css-b62m3t-container{
+/* width: 212px; */
+
+}
+.css-13cymwt-control{
+    color: white !important;
+    background-color: #000000 !important;
+    outline: none;
+}
+
+
+.selectStyle{
+    flex: 1;
+}
+.selectStyle__control--is-focused{
+background-color: black !important;
+outline: none;
+}
+
+.css-1dimb5e-singleValue{
+    color: white !important;
+}
+
+.css-t3ipsp-control:hover{
+  border-color: #000000 !important;
+}
+
+.selectStyle__menu{
+    background-color: black !important;
+}
+.css-d7l1ni-option{
+    background-color: rgb(255, 122, 122) !important;
+    /* background-color: rgb(255, 255, 255) ; */
+}
+
+.css-tr4s17-option{
+background-color: red !important;
+}
+
+.css-1nmdiq5-menu{
+    width: 210px !important;
+    left: -59px;
 }
 

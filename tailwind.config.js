@@ -8,7 +8,7 @@ export default {
   theme: {
     extend: {
       spacing: {
-        header: "5rem"
+        header: "4rem"
       },
 
       // margin: {
