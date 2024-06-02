@@ -10,7 +10,6 @@ const Menu: React.FC = () => {
     const categoryRefs = useRef<{ [key: string]: HTMLDivElement }>({});
     const categoryWFood: IMenu[] = useAppSelector((state: RootState) => state.foods.categoryWFood);
 
-    // FUNCTION
     const scrollCategoryBar = () => {
         if (window.scrollY > 80) {
             setShowCategoryBar(true);
@@ -68,14 +67,14 @@ const Menu: React.FC = () => {
                 The Taste Of The Food Life
             </div> */}
             {showCategoryBar && (
-                <div className="absolute top-[70px] left-10">
+                <div className="absolute top-[30px] left-10 ">
                     <div className="fixed w-[400px] flex flex-row">
                         {categoryWFood.map((category, categoryIndex) => (
                             <div data-aos="fade-right" className="box-shadow" key={categoryIndex}>
                                 {category.food.length > 0 && (
                                     <div
                                         onClick={() => handleClickMenu(category.categoryName)}
-                                        className={`btnChooseCate ${activeCategory === category.categoryName ? "bg-red-600 text-white" : "bg-white"} `}
+                                        className={`btnChooseCate  ${activeCategory === category.categoryName ? "bg-red-600 text-white" : "bg-white"}`}
                                     >
                                         {category.categoryName}
                                     </div>
@@ -85,19 +84,20 @@ const Menu: React.FC = () => {
                     </div>
                 </div>
             )}
+            
 
             {categoryWFood.filter(category => category.food.length > 0).map((category, categoryIndex) => (
                 <div key={categoryIndex} className="mb-20 first:mt-20">
                     <div
                         id={category.categoryName}
                         ref={el => categoryRefs.current[category.categoryName] = el!}
-                        className="scroll-mt-20 text-4xl font-bold text-center mb-10"
+                        className="animate__animated animate__tada  scroll-mt-20 text-4xl font-bold text-center mb-10"
                     >
                         {category.categoryName}
                     </div>
                     <div className="w-11/12 mx-auto grid grid-cols-2 flex-wrap ">
                         {category.food.map((item, index) => (
-                            <div key={index} className={`${index % 2 === 0 ? "border-r-2" : ""} flex items-center px-8 py-5`}>
+                            <div key={index} className={`${index % 2 === 0 ? "border-r-2" : ""}  flex items-center px-8 py-5`}>
                                 <div className="h-52 w-52">
                                     <img
                                         className="h-full w-full object-cover rounded-full"

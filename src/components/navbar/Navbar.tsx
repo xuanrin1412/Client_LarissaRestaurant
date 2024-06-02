@@ -10,6 +10,8 @@ import { setUserId, setUserName, setUserRole } from "../../Redux/userSlice";
 import { IFoodSlice } from "../../common/type";
 import { setOpenModalConfirm } from "../../Redux/foodsSlice";
 import { Logo } from "../../assets/Logo";
+import { IoNotificationsSharp } from "react-icons/io5";
+import { scrollCategoryBar } from "../../utils/scrollToTop";
 interface MyJwtPayload extends JwtPayload {
     userName?: string;
 }
@@ -43,13 +45,6 @@ const Navbar: React.FC = () => {
             navigate("/order");
         }
     }
-    const scrollCategoryBar = () => {
-        if (window.scrollY > 80) {
-            setShowCategoryBar(true);
-        } else {
-            setShowCategoryBar(false);
-        }
-    };
 
     useEffect(() => {
         const takeToken = Cookies.get("tokenRestaurants")
@@ -61,11 +56,13 @@ const Navbar: React.FC = () => {
         }
     }, [dispatch])
     useEffect(() => {
-        window.addEventListener("scroll", scrollCategoryBar);
+        const handleScroll = () => scrollCategoryBar({ setShowCategoryBar });
+        window.addEventListener("scroll",handleScroll);
         return () => {
-            window.removeEventListener("scroll", scrollCategoryBar);
+            window.removeEventListener("scroll",handleScroll);
         };
     }, [showCategoryBar]);
+
     if ((userRole === "moderator" || userRole === "user") && pathname === "/manager") {
         navigate("/404");
         return null;
@@ -76,8 +73,10 @@ const Navbar: React.FC = () => {
         <div className={` ${showCategoryBar ? "text-black" : "text-white "} z-50  text-xl flex pt-2 justify-between font-medium styleLink items-center  w-full space-x-10`}>
             <div className={`${userRole === "admin" || userRole === "moderator" ? "hidden" : "flex flex-1  items-center justify-end space-x-8"}`}>
                 {userRole == "moderator" ? "" :
-                    <div className={`${pathname === "/" ? " text-red-500   font-bold    flex justify-center" : ""}`}>
-                        <Link to="/">Home</Link>
+                    <div onClick={()=>navigate("/")} className={`${pathname === "/" ? " text-red-500   font-bold    flex justify-center" : ""}`}>
+                        {/* <Link to="/"> */}
+                            <a href="#home">Home</a>
+                            {/* </Link> */}
                     </div>}
                 {userRole == "moderator" ? "" :
                     <div className={`${pathname === "/menu" ? "text-red-500    font-bold    justify-center" : ""}`}>
@@ -120,12 +119,23 @@ const Navbar: React.FC = () => {
                     <div className={`${pathname === "/account" ? "text-red-500 font-bold" : ""}`}>
                         <div onClick={() => handleClickAccountWhenHaveFoods()
                         } >
-                            <div className="flex flex-wrap">
+                            <div className="flex flex-wrap cursor-pointer">
                                 <span className="capitalize">{userRole} </span>
                                 <span>{userName}</span>
                             </div>
                         </div>
                     </div> : ""}
+                {userRole === "admin" || userRole === "moderator" ? (
+                    <div className={`${pathname === "/notify" ? "text-red-500 font-bold" : ""}`}>
+                        <div className="relative">
+                            <span className="text-2xl"><IoNotificationsSharp /></span>
+                            <span className="absolute -top-1 -right-[6px] flex h-4 w-4  items-center justify-center">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00D2FF] opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-3 w-3 bg-[#00D2FF]"></span>
+                            </span>
+                        </div>
+                    </div>
+                ) : null}
                 {userName ?
                     ""
                     :

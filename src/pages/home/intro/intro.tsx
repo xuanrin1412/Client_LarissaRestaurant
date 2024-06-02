@@ -61,7 +61,7 @@ function Intro() {
         <div>
             <div className="bg-fixed bg-no-repeat bg-cover h-[100vh] w-full  bg-[url('https://media.istockphoto.com/id/1388791676/photo/teppanyaki-style.jpg?s=612x612&w=0&k=20&c=j2QXPUQapSE9221h9Hr7XOa5ywcuJUBl3xcv7a63LRE=')]  flex justify-center items-center px-[20%]">"Với một menu đa dạng và phong phú, nhà hàng Châu Âu của chúng tôi tự hào giới thiệu những món ăn ngon và độc đáo từ nhiều quốc gia Châu Âu. Từ món Cordon Bleu Pháp truyền thống, Steak Diane của Ý đến quiche trứ danh của Đức, chúng tôi cam kết mang đến cho bạn một trải nghiệm ẩm thực đầy hấp dẫn."</div>
         </div>
-        <div className="h-[240px] my-4 w-3/4 mx-auto bg-orange-300 grid grid-cols-2">
+        <div className="h-full my-4 w-3/4 mx-auto bg-orange-300 grid grid-cols-2">
             <div>
                 {/* <Image /> */}
                 <div>

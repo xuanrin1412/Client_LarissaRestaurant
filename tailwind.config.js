@@ -15,7 +15,8 @@ export default {
       //   header: theme.spacing.header,
       // },
       color: {
-        primary: "#B91C1C"
+        primary: "#B91C1C",
+        secondary:"#434242"
       },
       fontFamily: {
         "josefin": ['"Josefin Sans"', ...defaultTheme.fontFamily.sans],
@@ -29,8 +30,8 @@ export default {
     themes: [
       {
         mytheme: {
-          "primary": "#dc2626",
-          "secondary": "#850000",
+          "primary": "#B91C1C",
+          "secondary": "#434242",
           "accent": "#310cff",
           "neutral": "#38bdf8",
           // "base-100": "#fef9c3",
@@ -38,7 +39,7 @@ export default {
           "info": "#fff",
           "success": "#22c55e",
           "warning": "#fde047",
-          "error": "#dc2626",
+          "error": "#B91C1C",
         },
       },
     ],

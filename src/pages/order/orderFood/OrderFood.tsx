@@ -1,6 +1,7 @@
 import { IoClose } from "react-icons/io5";
 import { useEffect, useState } from "react";
 import { ITableHaveOrders } from "../area/Area";
+import 'react-toastify/dist/ReactToastify.css';
 import { apiCreateOrder } from "../../../API/api";
 import { IFoodSlice } from "../../../common/type";
 import FooterOrderBoard from "./child/FooterOrderBoard";
@@ -9,16 +10,6 @@ import MenuOrderTable from "../../menuOrderTable/MenuOrderTable";
 import FoodsInOrderBoard from "../orderFood/child/FoodsInOrderBoard"
 import { RootState, useAppDispatch, useAppSelector } from "../../../Redux/store";
 import { decreaseQuantity, deleteFoodArr, increaseQuantity, setOpenModalConfirm } from "../../../Redux/foodsSlice";
-import { toast } from "react-toastify";
-// import { apiCreateOrder } from "../../../API/api";
-// import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import io from 'socket.io-client';
-
-const socket = io('http://localhost:3004');
-
-
-
 
 function OrderFood() {
     const location = useLocation()
@@ -40,7 +31,6 @@ function OrderFood() {
     const foods: IFoodSlice[] = useAppSelector((state: RootState) => state.foods.foods);
     const userId: string | undefined = useAppSelector((state: RootState) => state.user.userId);
     const userName: string | undefined = useAppSelector((state: RootState) => state.user.userName);
-    const userRole: string | undefined = useAppSelector((state: RootState) => state.user.userRole);
     const openModalConfirm: boolean = useAppSelector((state: RootState) => state.foods.openModalConfirm);
 
     // TAKE PARTERN FOOD TO PARSE INTO apiCreateOrder
@@ -110,37 +100,6 @@ function OrderFood() {
         };
     }, [foods, total, takeOrderFromTable, navigate, dispatch]);
 
-    // const [orders, setOrders] = useState({});
-    // console.log("ordersordersorders =========================",orders);
-
-
-    useEffect(() => {
-        // Tham gia vào admin room nếu user là admin
-        if (userRole === 'admin') {
-            console.log("userRole,userId", userRole, userId);
-            socket.emit('join_admin_room', userId);
-        }
-        socket.on("new_order", (data) => {
-            console.log("new_order", data);
-            // notifyNewOrder(data.message);
-            toast.success(data.message);
-
-        });
-
-        // Lắng nghe sự kiện 'new_order' từ server
-
-        return () => {
-            socket.off('new_order');
-        };
-    }, [userId, userRole]);
-
-    // const notifyNewOrder = (message: string) => {
-    //     const audio = new Audio('/sounds/notification.mp3');
-    //     audio.play();
-    //     console.log("message------------------------", message);
-    //     toast.success(message);
-    // };
-
 
     return <div className="relative flex w-full  ">
         <div className="flex-1">
@@ -152,7 +111,6 @@ function OrderFood() {
                     <div className="h-10 flex  items-center justify-between border-b-2 border-black bg-primary text-white">
                         <div className="ml-4">
                             <span>{tableName}</span>
-                            {/* <span> - NV: {data2 ? data2.userName : userName}</span> */}
                             <span> - NV: {userName}</span>
                         </div>
                         <span

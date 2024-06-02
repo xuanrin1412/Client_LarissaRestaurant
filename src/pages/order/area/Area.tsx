@@ -43,9 +43,6 @@ function Area() {
     const [data, setData] = useState<IAreaWTable[]>()
     const [tablesHaveOrders, setTablesHaveOrders] = useState<ITableHaveOrders[]>([])
 
-    console.log("tablesHaveOrders từ api ",tablesHaveOrders);
-    
-
     const handleClickOrder = (tableId: string, tableName: string) => {
         const takeOrderFromTable = tablesHaveOrders.find(item => (
             item.tableId === tableId
@@ -57,12 +54,21 @@ function Area() {
         }
     }
 
+    // HANDLE SHOW TABLE HAVE ORDER
     const haveRedPoint = (tableId: string) => {
-        const takeOutFoodLength = tablesHaveOrders.find(item => (
+        const takeOutFood = tablesHaveOrders.find(item => (
             item.tableId === tableId
         ))
-        if (takeOutFoodLength) {
-            return <div className=" absolute -top-1 -right-1 bg-red-500 text-white h-6 w-6 rounded-full flex items-center justify-center text-sm">{takeOutFoodLength.foods.length}</div>
+        if (takeOutFood) {
+            return <>
+             <div className=" absolute -top-3 -right-2 bg-red-500 border-2 border-black text-white font-medium h-6  rounded-lg flex items-center justify-center text-sm space-x-2 px-4 py-[14px]">
+                <span>{takeOutFood.subTotal}K</span>
+                <span>({takeOutFood.foods.length})</span>
+            </div>
+                {/* <div className=" absolute -top-3 -left-2 bg-[#0b2b6b] border-2 border-black text-white font-medium h-6  rounded-lg flex items-center justify-center text-sm space-x-2 px-4 py-[14px]">
+                    <span>Reserved</span>
+                </div> */}
+            </>
         }
     }
 
@@ -74,9 +80,7 @@ function Area() {
             .then(res => {
                 setData(res.data)
             })
-    }, [])
-    useEffect(() => {
-        // Lắng nghe sự kiện 'new_order' từ server
+
         socket.on('all_orders', (allOrders) => {
             console.log("all_orders===============", allOrders.orders);
             setTablesHaveOrders(allOrders.orders)
@@ -96,11 +100,12 @@ function Area() {
             <div key={index}>
                 {area.table.length > 0 &&
                     <div className="pt-10" >
-                        <div className=" font-bold my-5">Khu vực {area.areaName}</div>
+                        <div className=" font-bold text-[18px] my-5">Khu vực {area.areaName}</div>
                         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4 lg:gap-6">
                             {area.table.map((table, index) => (
-                                <div onClick={() => handleClickOrder(table._id, table.tableName)} key={index} className=" cursor-pointer relative w-full h-16 lg:h-20 border bg-[#B7DBFF] flex justify-center items-center rounded-lg">
-                                    <span> {table.tableName.split(' - ')[1]} -</span>&nbsp;
+                                <div onClick={() => handleClickOrder(table._id, table.tableName)} key={index}
+                                    className="hover:shadow cursor-pointer relative w-full h-16 lg:h-20 border-4 border-gray-400 flex justify-center items-center rounded-2xl">
+                                    <span className="font-bold"> {table.tableName.split(' - ')[1]} -</span>&nbsp;
                                     <span> {table.capacity} ghế</span>
                                     {haveRedPoint(table._id)}
                                 </div>
@@ -108,7 +113,7 @@ function Area() {
                         </div>
                     </div>}
             </div>))}
-    </div >;
+    </div >
 }
 
 export default Area;
