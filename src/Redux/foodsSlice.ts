@@ -12,6 +12,7 @@ export const getCategoryWFood = createAsyncThunk(
 )
 export interface IState {
     foods: IFoodSlice[];
+    foodsOrder :IFoodSlice[];
     order: IOrder[]
     categoryWFood: IMenu[];
     total: number;
@@ -19,6 +20,7 @@ export interface IState {
 }
 const initialState: IState = {
     foods: [],
+    foodsOrder:[],
     order: [],
     categoryWFood: [],
     total: 0,
@@ -96,8 +98,6 @@ const foodsSlice = createSlice({
     extraReducers: (builder) => {
         builder.addCase(getCategoryWFood.fulfilled, (state, action) => {
             state.categoryWFood = action.payload
-
-
         })
     },
 })

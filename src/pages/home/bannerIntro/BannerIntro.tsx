@@ -1,6 +1,6 @@
 function BannerIntro() {
 
-    return <div id="home" className="">
+    return <div className="">
         <div className="w-full h-screen z-10 relative top-0 right-0  bg-fixed bg-no-repeat bg-cover bg-black bg-[url('https://wallpaperaccess.com/full/2614486.jpg')]">
             <h1 className="absolute top-0 left-0 w-full h-full z-50 ">
                 <div data-aos="fade-up" className=" mt-40 text-center">

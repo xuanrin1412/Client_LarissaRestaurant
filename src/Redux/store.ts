@@ -1,11 +1,9 @@
 import { configureStore } from "@reduxjs/toolkit";
-import userReducer from "./userSlice"
 import foodsReducer from "./foodsSlice"
 import { useDispatch, useSelector } from 'react-redux';
 
 const store =  configureStore({
     reducer:{
-        user: userReducer,
         foods: foodsReducer
     }
 })

@@ -8,6 +8,8 @@ import { JwtPayload, jwtDecode } from "jwt-decode";
 import { apiLogin } from "../../API/api";
 interface MyJwtPayload extends JwtPayload {
     role?: string;
+    userName?: string;
+    id?: string;
 }
 
 function Login() {
@@ -15,18 +17,23 @@ function Login() {
     const [userName, setUserName] = useState<string>("")
     const [password, setPassword] = useState<string>("")
     const [showPassword, setShowPassword] = useState<boolean>(false)
-
     const handleSubmit = (e: { preventDefault: () => void; }) => {
         e.preventDefault();
         apiLogin({ userName, password })
             .then((res) => {
                 const test = jwtDecode<MyJwtPayload>(res.data.tokenJWT);
+                console.log("test",test);
+                localStorage.setItem('larissa_userInfo', JSON.stringify(test));
                 const userRole = test.role;
-                if (userRole === "admin") {
-                    navigate("/manager");
-                } else if (userRole === "moderator") {
+                if  (userRole == "moderator") {
+                    console.log("hello");
                     navigate("/order");
-                } else {
+                } 
+                else if( userRole == "admin"){
+                    navigate("/manager");
+                }
+                else {
+                    console.log("red");
                     navigate("/");
                 }
             })
@@ -82,9 +89,4 @@ function Login() {
 
     </div >
 }
-//         </div>
-//         <div>Don't have account{" "} <Link to="/register" className=" underline">Register Now !</Link></div>
-//     </div>;
-// }}
-
 export default Login

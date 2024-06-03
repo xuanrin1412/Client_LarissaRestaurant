@@ -17,6 +17,8 @@ interface IFoodsInOrderBoard {
 function FoodsInOrderBoard({ keyFoodsInOrderBoard, _id, itemQuantity, no, foodName, onClickIncrease, onClickDecrease, totalEachFood }: IFoodsInOrderBoard) {
     const dispatch = useDispatch()
     const handleDeleteOneFood = (id: string) => {
+        console.log("in handleDeleteOneFood");
+        
         dispatch(deleteOneFood({ id }))
     }
     const [quan, setQuan] = useState<string>(itemQuantity !== undefined ? String(itemQuantity) : "");

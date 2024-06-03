@@ -10,6 +10,7 @@ import MenuOrderTable from "../../menuOrderTable/MenuOrderTable";
 import FoodsInOrderBoard from "../orderFood/child/FoodsInOrderBoard"
 import { RootState, useAppDispatch, useAppSelector } from "../../../Redux/store";
 import { decreaseQuantity, deleteFoodArr, increaseQuantity, setOpenModalConfirm } from "../../../Redux/foodsSlice";
+import { UserAccount } from "../../../components/navbar/Navbar";
 
 function OrderFood() {
     const location = useLocation()
@@ -29,9 +30,18 @@ function OrderFood() {
     // TAKE DATA FROM REDUX
     const total: number = useAppSelector((state: RootState) => state.foods.total);
     const foods: IFoodSlice[] = useAppSelector((state: RootState) => state.foods.foods);
-    const userId: string | undefined = useAppSelector((state: RootState) => state.user.userId);
-    const userName: string | undefined = useAppSelector((state: RootState) => state.user.userName);
     const openModalConfirm: boolean = useAppSelector((state: RootState) => state.foods.openModalConfirm);
+
+    // TAKE OUT USER ACCOUNT
+    const userAccountString = localStorage.getItem("larissa_userInfo");
+    let userAccount: UserAccount | null = null;
+    if (userAccountString) {
+        try {
+            userAccount = JSON.parse(userAccountString) as UserAccount;
+        } catch (error) {
+            console.error("Error parsing user account from localStorage", error);
+        }
+    }
 
     // TAKE PARTERN FOOD TO PARSE INTO apiCreateOrder
     const foodForApi = foods.map(item => {
@@ -51,7 +61,7 @@ function OrderFood() {
 
     // HANDLE CONFIRM ORDER
     const handleConfirmOrder = async () => {
-        await apiCreateOrder(userId, tableId, foodForApi)
+        await apiCreateOrder(userAccount?.id, tableId, foodForApi)
             .then(res => {
                 console.log("handleConfirmOrder res", res);
                 if (res.status == 200) {
@@ -111,7 +121,7 @@ function OrderFood() {
                     <div className="h-10 flex  items-center justify-between border-b-2 border-black bg-primary text-white">
                         <div className="ml-4">
                             <span>{tableName}</span>
-                            <span> - NV: {userName}</span>
+                            <span> - NV: {userAccount?.userName}</span>
                         </div>
                         <span
                             onClick={() => handleCloseBoardOrder()}
@@ -122,18 +132,35 @@ function OrderFood() {
                     </div>
                     <div className="flex-1 overflow-y-scroll">
                         {dataOrderFoods?.foods.map((item, index) => (
-                            <FoodsInOrderBoard
-                                key={index}
-                                keyFoodsInOrderBoard={index}
-                                no={index + 1}
-                                _id={item.foodId._id}
-                                foodName={item.foodId.foodName}
-                                onClickIncrease={() => handleIncreaseQuantity(item.foodId._id)}
-                                onClickDecrease={() => handleDecreaseQuantity(item.foodId._id)}
-                                itemQuantity={item.quantity}
-                                totalEachFood={item.totalEachFood}
-                            />
+                            <>
+                                <FoodsInOrderBoard
+                                    key={index}
+                                    keyFoodsInOrderBoard={index}
+                                    no={index + 1}
+                                    _id={item.foodId._id}
+                                    foodName={item.foodId.foodName}
+                                    onClickIncrease={() => handleIncreaseQuantity(item.foodId._id)}
+                                    onClickDecrease={() => handleDecreaseQuantity(item.foodId._id)}
+                                    itemQuantity={item.quantity}
+                                    totalEachFood={item.totalEachFood}
+                                />
+
+
+                            </>
+
                         ))}
+                        {dataOrderFoods?.tableId == tableId && <div className="flex border-b group border-b-1 items-center min-h-12 hover:bg-gray-100">
+                            <span className="px-3">1</span>
+                            <span className="flex-1 max-w-[125px] py-2">tét</span>
+                            <div className="flex items-center">
+                                <span className="hover:bg-gray-200 h-7 w-7 cursor-pointer flex items-center justify-center">+</span>
+                                <input min={1} className="h-7 border w-9 flex items-center justify-center px-2" type="number" />
+                                {/* <input type="number" value={quan}  onChange={(e:React.ChangeEvent<HTMLInputElement>)=>setQuan(e.target.value)} /> */}
+                                <span className="hover:bg-gray-200 h-7 w-7 cursor-pointer flex items-center justify-center">-</span>
+                            </div>
+                            <span className="pl-5  min-w-[65px]">342432432432</span>
+                            <span title="Delete" className="pl-3  group-hover:cursor-pointer  invisible group-hover:visible h-12 flex items-center"><IoClose /></span>
+                        </div>}
                         {data?.map((item, index) => (
                             <FoodsInOrderBoard
                                 key={index}
@@ -148,7 +175,7 @@ function OrderFood() {
                             />
                         ))}
                     </div>
-                    <button className="bg-primary w-fit text-left text-white py-2 px-4">Fix</button>
+                    {/* <button className="bg-primary w-fit text-left text-white py-2 px-4">Fix</button> */}
                     <div className="border-y-2  border-black flex justify-start p-2 ">
                         <span className="mr-2">Note:</span>
                         <textarea placeholder="Enter Note..." className=" flex-1 min-h-12 outline-none"></textarea>

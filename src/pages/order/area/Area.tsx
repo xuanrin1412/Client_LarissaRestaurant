@@ -22,7 +22,7 @@ interface IUserInfo {
     phoneNumber: string,
 }
 
-interface IFoodsInOrder {
+export interface IFoodsInOrder {
     _id: string,
     foodId: IFoodInfoInFoodOrder,
     orderId: string,

@@ -62,7 +62,7 @@ const Menu: React.FC = () => {
     }, [dispatch, showCategoryBar]);
 
     return (
-        <div className="mt-header">
+        <div  className="mt-header">
             {/* <div data-aos="zoom-in" className="banner text-white font-greatVibes text-4xl mb-10">
                 The Taste Of The Food Life
             </div> */}

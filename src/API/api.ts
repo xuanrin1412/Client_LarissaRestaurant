@@ -49,3 +49,13 @@ export const apiGetOrderFromTableID = (id: string) =>{
     return axios.get(`${baseUrl}/order_food/findOrder/${id}` ,{ withCredentials: true })
 }
 
+// GET USER INFO
+export const apiGetUserInfo = (id: string|undefined) =>{
+    return axios.get(`${baseUrl}/register/find/${id}` ,{ withCredentials: true })
+}
+
+
+
+
+
+

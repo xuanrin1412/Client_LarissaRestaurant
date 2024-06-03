@@ -27,16 +27,6 @@ function App() {
       // }
     );
   }, []);
-
-
-    // {
-    //     link: "/menu",
-    //     element: <Menu />
-    // },
-        // {
-    //     link: "/",
-    //     element: <Home />
-    // },
   return (
     <BrowserRouter>
       <Layout>
@@ -46,17 +36,17 @@ function App() {
               <Route key={link.link} path={link.link} element={link.element} />
             ))}
           </Route>
-          <Route path='/' element={<Home/>}/>
-          <Route path='/login' element={<Login/>}/>
-          <Route path='/register' element={<Register/>}/>
-          <Route path='/account' element={<Account/>}/>
-          <Route path='/book-a-table' element={<BookATable/>}/>
-          <Route path='/menu' element={<Menu/>}/>
-          <Route path='/404' element={<NotFount/>}/>
+          <Route path='/' element={<Home />} />
+          <Route path='/login' element={<Login />} />
+          <Route path='/register' element={<Register />} />
+          <Route path='/account' element={<Account />} />
+          <Route path='/book-a-table' element={<BookATable />} />
+          <Route path='/menu' element={<Menu />} />
+          <Route path='/404' element={<NotFount />} />
           <Route
-                    path="*"
-                    element={<NotFount />}
-                />
+            path="*"
+            element={<NotFount />}
+          />
         </Routes>
       </Layout>
 

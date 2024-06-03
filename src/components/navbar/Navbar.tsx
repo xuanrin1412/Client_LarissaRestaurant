@@ -1,28 +1,28 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FaUser } from "react-icons/fa";
-import Cookies from 'js-cookie';
 import React, { useEffect, useState } from "react";
-import { jwtDecode } from "jwt-decode";
-import { JwtPayload } from 'jsonwebtoken';
 import { useDispatch } from "react-redux";
 import { RootState, useAppSelector } from "../../Redux/store";
-import { setUserId, setUserName, setUserRole } from "../../Redux/userSlice";
 import { IFoodSlice } from "../../common/type";
 import { setOpenModalConfirm } from "../../Redux/foodsSlice";
 import { Logo } from "../../assets/Logo";
 import { IoNotificationsSharp } from "react-icons/io5";
 import { scrollCategoryBar } from "../../utils/scrollToTop";
-interface MyJwtPayload extends JwtPayload {
-    userName?: string;
+
+export interface UserAccount {
+    id: string,
+    userName: string,
+    role: string
 }
+
 const Navbar: React.FC = () => {
     const location = useLocation();
     const pathname = location.pathname;
     const dispatch = useDispatch();
     const navigate = useNavigate()
-    const { userName, userRole } = useAppSelector((state: RootState) => state.user);
     const foods: IFoodSlice[] = useAppSelector((state: RootState) => state.foods.foods);
     const [showCategoryBar, setShowCategoryBar] = useState<boolean>(false);
+    
     const handleClickMenuWhenHaveFoods = () => {
         if (foods.length > 0) {
             dispatch(setOpenModalConfirm(true))
@@ -46,24 +46,25 @@ const Navbar: React.FC = () => {
         }
     }
 
-    useEffect(() => {
-        const takeToken = Cookies.get("tokenRestaurants")
-        if (takeToken) {
-            const decoded = jwtDecode<MyJwtPayload>(takeToken);
-            dispatch(setUserName(decoded.userName ?? ''));
-            dispatch(setUserId(decoded.id ?? ''));
-            dispatch(setUserRole(decoded.role));
+    const userAccountString = localStorage.getItem("larissa_userInfo");
+    let userAccount: UserAccount | null = null;
+    if (userAccountString) {
+        try {
+            userAccount = JSON.parse(userAccountString) as UserAccount;
+        } catch (error) {
+            console.error("Error parsing user account from localStorage", error);
         }
-    }, [dispatch])
+    }
+
     useEffect(() => {
         const handleScroll = () => scrollCategoryBar({ setShowCategoryBar });
-        window.addEventListener("scroll",handleScroll);
+        window.addEventListener("scroll", handleScroll);
         return () => {
-            window.removeEventListener("scroll",handleScroll);
+            window.removeEventListener("scroll", handleScroll);
         };
-    }, [showCategoryBar]);
+    }, [showCategoryBar,userAccount]);
 
-    if ((userRole === "moderator" || userRole === "user") && pathname === "/manager") {
+    if ((userAccount?.role === "moderator" || userAccount?.role === "user") && pathname === "/manager") {
         navigate("/404");
         return null;
     }
@@ -71,20 +72,18 @@ const Navbar: React.FC = () => {
     return <div className={`z-20 font-josefin  h-header flex items-center fixed top-0 left-0 w-full border-b-2 ${showCategoryBar ? "border-black" : "border-white"}`}>
         <div className={`${showCategoryBar ? "bg-white" : "bg-black "} z-40 absolute top-0 left-0 w-full h-full`}></div>
         <div className={` ${showCategoryBar ? "text-black" : "text-white "} z-50  text-xl flex pt-2 justify-between font-medium styleLink items-center  w-full space-x-10`}>
-            <div className={`${userRole === "admin" || userRole === "moderator" ? "hidden" : "flex flex-1  items-center justify-end space-x-8"}`}>
-                {userRole == "moderator" ? "" :
-                    <div onClick={()=>navigate("/")} className={`${pathname === "/" ? " text-red-500   font-bold    flex justify-center" : ""}`}>
-                        {/* <Link to="/"> */}
-                            <a href="#home">Home</a>
-                            {/* </Link> */}
+            <div className={`${userAccount?.role === "admin" || userAccount?.role === "moderator" ? "hidden" : "flex flex-1  items-center justify-end space-x-8"}`}>
+                {userAccount?.role == "moderator" ? "" :
+                    <div onClick={() => navigate("/")} className={`${pathname === "/" ? " text-red-500   font-bold    flex justify-center" : ""}`}>
+                        <a href="#">Home</a>
                     </div>}
-                {userRole == "moderator" ? "" :
-                    <div className={`${pathname === "/menu" ? "text-red-500    font-bold    justify-center" : ""}`}>
-                        <Link to="/menu">Menu</Link>
+                {userAccount?.role == "moderator" ? "" :
+                    <div onClick={() => navigate("/menu")} className={`${pathname === "/menu" ? "text-red-500    font-bold    justify-center" : ""}`}>
+                        <a href="#">Menu</a>
                     </div>}
             </div>
 
-            {/* {userRole == "moderator" ? "" : */}
+            {/* {userAccount.role == "moderator" ? "" : */}
             <div className="font-bold flex text-2xl  items-center w-fit  text-center">
                 <span className="">Larissa</span>
                 <div className="h-8 w-8 mx-2">
@@ -95,37 +94,38 @@ const Navbar: React.FC = () => {
             {/* } */}
 
             <div className="flex-1 flex items-center justify-start space-x-8">
-                {userRole == "admin" ? <div className={`${pathname === "/manager" ? "text-red-500 font-bold justify-center" : ""}`}>
+                {userAccount?.role == "admin" ? <div className={`${pathname === "/manager" ? "text-red-500 font-bold justify-center" : ""}`}>
                     <Link to="/manager">Manager</Link>
                 </div> : ""}
-                {userRole === "admin" || userRole === "moderator" ? (
+                {userAccount?.role === "admin" || userAccount?.role === "moderator"  ? (
                     <div className={`${pathname === "/order" ? "text-red-500 font-bold" : ""}`}>
                         <div onClick={() => handleClickOrderWhenHaveFoods()
                         }>Order</div>
                     </div>
                 ) : null}
-                {userRole === "admin" || userRole === "moderator" ? (
+                {userAccount?.role === "admin" || userAccount?.role === "moderator" ? (
                     <div className={` cursor-pointer ${pathname === "/menuOrderTable" ? "text-red-500 font-bold" : ""}`}>
                         <div onClick={() => handleClickMenuWhenHaveFoods()
                         }>Menu</div>
                     </div>
                 ) : null}
-                {userRole == "moderator" ? "" :
-                    <div className={`${pathname === "/book-a-table" ? "text-red-500 font-bold" : ""}`}>
-                        <Link to="/book-a-table">
-                            <span className="underline whitespace-nowrap ">Book A Table</span></Link>
+                {userAccount?.role == "moderator" ? "" :
+                    <div onClick={() => navigate("/book-a-table")} className={`${pathname === "/book-a-table" ? "text-red-500 font-bold" : ""}`}>
+                        <a href="#">
+                            <span className="underline whitespace-nowrap ">Book A Table</span></a>
                     </div>}
-                {userName ?
-                    <div className={`${pathname === "/account" ? "text-red-500 font-bold" : ""}`}>
+                {userAccount?.userName ?
+                    <div onClick={() => navigate("/account")} className={`${pathname === "/account" ? "text-red-500 font-bold" : ""}`}>
                         <div onClick={() => handleClickAccountWhenHaveFoods()
                         } >
-                            <div className="flex flex-wrap cursor-pointer">
-                                <span className="capitalize">{userRole} </span>
-                                <span>{userName}</span>
-                            </div>
+                            <a href="#">
+                                <div className="flex flex-wrap cursor-pointer">
+                                    <span className="capitalize">{userAccount.role} </span>
+                                    <span>{userAccount.userName}</span>
+                                </div></a>
                         </div>
                     </div> : ""}
-                {userRole === "admin" || userRole === "moderator" ? (
+                {userAccount?.role === "admin" || userAccount?.role === "moderator" ? (
                     <div className={`${pathname === "/notify" ? "text-red-500 font-bold" : ""}`}>
                         <div className="relative">
                             <span className="text-2xl"><IoNotificationsSharp /></span>
@@ -136,7 +136,7 @@ const Navbar: React.FC = () => {
                         </div>
                     </div>
                 ) : null}
-                {userName ?
+                {userAccount?.userName ?
                     ""
                     :
                     <div className={`${pathname === "/login" ? "text-red-500 font-bold   " : ""}`}>
