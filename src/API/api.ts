@@ -1,8 +1,10 @@
 import axios from "axios"
+import { IFoodsInOrder } from "../pages/order/area/Area";
+import { IFoodInfoInFoodOrder } from "../common/type";
 // import { IFoodSlice } from "../common/type";
 interface IuserLogin {
     userName: string,
-    password:string
+    password: string
 }
 interface result {
     _id: string,
@@ -19,40 +21,56 @@ export const apiLogin = ({ userName, password }: IuserLogin) => {
 };
 
 // AREA W TABLE
-export const apiGetAreaWithTable = ()=>{
+export const apiGetAreaWithTable = () => {
     return axios.get(`${baseUrl}/area/getAreaWithTable`, { withCredentials: true })
 }
 
 // CATEGORY W FOOD 
-export const apiGetCategoryWFood = ()=>{
+export const apiGetCategoryWFood = () => {
     return axios.get(`${baseUrl}/category/getCategoryWithFood`, { withCredentials: true })
 }
 
 // GET FOOD
-export const apiGetFoodInfo = (id:string) =>{
+export const apiGetFoodInfo = (id: string) => {
     return axios.get(`${baseUrl}/food/find/${id}`, { withCredentials: true })
 }
 
 // CREATE ORDER
-export const apiCreateOrder = (userId: string | undefined,tableId: string | undefined,foods: result[] ) =>{
-    const payload = {tableId,userId,foods}
-    return axios.post(`${baseUrl}/order_food/`,payload, { withCredentials: true })
+export const apiCreateOrder = (userId: string | undefined, tableId: string | undefined, foods: result[]) => {
+    const payload = { tableId, userId, foods }
+    return axios.post(`${baseUrl}/order_food/`, payload, { withCredentials: true })
 }
 
 // GET ALL ORDERS
-export const apiGetAllOrder = () =>{
-    return axios.get(`${baseUrl}/order_food/` ,{ withCredentials: true })
+export const apiGetAllOrder = () => {
+    return axios.get(`${baseUrl}/order_food/`, { withCredentials: true })
 }
 
 // GET ORDERS FROM TABLE ID
-export const apiGetOrderFromTableID = (id: string) =>{
-    return axios.get(`${baseUrl}/order_food/findOrder/${id}` ,{ withCredentials: true })
+export const apiGetOrderFromTableID = (id: string) => {
+    return axios.get(`${baseUrl}/order_food/findOrder/${id}`, { withCredentials: true })
 }
 
 // GET USER INFO
-export const apiGetUserInfo = (id: string|undefined) =>{
-    return axios.get(`${baseUrl}/register/find/${id}` ,{ withCredentials: true })
+export const apiGetUserInfo = (id: string | undefined) => {
+    return axios.get(`${baseUrl}/register/find/${id}`, { withCredentials: true })
 }
+
+// UPDATE FOODS
+export const apiUpdateFoods = (
+    id: string | undefined,
+    listIdRemoveFoods: string[] | undefined,
+    newOrderFoods: IFoodsInOrder[] | undefined,
+    listUpdateQuanFoods: {
+        foodInfo: IFoodInfoInFoodOrder;
+        quan: number;
+        totalEachFood:number
+    }[] | undefined,
+    totalOrder: number | undefined
+) => {
+    return axios.put(`${baseUrl}/order_food/findOrder/${id}`, { totalOrder,listIdRemoveFoods, newOrderFoods, listUpdateQuanFoods }, { withCredentials: true })
+}
+
 
 
 

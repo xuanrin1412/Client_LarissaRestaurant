@@ -8,7 +8,9 @@ const Menu: React.FC = () => {
     const [showCategoryBar, setShowCategoryBar] = useState<boolean>(false);
     const [activeCategory, setActiveCategory] = useState<string>();
     const categoryRefs = useRef<{ [key: string]: HTMLDivElement }>({});
-    const categoryWFood: IMenu[] = useAppSelector((state: RootState) => state.foods.categoryWFood);
+    const categoryWFood: IMenu[] = useAppSelector((state: RootState) => state.categoryWFood);
+    console.log(categoryWFood);
+    
 
     const scrollCategoryBar = () => {
         if (window.scrollY > 80) {
@@ -35,12 +37,7 @@ const Menu: React.FC = () => {
             });
         }, { threshold: 0.5 });
 
-        categoryWFood.forEach(category => {
-            const ref = categoryRefs.current[category.categoryName];
-            if (ref) {
-                observer.observe(ref);
-            }
-        });
+  
 
         return () => {
             categoryWFood.forEach(category => {

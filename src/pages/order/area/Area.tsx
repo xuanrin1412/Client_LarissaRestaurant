@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { IFoodInfoInFoodOrder } from "../../../common/type";
 import { apiGetAllOrder, apiGetAreaWithTable } from "../../../API/api";
 import io from 'socket.io-client';
+import { useAppDispatch } from "../../../Redux/store";
+import { setfoodsOrder } from "../../../Redux/foodsSlice";
 const socket = io('http://localhost:3004');
 
 interface ITable {
@@ -23,7 +25,7 @@ interface IUserInfo {
 }
 
 export interface IFoodsInOrder {
-    _id: string,
+    _id?: string,
     foodId: IFoodInfoInFoodOrder,
     orderId: string,
     quantity: number,
@@ -33,13 +35,15 @@ export interface IFoodsInOrder {
 export interface ITableHaveOrders {
     userId: IUserInfo,
     tableId: string,
-    subTotal: number,
+    subTotal: number|undefined,
     status: string,
-    foods: IFoodsInOrder[]
+    foods: IFoodsInOrder[],
+    note?:string
 }
 
 function Area() {
     const navigate = useNavigate()
+    const dispatch = useAppDispatch()
     const [data, setData] = useState<IAreaWTable[]>()
     const [tablesHaveOrders, setTablesHaveOrders] = useState<ITableHaveOrders[]>([])
 
@@ -48,7 +52,8 @@ function Area() {
             item.tableId === tableId
         ))
         if (takeOrderFromTable) {
-            navigate(`/order/${tableName}`, { state: { tableId, tableName, takeOrderFromTable } });
+            dispatch(setfoodsOrder({ foodsOrder: takeOrderFromTable }))
+            navigate(`/order/${tableName}`, { state: { tableId, tableName,takeOrderFromTable } });
         } else {
             navigate(`/order/${tableName}`, { state: { tableId, tableName } });
         }
@@ -82,12 +87,12 @@ function Area() {
             })
 
         socket.on('all_orders', (allOrders) => {
-            console.log("all_orders===============", allOrders.orders);
+            // console.log("all_orders===============", allOrders.orders);
             setTablesHaveOrders(allOrders.orders)
         });
 
         socket.on('area_with_table', (areaWithTable) => {
-            console.log("area_with_table===============", areaWithTable);
+            // console.log("area_with_table===============", areaWithTable);
         });
         return () => {
             socket.off('all_orders');
@@ -95,7 +100,7 @@ function Area() {
         };
     }, []);
 
-    return <div className=" mt-header mx-4 lg:mx-10">
+    return <div className=" my-header mx-4 lg:mx-10">
         {data?.map((area, index) => (
             <div key={index}>
                 {area.table.length > 0 &&

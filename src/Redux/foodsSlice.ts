@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit"
 import { IFood, IFoodSlice, IMenu, IOrder } from "../common/type";
 import { apiGetCategoryWFood } from "../API/api";
 import { sumTotal } from "./common";
+import { ITableHaveOrders } from "../pages/order/area/Area";
 
 export const getCategoryWFood = createAsyncThunk(
     'foods/getCategoryWFood',
@@ -12,7 +13,7 @@ export const getCategoryWFood = createAsyncThunk(
 )
 export interface IState {
     foods: IFoodSlice[];
-    foodsOrder :IFoodSlice[];
+    foodsOrder: ITableHaveOrders | undefined;
     order: IOrder[]
     categoryWFood: IMenu[];
     total: number;
@@ -20,7 +21,7 @@ export interface IState {
 }
 const initialState: IState = {
     foods: [],
-    foodsOrder:[],
+    foodsOrder: undefined,
     order: [],
     categoryWFood: [],
     total: 0,
@@ -47,10 +48,12 @@ const foodsSlice = createSlice({
                 state.foods.push(newFood)
                 state.total = sumTotal(state.foods)
             }
+            console.log("-------------New Food---------------", JSON.parse(JSON.stringify(state.foods)))
+
         },
         deleteOneFood: (state, action: PayloadAction<{ id: string }>) => {
-            const index = state.foods.find(item=>item.food._id === action.payload.id)
-            state.foods = state.foods.filter(item=>item.food._id !== index?.food._id)
+            const index = state.foods.find(item => item.food._id === action.payload.id)
+            state.foods = state.foods.filter(item => item.food._id !== index?.food._id)
             state.total = sumTotal(state.foods)
         },
         deleteFoodArr: (state) => {
@@ -61,7 +64,7 @@ const foodsSlice = createSlice({
         },
         setOpenModalConfirm: (state, action: PayloadAction<boolean>) => {
             state.openModalConfirm = action.payload
-            console.log("state.categoryWFood when click close board order", state.openModalConfirm);
+            // console.log("state.categoryWFood when click close board order", state.openModalConfirm);
         },
         increaseQuantity: (state, action: PayloadAction<{ _id: string }>) => {
             const index = state.foods.findIndex(item => item.food._id === action.payload._id);
@@ -77,9 +80,9 @@ const foodsSlice = createSlice({
             }
             state.total = sumTotal(state.foods)
         },
-        changeQuantityInput: (state, action: PayloadAction<{ _id: string, value:number }>) => {
+        changeQuantityInput: (state, action: PayloadAction<{ _id: string, value: number }>) => {
             const index = state.foods.findIndex(item => item.food._id === action.payload._id);
-            if (state.foods[index].quantity ) {
+            if (state.foods[index].quantity) {
                 state.foods[index].quantity = action.payload.value
                 state.foods[index].totalEachFood = state.foods[index].quantity * state.foods[index].food.revenue
             }
@@ -93,7 +96,94 @@ const foodsSlice = createSlice({
                 userName: action.payload.userName
             }
             state.order.push(newOrder)
-        }
+        },
+
+        setfoodsOrder: (state, action: PayloadAction<{ foodsOrder: ITableHaveOrders | undefined }>) => {
+            state.foodsOrder = action.payload.foodsOrder
+
+        },
+        addFoodInFoodsOrder: (state, action: PayloadAction<{ foodId: IFood, quantity: number, orderId: string }>) => {
+            const index = state.foodsOrder?.foods?.findIndex(item => item.foodId._id === action.payload.foodId._id)
+            if (index || index == 0) {
+                if (state.foodsOrder?.foods[index]) {
+                    state.foodsOrder.foods[index].quantity++
+                    state.foodsOrder.foods[index].totalEachFood = state.foodsOrder.foods[index].quantity * action.payload.foodId.revenue
+                    state.foodsOrder.subTotal = state.foodsOrder?.foods.reduce((acc, current) => {
+                        return acc + current.totalEachFood
+                    }, 0)
+                } else {
+                    const newFood = {
+                        foodId: action.payload.foodId,
+                        orderId: action.payload.orderId,
+                        quantity: action.payload.quantity,
+                        totalEachFood: action.payload.foodId.revenue
+                    }
+                    state.foodsOrder?.foods?.push(newFood)
+                    if (state.foodsOrder?.foods) {
+                        state.foodsOrder.subTotal = state.foodsOrder?.foods.reduce((acc, current) => {
+                            return acc + current.totalEachFood
+                        }, 0)
+                    }
+                }
+            } else {
+                console.log("Error addFoodInFoodsOrder ");
+            }
+        },
+        increaseQuantityOD: (state, action: PayloadAction<{ _id: string }>) => {
+            const index = state.foodsOrder?.foods?.findIndex(item => item.foodId._id === action.payload._id)
+            if (index || index == 0) {
+                if (state.foodsOrder?.foods[index]) {
+                    state.foodsOrder.foods[index].quantity++
+                    state.foodsOrder.foods[index].totalEachFood = state.foodsOrder.foods[index].quantity * state.foodsOrder.foods[index].foodId.revenue
+                    state.foodsOrder.subTotal = state.foodsOrder?.foods.reduce((acc, current) => {
+                        return acc + current.totalEachFood
+                    }, 0)
+                }
+            }
+        },
+        decreaseQuantityOD: (state, action: PayloadAction<{ _id: string }>) => {
+            const index = state.foodsOrder?.foods?.findIndex(item => item.foodId._id === action.payload._id)
+            if (index || index == 0) {
+                if (state.foodsOrder?.foods[index] && state.foodsOrder?.foods[index].quantity > 1) {
+                    state.foodsOrder.foods[index].quantity--
+                    state.foodsOrder.foods[index].totalEachFood -= state.foodsOrder.foods[index].foodId.revenue
+                    state.foodsOrder.subTotal = state.foodsOrder?.foods.reduce((acc, current) => {
+                        return acc + current.totalEachFood
+                    }, 0)
+
+                }
+            }
+        },
+        changeQuantityInputOD: (state, action: PayloadAction<{ _id: string, value: number }>) => {
+            const index = state.foodsOrder?.foods?.findIndex(item => item.foodId._id === action.payload._id)
+            if (index || index == 0) {
+                if (state.foodsOrder?.foods[index].quantity) {
+                    state.foodsOrder.foods[index].quantity = action.payload.value
+                    state.foodsOrder.foods[index].totalEachFood = state.foodsOrder.foods[index].quantity * state.foodsOrder.foods[index].foodId.revenue
+                    state.foodsOrder.subTotal = state.foodsOrder?.foods.reduce((acc, current) => {
+                        return acc + current.totalEachFood
+                    }, 0)
+
+                }
+
+            }
+        },
+        deleteOneFoodOD: (state, action: PayloadAction<{ id: string }>) => {
+            const index = state.foodsOrder?.foods?.find(item => item.foodId._id === action.payload.id)
+            if (index || index == 0) {
+                if (state.foodsOrder?.foods) {
+                    state.foodsOrder.foods = state.foodsOrder.foods.filter(item => item.foodId._id !== index.foodId._id)
+                    state.total = sumTotal(state.foods)
+                    state.foodsOrder.subTotal = state.foodsOrder?.foods.reduce((acc, current) => {
+                        return acc + current.totalEachFood
+                    }, 0)
+                }
+            }
+        },
+        // cancelUpdate: (state)=>{
+        //     state.foodsOrder
+            
+        // }
     },
     extraReducers: (builder) => {
         builder.addCase(getCategoryWFood.fulfilled, (state, action) => {
@@ -101,5 +191,5 @@ const foodsSlice = createSlice({
         })
     },
 })
-export const { createFoodArr, deleteFoodArr, deleteTotal, increaseQuantity, decreaseQuantity,changeQuantityInput, confirmOrder, setOpenModalConfirm,deleteOneFood } = foodsSlice.actions;
+export const { deleteOneFoodOD, changeQuantityInputOD, increaseQuantityOD, decreaseQuantityOD, setfoodsOrder, addFoodInFoodsOrder, createFoodArr, deleteFoodArr, deleteTotal, increaseQuantity, decreaseQuantity, changeQuantityInput, confirmOrder, setOpenModalConfirm, deleteOneFood } = foodsSlice.actions;
 export default foodsSlice.reducer

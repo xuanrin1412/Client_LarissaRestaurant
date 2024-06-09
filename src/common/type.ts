@@ -5,7 +5,7 @@ export interface IFood {
     picture: string,
     costPrice: number,
     revenue: number,
-    favourite: string,
+    favourite: boolean,
 }
 export interface IFoodSlice {
     food: IFood;
@@ -27,11 +27,11 @@ export interface IOrder {
 
 export interface IFoodInfoInFoodOrder {
     _id:string,
-    categoryId:string,
+    categoryId?:string,
     foodName:string,
-    description:string,
+    description?:string,
     picture:string,
     costPrice:number,
     revenue:number,
-    favourite:boolean,
+    favourite?:boolean,
 }

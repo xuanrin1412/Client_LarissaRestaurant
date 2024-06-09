@@ -4,13 +4,13 @@ import { ITableHaveOrders } from "../../area/Area";
 
 interface IFooterOrderBoard {
     handleConfirmOrder:()=>void,
-    takeOrderFromTable:ITableHaveOrders
+    FoodInOrder:ITableHaveOrders|undefined,
     data:IFoodSlice[] | undefined,
     total:number,
     subTotal:number|undefined,
 }
 
-const FooterOrderBoard = ({handleConfirmOrder,takeOrderFromTable,data,total,subTotal}:IFooterOrderBoard) => {
+const FooterOrderBoard = ({handleConfirmOrder,FoodInOrder,data,total,subTotal}:IFooterOrderBoard) => {
     return <div className="h-12 flex items-center justify-between">
         <span onClick={() => (document.getElementById('my_modal_1') as HTMLDialogElement).showModal()} className="mx-2 px-2 cursor-pointer">
             <MdOutlineReportProblem />
@@ -29,7 +29,7 @@ const FooterOrderBoard = ({handleConfirmOrder,takeOrderFromTable,data,total,subT
                 </div>
             </div>
         </dialog>
-        {takeOrderFromTable ? (
+        {FoodInOrder ? (
             <span className="cursor-pointer bg-primary h-full flex items-center px-2 border-l-2 border-black text-white">
                 Thanh Toán {subTotal}
             </span>

@@ -1,16 +1,23 @@
 import { IoClose } from "react-icons/io5";
 import { useEffect, useState } from "react";
-import { ITableHaveOrders } from "../area/Area";
 import 'react-toastify/dist/ReactToastify.css';
-import { apiCreateOrder } from "../../../API/api";
 import { IFoodSlice } from "../../../common/type";
+import { apiCreateOrder, apiUpdateFoods } from "../../../API/api";
 import FooterOrderBoard from "./child/FooterOrderBoard";
 import { useLocation, useNavigate } from "react-router-dom";
+import { IFoodsInOrder, ITableHaveOrders } from "../area/Area";
+import { UserAccount } from "../../../components/navbar/Navbar";
 import MenuOrderTable from "../../menuOrderTable/MenuOrderTable";
 import FoodsInOrderBoard from "../orderFood/child/FoodsInOrderBoard"
 import { RootState, useAppDispatch, useAppSelector } from "../../../Redux/store";
-import { decreaseQuantity, deleteFoodArr, increaseQuantity, setOpenModalConfirm } from "../../../Redux/foodsSlice";
-import { UserAccount } from "../../../components/navbar/Navbar";
+import { decreaseQuantity, decreaseQuantityOD, deleteFoodArr, increaseQuantity, increaseQuantityOD, setOpenModalConfirm, setfoodsOrder } from "../../../Redux/foodsSlice";
+
+// INTERACE FOR UPDATE 
+interface IOrderUpdates {
+    updated: Array<IFoodsInOrder & { quantityChange: number; addedQuantity: number; removedQuantity: number }>;
+    removed: IFoodsInOrder[];
+    added: IFoodsInOrder[];
+}
 
 function OrderFood() {
     const location = useLocation()
@@ -22,15 +29,61 @@ function OrderFood() {
     const { tableName } = location.state
     const { takeOrderFromTable } = location.state
 
-    // USESTATE
-    const [data, setData] = useState<IFoodSlice[] | undefined>()
-    const [dataOrderFoods, setDataOrderFoods] = useState<ITableHaveOrders>()
-
+    const [test, setTest] = useState<ITableHaveOrders | undefined>(takeOrderFromTable)
 
     // TAKE DATA FROM REDUX
-    const total: number = useAppSelector((state: RootState) => state.foods.total);
-    const foods: IFoodSlice[] = useAppSelector((state: RootState) => state.foods.foods);
-    const openModalConfirm: boolean = useAppSelector((state: RootState) => state.foods.openModalConfirm);
+    const total: number = useAppSelector((state: RootState) => state.total);
+    const foods: IFoodSlice[] = useAppSelector((state: RootState) => state.foods);
+    const openModalConfirm: boolean = useAppSelector((state: RootState) => state.openModalConfirm);
+    const FoodInOrder: ITableHaveOrders | undefined = useAppSelector((state: RootState) => state.foodsOrder);
+
+    const oldOrderFoods = test?.foods
+    const newOrderFoods = FoodInOrder?.foods
+    const orderId = FoodInOrder?.foods.find(item => item.orderId)?.orderId
+    console.log("orderId", orderId);
+
+    const totalOrder = FoodInOrder?.subTotal
+
+
+
+
+    const getOrdersFood = (oldOrderFoods: IFoodsInOrder[] | undefined, newOrderFoods?: IFoodsInOrder[] | undefined) => {
+        const updates: IOrderUpdates = {
+            updated: [],
+            removed: [],
+            added: [],
+        }
+        const newOrder = new Map(newOrderFoods?.map((item: IFoodsInOrder) => [item.foodId._id, item]))
+        const oldOrder = new Map(oldOrderFoods?.map((item: IFoodsInOrder) => [item.foodId._id, item]))
+
+        const allIds = new Set([...oldOrder.keys(), ...newOrder.keys()])
+        allIds.forEach((item) => {
+            const oldItem = oldOrder.get(item)
+            const newItem = newOrder.get(item)
+            if (!oldItem && newItem) {
+                // Món mới được thêm vào
+                updates.added.push(newItem);
+            } else if (oldItem && !newItem) {
+                // Món bị xóa hoàn toàn
+                updates.removed.push(oldItem);
+            } else if (oldItem && newItem && oldItem.quantity !== newItem.quantity) {
+                // Món đã tồn tại nhưng số lượng thay đổi
+                const quantityDifference = newItem.quantity - oldItem.quantity;
+                updates.updated.push({
+                    ...newItem,
+                    quantityChange: quantityDifference,
+                    addedQuantity: quantityDifference > 0 ? quantityDifference : 0,
+                    removedQuantity: quantityDifference < 0 ? -quantityDifference : 0,
+                });
+            }
+        });
+        return updates;
+    }
+
+    console.log("===========================================================")
+
+    // USESTATE
+    const [data, setData] = useState<IFoodSlice[]>()
 
     // TAKE OUT USER ACCOUNT
     const userAccountString = localStorage.getItem("larissa_userInfo");
@@ -53,17 +106,24 @@ function OrderFood() {
 
     // HANDLE INCREASE AND DECREASE QUANTITY
     const handleIncreaseQuantity = (_id: string) => {
-        dispatch(increaseQuantity({ _id }))
+        if (FoodInOrder) {
+            dispatch(increaseQuantityOD({ _id }))
+        } else {
+            dispatch(increaseQuantity({ _id }))
+        }
     }
     const handleDecreaseQuantity = (_id: string) => {
-        dispatch(decreaseQuantity({ _id }))
+        if (FoodInOrder) {
+            dispatch(decreaseQuantityOD({ _id }))
+        } else {
+            dispatch(decreaseQuantity({ _id }))
+        }
     }
 
     // HANDLE CONFIRM ORDER
     const handleConfirmOrder = async () => {
         await apiCreateOrder(userAccount?.id, tableId, foodForApi)
             .then(res => {
-                console.log("handleConfirmOrder res", res);
                 if (res.status == 200) {
                     dispatch(deleteFoodArr())
                     navigate("/order")
@@ -74,6 +134,31 @@ function OrderFood() {
             })
     }
 
+    const [updateOrders, setUpdateOrders] = useState<IOrderUpdates>()
+    console.log("updateOrders remove", updateOrders?.removed.map(item => item.foodId._id));
+    const listIdRemoveFoods = updateOrders?.removed.map(item => item.foodId._id)
+    console.log("update quan", updateOrders?.updated.map(item => {
+        return { foodInfo: item.foodId, quan: item.quantity, totalEachFood: item.totalEachFood }
+    }));
+
+    const listUpdateQuanFoods = updateOrders?.updated.map(item => {
+        return { foodInfo: item.foodId, quan: item.quantity,totalEachFood:item.totalEachFood }
+    })
+
+    // HANDLE UPDATE FOODS
+    const handleUpdateFoods = async () => {
+    
+        await apiUpdateFoods(orderId, listIdRemoveFoods, newOrderFoods,listUpdateQuanFoods,totalOrder)
+            .then(res => {
+                console.log("res apiUpdateFoods  ", res);
+            })
+            .catch(error => {
+                console.log(error);
+            })
+    }
+
+
+
     // HANDLE CLOSE BOARD ORDER
     const handleCloseBoardOrder = () => {
         if (foods.length > 0) {
@@ -81,19 +166,42 @@ function OrderFood() {
         } else {
             navigate("/order");
             dispatch(deleteFoodArr());
+            dispatch(setfoodsOrder({ foodsOrder: undefined }))
         }
     };
     const handleCloseModalConfirm = () => {
         dispatch(setOpenModalConfirm(false))
     }
     //
+
+
+
+    const [toggleNotiUpdate, setToggleNotiUpdate] = useState<boolean>(false)
+    const [showBtnFix, setShowBtnFix] = useState<boolean>(false)
+
     useEffect(() => {
+        const handleUpdate = () => {
+            const updates = getOrdersFood(oldOrderFoods, newOrderFoods)
+            const updateDetails = {
+                added: updates.added,
+                removed: updates.removed,
+                updated: updates.updated
+            };
+            setUpdateOrders(updateDetails)
+            if (updateDetails?.added.length !== 0 || updateDetails?.removed.length !== 0 || updateDetails?.updated.length !== 0) {
+                setShowBtnFix(true)
+            } else if (updateDetails?.added.length === 0 && updateDetails?.removed.length === 0 && updateDetails?.updated.length === 0) {
+                setShowBtnFix(false)
+            }
+        }
+        handleUpdate()
+
         if (takeOrderFromTable) {
-            setDataOrderFoods(takeOrderFromTable)
-        } else {
+            setTest(takeOrderFromTable)
+        }
+        if (foods) {
             setData(foods)
         }
-
         // HANDLE BACK BUTTON ON BROWSER 
         const handlePopstate = () => {
             if (foods.length > 0) {
@@ -105,11 +213,11 @@ function OrderFood() {
             }
         };
         window.addEventListener("popstate", handlePopstate);
+
         return () => {
             window.removeEventListener("popstate", handlePopstate);
         };
-    }, [foods, total, takeOrderFromTable, navigate, dispatch]);
-
+    }, [foods, total, navigate, dispatch, takeOrderFromTable, newOrderFoods, oldOrderFoods]);
 
     return <div className="relative flex w-full  ">
         <div className="flex-1">
@@ -121,7 +229,7 @@ function OrderFood() {
                     <div className="h-10 flex  items-center justify-between border-b-2 border-black bg-primary text-white">
                         <div className="ml-4">
                             <span>{tableName}</span>
-                            <span> - NV: {userAccount?.userName}</span>
+                            <span> - NV: {FoodInOrder?.userId.userName ? FoodInOrder?.userId.userName : userAccount?.userName}</span>
                         </div>
                         <span
                             onClick={() => handleCloseBoardOrder()}
@@ -131,61 +239,48 @@ function OrderFood() {
                         </span>
                     </div>
                     <div className="flex-1 overflow-y-scroll">
-                        {dataOrderFoods?.foods.map((item, index) => (
-                            <>
-                                <FoodsInOrderBoard
-                                    key={index}
-                                    keyFoodsInOrderBoard={index}
-                                    no={index + 1}
-                                    _id={item.foodId._id}
-                                    foodName={item.foodId.foodName}
-                                    onClickIncrease={() => handleIncreaseQuantity(item.foodId._id)}
-                                    onClickDecrease={() => handleDecreaseQuantity(item.foodId._id)}
-                                    itemQuantity={item.quantity}
-                                    totalEachFood={item.totalEachFood}
-                                />
-
-
-                            </>
-
-                        ))}
-                        {dataOrderFoods?.tableId == tableId && <div className="flex border-b group border-b-1 items-center min-h-12 hover:bg-gray-100">
-                            <span className="px-3">1</span>
-                            <span className="flex-1 max-w-[125px] py-2">tét</span>
-                            <div className="flex items-center">
-                                <span className="hover:bg-gray-200 h-7 w-7 cursor-pointer flex items-center justify-center">+</span>
-                                <input min={1} className="h-7 border w-9 flex items-center justify-center px-2" type="number" />
-                                {/* <input type="number" value={quan}  onChange={(e:React.ChangeEvent<HTMLInputElement>)=>setQuan(e.target.value)} /> */}
-                                <span className="hover:bg-gray-200 h-7 w-7 cursor-pointer flex items-center justify-center">-</span>
-                            </div>
-                            <span className="pl-5  min-w-[65px]">342432432432</span>
-                            <span title="Delete" className="pl-3  group-hover:cursor-pointer  invisible group-hover:visible h-12 flex items-center"><IoClose /></span>
-                        </div>}
-                        {data?.map((item, index) => (
+                        {FoodInOrder && <>{FoodInOrder?.foods?.map((item, index) => (
+                            <FoodsInOrderBoard
+                                key={index}
+                                keyFoodsInOrderBoard={index}
+                                no={index + 1}
+                                _id={item.foodId._id}
+                                FoodInOrder={FoodInOrder}
+                                foodName={item.foodId.foodName}
+                                onClickIncrease={() => handleIncreaseQuantity(item.foodId._id)}
+                                onClickDecrease={() => handleDecreaseQuantity(item.foodId._id)}
+                                itemQuantity={item.quantity}
+                                totalEachFood={item.totalEachFood}
+                            />
+                        ))}</>}
+                        {data && <> {data?.map((item, index) => (
                             <FoodsInOrderBoard
                                 key={index}
                                 keyFoodsInOrderBoard={index}
                                 no={index + 1}
                                 _id={item.food._id}
+                                FoodInOrder={FoodInOrder}
                                 foodName={item.food.foodName}
                                 onClickIncrease={() => handleIncreaseQuantity(item.food._id)}
                                 onClickDecrease={() => handleDecreaseQuantity(item.food._id)}
                                 itemQuantity={item.quantity}
                                 totalEachFood={item.totalEachFood}
                             />
-                        ))}
+                        ))}</>}
+
+
                     </div>
-                    {/* <button className="bg-primary w-fit text-left text-white py-2 px-4">Fix</button> */}
+                    {showBtnFix && <button onClick={() => setToggleNotiUpdate(true)} className="bg-primary w-fit text-left text-white py-2 px-4">Update Order !</button>}
                     <div className="border-y-2  border-black flex justify-start p-2 ">
                         <span className="mr-2">Note:</span>
                         <textarea placeholder="Enter Note..." className=" flex-1 min-h-12 outline-none"></textarea>
                     </div>
                     <FooterOrderBoard
                         handleConfirmOrder={() => handleConfirmOrder()}
-                        takeOrderFromTable={takeOrderFromTable}
+                        FoodInOrder={FoodInOrder}
                         data={data}
                         total={total}
-                        subTotal={dataOrderFoods?.subTotal}
+                        subTotal={FoodInOrder ? FoodInOrder.subTotal : total}
                     />
                 </div>
             </div>
@@ -210,6 +305,73 @@ function OrderFood() {
                         <span onClick={() => {
                             handleCloseModalConfirm()
                         }} className="py-2 px-4 border-2  border-black hover:bg-primary hover:text-white">No</span>
+                    </div>
+                </div>
+            </div>
+        </div>}
+
+        {toggleNotiUpdate && <div className=" z-50 absolute top-0 left-0 h-screen w-full ">
+            <div
+                className=" fixed h-full w-full bg-black bg-opacity-50 flex items-center justify-center ">
+                <div data-aos="fade-down" className=" relative max-w-80 min-w-80 bg-white p-8 flex flex-col border-2 border-black">
+                    <div
+                        onClick={() => {
+                            setToggleNotiUpdate(false)
+                        }}
+                        className=" absolute top-2 right-2 p-1 hover:bg-gray-200"><IoClose style={{ height: 20, width: 20 }} /></div>
+                    <div className="font-bold text-xl mb-2">Xác nhận cập nhật Order </div>
+                    <div>
+                        {/* Thêm món mới */}
+                        {updateOrders?.added.length !== 0 &&
+                            <div className="mb-4">
+                                <div className="font-bold">Thêm món mới</div>
+                                {updateOrders?.added.map((item, index) => (
+                                    <div key={index} className="flex justify-between">
+                                        <div>{item.foodId.foodName}</div>
+                                        {item.quantity > 0 ? <div> +{item.quantity}</div> : ""}
+                                    </div>
+                                ))}
+                            </div>
+                        }
+                        {/* Chỉnh số lượng */}
+                        {updateOrders?.updated.length !== 0 &&
+                            <div className="mb-4">
+                                <div className="font-bold">Chỉnh số lượng</div>
+                                {updateOrders?.updated.map((item, index) => (
+                                    <div key={index} className="flex justify-between">
+                                        <div>{item.foodId.foodName}</div>
+                                        {item.addedQuantity > 0 ? <div>+{item.addedQuantity}</div> : ""}
+                                        {item.removedQuantity > 0 ? <div>-{item.removedQuantity}</div> : ""}
+                                    </div>
+                                ))}
+                            </div>
+                        }
+                        {/* Remove */}
+                        {updateOrders?.removed.length !== 0 &&
+                            <div className="mb-4">
+                                <div className="font-bold">Hủy món</div>
+                                {updateOrders?.removed.map((item, index) => (
+                                    <div key={index} className="flex justify-between">
+                                        <div>{item.foodId.foodName}</div>
+                                        <div>-{item.quantity}</div>
+                                    </div>
+                                ))}
+                            </div>
+                        }
+                    </div>
+                    <div className="flex w-full justify-between">
+                        <span onClick={() => {
+                            // navigate("/order");
+                            // dispatch(deleteFoodArr());
+                            console.log("newOrderFoods==================>", newOrderFoods);
+                            handleUpdateFoods()
+
+                        }} className="py-2 px-4 border-2 border-black hover:bg-primary hover:text-white">Xác nhận</span>
+                        <span onClick={() => {
+                            setToggleNotiUpdate(false)
+                            dispatch(setfoodsOrder({ foodsOrder: takeOrderFromTable }))
+
+                        }} className="py-2 px-4 border-2  border-black hover:bg-primary hover:text-white">Hủy cập nhật</span>
                     </div>
                 </div>
             </div>

@@ -518,3 +518,17 @@ input[type=number] {
         transform: scale(1);
     }
 }
+
+
+
+
+.borderr{
+    clip-path: polygon(50% 0%, 0 58%, 100% 59%);
+}
+
+.text-stroke{
+    -webkit-text-stroke-width: 1.5px;
+    -webkit-text-stroke-color: rgb(0, 0, 0);
+}
+
+

@@ -2,10 +2,12 @@
 import { IoClose } from "react-icons/io5";
 import { useDispatch } from "react-redux";
 import { useEffect, useState } from "react";
-import { changeQuantityInput, deleteOneFood } from "../../../../Redux/foodsSlice";
+import { changeQuantityInput, changeQuantityInputOD, deleteOneFood, deleteOneFoodOD } from "../../../../Redux/foodsSlice";
+import { ITableHaveOrders } from "../../area/Area";
 interface IFoodsInOrderBoard {
     key: number,
     keyFoodsInOrderBoard: number
+    FoodInOrder:ITableHaveOrders|undefined
     no: number,
     _id: string,
     foodName: string,
@@ -14,12 +16,15 @@ interface IFoodsInOrderBoard {
     itemQuantity: number | undefined,
     totalEachFood: number,
 }
-function FoodsInOrderBoard({ keyFoodsInOrderBoard, _id, itemQuantity, no, foodName, onClickIncrease, onClickDecrease, totalEachFood }: IFoodsInOrderBoard) {
+function FoodsInOrderBoard({FoodInOrder, keyFoodsInOrderBoard, _id, itemQuantity, no, foodName, onClickIncrease, onClickDecrease, totalEachFood }: IFoodsInOrderBoard) {
     const dispatch = useDispatch()
     const handleDeleteOneFood = (id: string) => {
         console.log("in handleDeleteOneFood");
-        
-        dispatch(deleteOneFood({ id }))
+        if(FoodInOrder){
+            dispatch(deleteOneFoodOD({ id }))
+        }else{
+            dispatch(deleteOneFood({ id }))
+        }
     }
     const [quan, setQuan] = useState<string>(itemQuantity !== undefined ? String(itemQuantity) : "");
     
@@ -27,13 +32,21 @@ function FoodsInOrderBoard({ keyFoodsInOrderBoard, _id, itemQuantity, no, foodNa
         const value = e.target.value;
         setQuan(value);
         const numericValue = value === "" ? 1 : Number(value);
-        dispatch(changeQuantityInput({ _id, value: numericValue }));
+        if(FoodInOrder){
+            dispatch(changeQuantityInputOD({ _id, value: numericValue }));
+        }else{
+            dispatch(changeQuantityInput({ _id, value: numericValue }));
+        }
     };
 
     const handleBlur = () => {
         if (quan === "") {
             setQuan("1");
-            dispatch(changeQuantityInput({ _id, value: 1 }));
+            if(FoodInOrder){
+                dispatch(changeQuantityInputOD({ _id, value: 1 }));
+            }else{
+                dispatch(changeQuantityInput({ _id, value: 1 }));
+            }
         }
     };
 

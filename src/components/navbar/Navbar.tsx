@@ -1,13 +1,14 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { RootState, useAppSelector } from "../../Redux/store";
+import { setOpenModalConfirm } from "../../Redux/foodsSlice";
+import { scrollCategoryBar } from "../../utils/scrollToTop";
 import { FaUser } from "react-icons/fa";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { RootState, useAppSelector } from "../../Redux/store";
 import { IFoodSlice } from "../../common/type";
-import { setOpenModalConfirm } from "../../Redux/foodsSlice";
 import { Logo } from "../../assets/Logo";
 import { IoNotificationsSharp } from "react-icons/io5";
-import { scrollCategoryBar } from "../../utils/scrollToTop";
+
 
 export interface UserAccount {
     id: string,
@@ -20,9 +21,10 @@ const Navbar: React.FC = () => {
     const pathname = location.pathname;
     const dispatch = useDispatch();
     const navigate = useNavigate()
-    const foods: IFoodSlice[] = useAppSelector((state: RootState) => state.foods.foods);
+    const foods: IFoodSlice[] = useAppSelector((state: RootState) => state.foods);
     const [showCategoryBar, setShowCategoryBar] = useState<boolean>(false);
-    
+    const [toggleNoti, setToggleNoti] = useState<boolean>(false)
+
     const handleClickMenuWhenHaveFoods = () => {
         if (foods.length > 0) {
             dispatch(setOpenModalConfirm(true))
@@ -38,6 +40,7 @@ const Navbar: React.FC = () => {
             navigate("/account");
         }
     }
+
     const handleClickOrderWhenHaveFoods = () => {
         if (foods.length > 0) {
             dispatch(setOpenModalConfirm(true))
@@ -62,7 +65,7 @@ const Navbar: React.FC = () => {
         return () => {
             window.removeEventListener("scroll", handleScroll);
         };
-    }, [showCategoryBar,userAccount]);
+    }, [showCategoryBar, userAccount]);
 
     if ((userAccount?.role === "moderator" || userAccount?.role === "user") && pathname === "/manager") {
         navigate("/404");
@@ -97,7 +100,7 @@ const Navbar: React.FC = () => {
                 {userAccount?.role == "admin" ? <div className={`${pathname === "/manager" ? "text-red-500 font-bold justify-center" : ""}`}>
                     <Link to="/manager">Manager</Link>
                 </div> : ""}
-                {userAccount?.role === "admin" || userAccount?.role === "moderator"  ? (
+                {userAccount?.role === "admin" || userAccount?.role === "moderator" ? (
                     <div className={`${pathname === "/order" ? "text-red-500 font-bold" : ""}`}>
                         <div onClick={() => handleClickOrderWhenHaveFoods()
                         }>Order</div>
@@ -126,16 +129,32 @@ const Navbar: React.FC = () => {
                         </div>
                     </div> : ""}
                 {userAccount?.role === "admin" || userAccount?.role === "moderator" ? (
-                    <div className={`${pathname === "/notify" ? "text-red-500 font-bold" : ""}`}>
-                        <div className="relative">
+                    <div className={`relative ${pathname === "/notify" ? "text-red-500 font-bold" : ""}`}>
+                        <div onClick={() => setToggleNoti(!toggleNoti)} className="relative">
                             <span className="text-2xl"><IoNotificationsSharp /></span>
                             <span className="absolute -top-1 -right-[6px] flex h-4 w-4  items-center justify-center">
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00D2FF] opacity-75"></span>
                                 <span className="relative inline-flex rounded-full h-3 w-3 bg-[#00D2FF]"></span>
                             </span>
                         </div>
+                        {toggleNoti &&
+                            <div className=" absolute top-[49px] -left-12">
+                                <div className=" relative text-black w-fit bg-white border-2 rounded-2xl border-black">
+                                    <div className=" absolute -top-[10px] left-[51px] borderr h-4 w-4 bg-black"></div>
+                                    <div className="text-[17px] px-4 py-2 font-bold text-black text-center bg-white border-b-2 rounded-t-[14px] border-black">Thông báo</div>
+                                    <div className="">
+                                        <div className="text-[15px] px-4 py-2 border hover:bg-gray-200  text-nowrap"><span className=" font-bold text-blue-600">Xuân Rin</span> vừa order bàn 3</div>
+                                        <div className="text-[15px] px-4 py-2 border hover:bg-gray-200   text-nowrap"> <span className="font-bold  text-red-600">Quốc Anh</span> vừa hủy order bàn 4</div>
+                                        <div className="text-[15px] px-4 py-2 border hover:bg-gray-200   text-nowrap"><span className="font-bold  text-blue-500">Sam </span> vừa order bàn 6</div>
+                                        <div className="text-[15px] px-4 py-2 border hover:bg-gray-200   text-nowrap  rounded-b-[14px]"><span className="font-bold  text-red-600">Sam </span> vừa order bàn 9 </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        }
                     </div>
                 ) : null}
+
                 {userAccount?.userName ?
                     ""
                     :

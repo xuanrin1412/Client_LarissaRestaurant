@@ -6,8 +6,8 @@ function BannerIntro() {
                 <div data-aos="fade-up" className=" mt-40 text-center">
                     <div className=" font-josefin font-bold text-[85px] introTexShadow  text-white ">Let us take<br></br>  you on a culinary journey </div>
                     <div className=" mt-6 font-bold flex justify-center space-x-8">
-                        <div className=" hover:bg-red-700 hover:text-white text-white border-2 border-white p-3 px-6">Discover Now</div>
-                        <div className=" bg-red-700 text-white border-2 border-white p-3 px-6">Book A Table</div>
+                        <a href="/menu" className=" hover:bg-red-700 hover:text-white text-white border-2 border-white p-3 px-6 rounded-3xl">Discover Now</a>
+                        <a href="/book-a-table" className=" bg-red-700 text-white border-2 border-white p-3 px-6 rounded-3xl">Book A Table</a>
                     </div>
                 </div>
             </h1>

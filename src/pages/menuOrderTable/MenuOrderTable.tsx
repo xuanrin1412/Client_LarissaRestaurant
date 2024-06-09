@@ -2,17 +2,35 @@ import { useEffect, useState } from "react";
 import { IoIosSearch } from "react-icons/io";
 import { useLocation } from "react-router-dom";
 import { IFood, IMenu } from "../../common/type";
-import { createFoodArr, getCategoryWFood } from "../../Redux/foodsSlice";
+import {  ITableHaveOrders } from "../order/area/Area";
 import { RootState, useAppDispatch, useAppSelector } from "../../Redux/store";
+import { addFoodInFoodsOrder, createFoodArr, getCategoryWFood } from "../../Redux/foodsSlice";
 
 function MenuOrderTable() {
     const param = useLocation()
     const dispatch = useAppDispatch();
+    // const location = useLocation()
+    // const { takeOrderFromTable } = location.state
+    // console.log("=====",takeOrderFromTable);
+    
     const [menuActive, setMenuActive] = useState<boolean>(false)
-    const categoryWFood: IMenu[] = useAppSelector((state: RootState) => state.foods.categoryWFood);
+    const categoryWFood: IMenu[] = useAppSelector((state: RootState) => state.categoryWFood);
+
+
+    const FoodInOrder: ITableHaveOrders|undefined  = useAppSelector((state: RootState) => state.foodsOrder);
+    // console.log("=============take data OrderFoods in Redux  menu=========",FoodInOrder);
+    const takeOrderID = FoodInOrder?.foods?.find(item=>item.orderId)?.orderId
+    // console.log("testtttt",takeOrderID);
+    
+    
     const handleClick = (food: IFood) => {
-        if (param.pathname !== "/menuOrderTable") {
-            dispatch(createFoodArr({ food, quantity: 1 }))
+        if (param.pathname !== "/menuOrderTable" && !takeOrderID) {
+            console.log("-------add food to New order---------");
+            return dispatch(createFoodArr({ food, quantity: 1 }))
+        }
+        if(FoodInOrder && takeOrderID){
+            console.log("-------add food to Old order---------");
+           return dispatch(addFoodInFoodsOrder({foodId:food, orderId:takeOrderID,quantity:1}))
         }
     }
     useEffect(() => {
@@ -22,7 +40,7 @@ function MenuOrderTable() {
         dispatch(getCategoryWFood())
     }, [dispatch, menuActive, param.pathname])
 
-    return <div className=" mt-header mx-4 lg:mx-10">
+    return <div className=" my-header mx-4 lg:mx-10">
         <div className="pt-5">
             <div className=" bg-primary border border-black rounded-lg  w-10/11 lg:w-2/3 mx-auto flex items-center justify-center">
                 <input className="flex-1 h-10 rounded-l-lg px-4" type="text" placeholder="enter food name" />
