@@ -4,10 +4,11 @@ import { useDispatch } from "react-redux";
 import { useEffect, useState } from "react";
 import { changeQuantityInput, changeQuantityInputOD, deleteOneFood, deleteOneFoodOD } from "../../../../Redux/foodsSlice";
 import { ITableHaveOrders } from "../../area/Area";
+import { formatCurrency } from "../../../../utils/formartCurrency";
 interface IFoodsInOrderBoard {
     key: number,
     keyFoodsInOrderBoard: number
-    FoodInOrder:ITableHaveOrders|undefined
+    FoodInOrder: ITableHaveOrders | undefined
     no: number,
     _id: string,
     foodName: string,
@@ -16,25 +17,25 @@ interface IFoodsInOrderBoard {
     itemQuantity: number | undefined,
     totalEachFood: number,
 }
-function FoodsInOrderBoard({FoodInOrder, keyFoodsInOrderBoard, _id, itemQuantity, no, foodName, onClickIncrease, onClickDecrease, totalEachFood }: IFoodsInOrderBoard) {
+function FoodsInOrderBoard({ FoodInOrder, keyFoodsInOrderBoard, _id, itemQuantity, no, foodName, onClickIncrease, onClickDecrease, totalEachFood }: IFoodsInOrderBoard) {
     const dispatch = useDispatch()
     const handleDeleteOneFood = (id: string) => {
         console.log("in handleDeleteOneFood");
-        if(FoodInOrder){
+        if (FoodInOrder) {
             dispatch(deleteOneFoodOD({ id }))
-        }else{
+        } else {
             dispatch(deleteOneFood({ id }))
         }
     }
     const [quan, setQuan] = useState<string>(itemQuantity !== undefined ? String(itemQuantity) : "");
-    
+
     const handleChangeQuantityInput = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         setQuan(value);
         const numericValue = value === "" ? 1 : Number(value);
-        if(FoodInOrder){
+        if (FoodInOrder) {
             dispatch(changeQuantityInputOD({ _id, value: numericValue }));
-        }else{
+        } else {
             dispatch(changeQuantityInput({ _id, value: numericValue }));
         }
     };
@@ -42,9 +43,9 @@ function FoodsInOrderBoard({FoodInOrder, keyFoodsInOrderBoard, _id, itemQuantity
     const handleBlur = () => {
         if (quan === "") {
             setQuan("1");
-            if(FoodInOrder){
+            if (FoodInOrder) {
                 dispatch(changeQuantityInputOD({ _id, value: 1 }));
-            }else{
+            } else {
                 dispatch(changeQuantityInput({ _id, value: 1 }));
             }
         }
@@ -63,8 +64,8 @@ function FoodsInOrderBoard({FoodInOrder, keyFoodsInOrderBoard, _id, itemQuantity
             {/* <input type="number" value={quan}  onChange={(e:React.ChangeEvent<HTMLInputElement>)=>setQuan(e.target.value)} /> */}
             <span onClick={() => onClickDecrease()} className="hover:bg-gray-200 h-7 w-7 cursor-pointer flex items-center justify-center">-</span>
         </div>
-        <span className="pl-5  min-w-[65px]">{totalEachFood}</span>
-        <span onClick={() => handleDeleteOneFood(_id)} title="Delete" className="pl-3  group-hover:cursor-pointer  invisible group-hover:visible h-12 flex items-center"><IoClose /></span>
+        <span className="flex-1 text-right">{formatCurrency(totalEachFood)}</span>
+        <span onClick={() => handleDeleteOneFood(_id)} title="Delete" className="pl-3  group-hover:cursor-pointer  invisible group-hover:visible h-12 w-10 flex items-center"><IoClose /></span>
     </div>
 }
 

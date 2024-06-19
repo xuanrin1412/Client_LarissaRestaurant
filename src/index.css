@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+body.modal-open {
+    overflow: hidden;
+}
+
 .bg-shadow {
     box-shadow: 0 0px 10px white;
 }
@@ -435,8 +439,8 @@ input[type=number] {
 .card {
     display: flex;
     flex-direction: row;
-    height: 30px; 
-   width: 350px;
+    height: 30px;
+    width: 350px;
 }
 
 .card svg {
@@ -466,8 +470,9 @@ input[type=number] {
     transition: 0.25s;
     border-radius: 50px;
     height: 50px;
-    width:  50px;
+    width: 50px;
 }
+
 .card svg {
     transform: scale(1);
 }
@@ -522,13 +527,11 @@ input[type=number] {
 
 
 
-.borderr{
+.borderr {
     clip-path: polygon(50% 0%, 0 58%, 100% 59%);
 }
 
-.text-stroke{
+.text-stroke {
     -webkit-text-stroke-width: 1.5px;
     -webkit-text-stroke-color: rgb(0, 0, 0);
 }
-
-

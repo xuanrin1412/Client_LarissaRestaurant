@@ -33,12 +33,13 @@ export interface IFoodsInOrder {
 }
 
 export interface ITableHaveOrders {
+    createdAt:string,
     userId: IUserInfo,
     tableId: string,
-    subTotal: number|undefined,
+    subTotal: number | undefined,
     status: string,
     foods: IFoodsInOrder[],
-    note?:string
+    note?: string | undefined
 }
 
 function Area() {
@@ -53,7 +54,7 @@ function Area() {
         ))
         if (takeOrderFromTable) {
             dispatch(setfoodsOrder({ foodsOrder: takeOrderFromTable }))
-            navigate(`/order/${tableName}`, { state: { tableId, tableName,takeOrderFromTable } });
+            navigate(`/order/${tableName}`, { state: { tableId, tableName, takeOrderFromTable } });
         } else {
             navigate(`/order/${tableName}`, { state: { tableId, tableName } });
         }
@@ -64,12 +65,16 @@ function Area() {
         const takeOutFood = tablesHaveOrders.find(item => (
             item.tableId === tableId
         ))
+        const totalFood = takeOutFood?.foods.reduce((acc, current) => {
+            return acc + current.quantity
+        }, 0)
+
         if (takeOutFood) {
             return <>
-             <div className=" absolute -top-3 -right-2 bg-red-500 border-2 border-black text-white font-medium h-6  rounded-lg flex items-center justify-center text-sm space-x-2 px-4 py-[14px]">
-                <span>{takeOutFood.subTotal}K</span>
-                <span>({takeOutFood.foods.length})</span>
-            </div>
+                <div className=" absolute -top-3 -right-2 bg-red-500 border-2 border-black text-white font-medium h-6  rounded-lg flex items-center justify-center text-sm space-x-2 px-4 py-[14px]">
+                    <span>{takeOutFood.subTotal}K</span>
+                    <span>({totalFood})</span>
+                </div>
                 {/* <div className=" absolute -top-3 -left-2 bg-[#0b2b6b] border-2 border-black text-white font-medium h-6  rounded-lg flex items-center justify-center text-sm space-x-2 px-4 py-[14px]">
                     <span>Reserved</span>
                 </div> */}
@@ -92,7 +97,7 @@ function Area() {
         });
 
         socket.on('area_with_table', (areaWithTable) => {
-            // console.log("area_with_table===============", areaWithTable);
+            console.log("area_with_table===============", areaWithTable);
         });
         return () => {
             socket.off('all_orders');

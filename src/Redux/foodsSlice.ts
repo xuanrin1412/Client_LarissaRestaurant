@@ -18,6 +18,7 @@ export interface IState {
     categoryWFood: IMenu[];
     total: number;
     openModalConfirm: boolean
+    openModalPayment: boolean
 }
 const initialState: IState = {
     foods: [],
@@ -25,7 +26,8 @@ const initialState: IState = {
     order: [],
     categoryWFood: [],
     total: 0,
-    openModalConfirm: false
+    openModalConfirm: false,
+    openModalPayment:false
 
 };
 const foodsSlice = createSlice({
@@ -64,7 +66,9 @@ const foodsSlice = createSlice({
         },
         setOpenModalConfirm: (state, action: PayloadAction<boolean>) => {
             state.openModalConfirm = action.payload
-            // console.log("state.categoryWFood when click close board order", state.openModalConfirm);
+        },
+        setOpenModalPayment: (state, action: PayloadAction<boolean>) => {
+            state.openModalPayment = action.payload
         },
         increaseQuantity: (state, action: PayloadAction<{ _id: string }>) => {
             const index = state.foods.findIndex(item => item.food._id === action.payload._id);
@@ -191,5 +195,5 @@ const foodsSlice = createSlice({
         })
     },
 })
-export const { deleteOneFoodOD, changeQuantityInputOD, increaseQuantityOD, decreaseQuantityOD, setfoodsOrder, addFoodInFoodsOrder, createFoodArr, deleteFoodArr, deleteTotal, increaseQuantity, decreaseQuantity, changeQuantityInput, confirmOrder, setOpenModalConfirm, deleteOneFood } = foodsSlice.actions;
+export const { deleteOneFoodOD, changeQuantityInputOD,setOpenModalPayment, increaseQuantityOD, decreaseQuantityOD, setfoodsOrder, addFoodInFoodsOrder, createFoodArr, deleteFoodArr, deleteTotal, increaseQuantity, decreaseQuantity, changeQuantityInput, confirmOrder, setOpenModalConfirm, deleteOneFood } = foodsSlice.actions;
 export default foodsSlice.reducer

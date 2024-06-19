@@ -14,6 +14,7 @@ import NotFount from "./pages/404/NotFount";
 import BookATable from "./pages/bookATable/BookATable";
 import Menu from "./pages/menu/Menu";
 import Home from "./pages/home/Home";
+// import HomePageForUSer from "./utils/homePageforUser";
 
 function App() {
 
@@ -36,7 +37,9 @@ function App() {
               <Route key={link.link} path={link.link} element={link.element} />
             ))}
           </Route>
-          <Route path='/' element={<Home />} />
+          {/* <Route element={<HomePageForUSer />}> */}
+            <Route path='/' element={<Home />} />
+          {/* </Route> */}
           <Route path='/login' element={<Login />} />
           <Route path='/register' element={<Register />} />
           <Route path='/account' element={<Account />} />

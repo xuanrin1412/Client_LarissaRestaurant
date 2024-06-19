@@ -36,8 +36,16 @@ export const apiGetFoodInfo = (id: string) => {
 }
 
 // CREATE ORDER
-export const apiCreateOrder = (userId: string | undefined, tableId: string | undefined, foods: result[]) => {
-    const payload = { tableId, userId, foods }
+interface ICreateOrder {
+    userId: string | undefined,
+    tableId: string | undefined
+    note: string | undefined,
+    foods: result[]
+}
+
+export const apiCreateOrder = ({ userId, tableId, note, foods }: ICreateOrder) => {
+    const payload = { tableId, userId, note, foods }
+    console.log("payload===============>", payload);
     return axios.post(`${baseUrl}/order_food/`, payload, { withCredentials: true })
 }
 
@@ -57,22 +65,51 @@ export const apiGetUserInfo = (id: string | undefined) => {
 }
 
 // UPDATE FOODS
-export const apiUpdateFoods = (
+interface IapiUpdateFoods {
     id: string | undefined,
     listIdRemoveFoods: string[] | undefined,
     newOrderFoods: IFoodsInOrder[] | undefined,
     listUpdateQuanFoods: {
         foodInfo: IFoodInfoInFoodOrder;
         quan: number;
-        totalEachFood:number
+        totalEachFood: number
     }[] | undefined,
-    totalOrder: number | undefined
-) => {
-    return axios.put(`${baseUrl}/order_food/findOrder/${id}`, { totalOrder,listIdRemoveFoods, newOrderFoods, listUpdateQuanFoods }, { withCredentials: true })
+    totalOrder: number | undefined,
+}
+export const apiUpdateFoods = ({ id, listIdRemoveFoods, newOrderFoods, listUpdateQuanFoods, totalOrder }: IapiUpdateFoods) => {
+    return axios.put(`${baseUrl}/order_food/findOrder/${id}`,
+        { totalOrder, listIdRemoveFoods, newOrderFoods, listUpdateQuanFoods },
+        { withCredentials: true })
 }
 
 
+// UPDATE NOTE 
+interface IapiUpdateNote {
+    id: string | undefined,
+    note: string | undefined
+}
+export const apiUpdateNote = ({ id, note }: IapiUpdateNote) => {
+    return axios.put(`${baseUrl}/order_food/findOrderNote/${id}`,
+        { note },
+        { withCredentials: true })
+}
 
+
+// UPDATE PROFILE 
+interface IapiUpdateProfile {
+    id: string | undefined,
+    body: {
+        userName:string|undefined,
+        email:string|undefined,
+        phoneNumber:string|undefined,
+        address:string|undefined,
+    }
+}
+export const apiUpdateProfile = ({ id, body }:IapiUpdateProfile) => {
+    console.log( "dataaaa",id, body);
+    
+    return axios.put(`${baseUrl}/register/${id}`,  body , { withCredentials: true })
+}
 
 
 

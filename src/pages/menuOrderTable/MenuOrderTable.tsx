@@ -5,6 +5,7 @@ import { IFood, IMenu } from "../../common/type";
 import {  ITableHaveOrders } from "../order/area/Area";
 import { RootState, useAppDispatch, useAppSelector } from "../../Redux/store";
 import { addFoodInFoodsOrder, createFoodArr, getCategoryWFood } from "../../Redux/foodsSlice";
+import { formatCurrency } from "../../utils/formartCurrency";
 
 function MenuOrderTable() {
     const param = useLocation()
@@ -60,7 +61,7 @@ function MenuOrderTable() {
                                     </div>
                                     <div className="px-3 py-2">
                                         <div>{food.foodName}</div>
-                                        <div>{food.revenue}</div>
+                                        <div>{formatCurrency(food.revenue)}</div>
                                     </div>
                                 </div>
                             ))}

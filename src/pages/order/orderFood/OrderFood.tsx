@@ -1,8 +1,8 @@
 import { IoClose } from "react-icons/io5";
-import { useEffect, useState } from "react";
+import { SetStateAction, useEffect, useState } from "react";
 import 'react-toastify/dist/ReactToastify.css';
 import { IFoodSlice } from "../../../common/type";
-import { apiCreateOrder, apiUpdateFoods } from "../../../API/api";
+import { apiCreateOrder, apiUpdateFoods, apiUpdateNote } from "../../../API/api";
 import FooterOrderBoard from "./child/FooterOrderBoard";
 import { useLocation, useNavigate } from "react-router-dom";
 import { IFoodsInOrder, ITableHaveOrders } from "../area/Area";
@@ -10,7 +10,10 @@ import { UserAccount } from "../../../components/navbar/Navbar";
 import MenuOrderTable from "../../menuOrderTable/MenuOrderTable";
 import FoodsInOrderBoard from "../orderFood/child/FoodsInOrderBoard"
 import { RootState, useAppDispatch, useAppSelector } from "../../../Redux/store";
-import { decreaseQuantity, decreaseQuantityOD, deleteFoodArr, increaseQuantity, increaseQuantityOD, setOpenModalConfirm, setfoodsOrder } from "../../../Redux/foodsSlice";
+import { decreaseQuantity, decreaseQuantityOD, deleteFoodArr, increaseQuantity, increaseQuantityOD, setOpenModalConfirm, setOpenModalPayment, setfoodsOrder } from "../../../Redux/foodsSlice";
+import { FaAngleDown, FaRegEdit } from "react-icons/fa";
+import { formatCurrency } from "../../../utils/formartCurrency";
+import dayjs from 'dayjs'
 
 // INTERACE FOR UPDATE 
 interface IOrderUpdates {
@@ -31,21 +34,30 @@ function OrderFood() {
 
     const [test, setTest] = useState<ITableHaveOrders | undefined>(takeOrderFromTable)
 
+
+
     // TAKE DATA FROM REDUX
     const total: number = useAppSelector((state: RootState) => state.total);
     const foods: IFoodSlice[] = useAppSelector((state: RootState) => state.foods);
     const openModalConfirm: boolean = useAppSelector((state: RootState) => state.openModalConfirm);
+    const openModalPayment: boolean = useAppSelector((state: RootState) => state.openModalPayment);
     const FoodInOrder: ITableHaveOrders | undefined = useAppSelector((state: RootState) => state.foodsOrder);
+    console.log("FoodInOrder-1", FoodInOrder);
+
+
+    const [note, setNote] = useState<string | undefined>(FoodInOrder ? FoodInOrder.note : "")
+    const [editNote, setEditNote] = useState<boolean>(FoodInOrder ? false : true)
+    console.log({ editNote });
+
+    const handleChangeNote = (value: SetStateAction<string | undefined>) => {
+        setNote(value)
+    }
+
 
     const oldOrderFoods = test?.foods
     const newOrderFoods = FoodInOrder?.foods
     const orderId = FoodInOrder?.foods.find(item => item.orderId)?.orderId
-    console.log("orderId", orderId);
-
     const totalOrder = FoodInOrder?.subTotal
-
-
-
 
     const getOrdersFood = (oldOrderFoods: IFoodsInOrder[] | undefined, newOrderFoods?: IFoodsInOrder[] | undefined) => {
         const updates: IOrderUpdates = {
@@ -80,7 +92,6 @@ function OrderFood() {
         return updates;
     }
 
-    console.log("===========================================================")
 
     // USESTATE
     const [data, setData] = useState<IFoodSlice[]>()
@@ -122,7 +133,7 @@ function OrderFood() {
 
     // HANDLE CONFIRM ORDER
     const handleConfirmOrder = async () => {
-        await apiCreateOrder(userAccount?.id, tableId, foodForApi)
+        await apiCreateOrder({ userId: userAccount?.id, note: note, tableId: tableId, foods: foodForApi })
             .then(res => {
                 if (res.status == 200) {
                     dispatch(deleteFoodArr())
@@ -135,20 +146,22 @@ function OrderFood() {
     }
 
     const [updateOrders, setUpdateOrders] = useState<IOrderUpdates>()
-    console.log("updateOrders remove", updateOrders?.removed.map(item => item.foodId._id));
     const listIdRemoveFoods = updateOrders?.removed.map(item => item.foodId._id)
-    console.log("update quan", updateOrders?.updated.map(item => {
-        return { foodInfo: item.foodId, quan: item.quantity, totalEachFood: item.totalEachFood }
-    }));
 
     const listUpdateQuanFoods = updateOrders?.updated.map(item => {
-        return { foodInfo: item.foodId, quan: item.quantity,totalEachFood:item.totalEachFood }
+        return { foodInfo: item.foodId, quan: item.quantity, totalEachFood: item.totalEachFood }
     })
 
     // HANDLE UPDATE FOODS
     const handleUpdateFoods = async () => {
-    
-        await apiUpdateFoods(orderId, listIdRemoveFoods, newOrderFoods,listUpdateQuanFoods,totalOrder)
+        await apiUpdateFoods(
+            {
+                id: orderId,
+                listIdRemoveFoods: listIdRemoveFoods,
+                newOrderFoods: newOrderFoods,
+                listUpdateQuanFoods: listUpdateQuanFoods,
+                totalOrder: totalOrder
+            })
             .then(res => {
                 console.log("res apiUpdateFoods  ", res);
             })
@@ -157,6 +170,20 @@ function OrderFood() {
             })
     }
 
+    // HANDLE NOTE
+    const handleUpdateNote = async () => {
+        await apiUpdateNote(
+            {
+                id: orderId,
+                note: note,
+            })
+            .then(res => {
+                console.log("res apiUpdateFoods  ", res);
+            })
+            .catch(error => {
+                console.log(error);
+            })
+    }
 
 
     // HANDLE CLOSE BOARD ORDER
@@ -169,15 +196,48 @@ function OrderFood() {
             dispatch(setfoodsOrder({ foodsOrder: undefined }))
         }
     };
+
     const handleCloseModalConfirm = () => {
         dispatch(setOpenModalConfirm(false))
     }
-    //
 
+    const handleCloseModalPayment = () => {
+        dispatch(setOpenModalPayment(false))
+    }
 
 
     const [toggleNotiUpdate, setToggleNotiUpdate] = useState<boolean>(false)
     const [showBtnFix, setShowBtnFix] = useState<boolean>(false)
+
+
+    // PAYMENT METHOD
+    const [chooseSelect, setChooseSelect] = useState<string | undefined>()
+    const [openOptions, setOpenOptions] = useState<boolean>(false)
+    console.log("openOptions", openOptions);
+    const paymentMethos = [
+        {
+            value: "Tiền mặt", label: "Tiền mặt"
+        },
+        {
+            value: "Chuyển khoản MoMo", label: "Chuyển khoản"
+        },
+        {
+            value: "Chuyển khoản ngân hàng", label: "Chuyển khoản ngân hàng"
+        },
+    ]
+
+    const [changeToReturn, setChangeToReturn] = useState<number | undefined>()
+    const [customerPayment, setCustomerPayment] = useState<string>("");
+    console.log("customerPayment==>", Number(customerPayment));
+    const handleSetCustomerPayment = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value.replace(/\./g, '');
+        if (/^\d*$/.test(value)) {
+            setCustomerPayment(value);
+        }
+    }
+
+
+
 
     useEffect(() => {
         const handleUpdate = () => {
@@ -218,6 +278,36 @@ function OrderFood() {
             window.removeEventListener("popstate", handlePopstate);
         };
     }, [foods, total, navigate, dispatch, takeOrderFromTable, newOrderFoods, oldOrderFoods]);
+
+    useEffect(() => {
+        const handleCalculate = () => {
+            if (FoodInOrder?.subTotal) {
+                const change = Number(customerPayment) - FoodInOrder?.subTotal
+                console.log("change", change);
+                setChangeToReturn(change)
+
+            }
+        }
+        handleCalculate()
+
+        if (openModalPayment) {
+            document.body.classList.add('modal-open');
+        } else {
+            document.body.classList.remove('modal-open');
+        }
+
+        const handleCloseOptionsPayment = () => {
+            setOpenOptions(false)
+        }
+        document.addEventListener("click", handleCloseOptionsPayment)
+
+        return () => {
+            document.body.classList.remove('modal-open');
+            document.removeEventListener("click", handleCloseOptionsPayment)
+        };
+
+    }, [openModalPayment, FoodInOrder?.subTotal, customerPayment]);
+
 
     return <div className="relative flex w-full  ">
         <div className="flex-1">
@@ -267,13 +357,20 @@ function OrderFood() {
                                 totalEachFood={item.totalEachFood}
                             />
                         ))}</>}
-
-
                     </div>
                     {showBtnFix && <button onClick={() => setToggleNotiUpdate(true)} className="bg-primary w-fit text-left text-white py-2 px-4">Update Order !</button>}
-                    <div className="border-y-2  border-black flex justify-start p-2 ">
+                    <div className="border-y-2  border-black flex justify-start p-2  ">
                         <span className="mr-2">Note:</span>
-                        <textarea placeholder="Enter Note..." className=" flex-1 min-h-12 outline-none"></textarea>
+                        <div className="relative min-h-12 w-full">
+                            <textarea disabled={editNote ? false : true} value={note} onChange={(e) => handleChangeNote(e.target.value)} placeholder="Enter Note..." className={` ${!editNote ? 'bg-gray-100 cursor-not-allowed' : ''} absolute top-0 left-0 w-[90%] px-2 h-full flex-1 min-h-12 outline-none`}></textarea>
+                            {FoodInOrder && (
+                                editNote ? <div onClick={() => {
+                                    setEditNote(!editNote)
+                                    handleUpdateNote()
+                                }} className="cursor-pointer absolute top-0 right-0 p-1 bg-primary text-[12px] text-white">Save</div> :
+                                    <FaRegEdit onClick={() => setEditNote(!editNote)} className="cursor-pointer absolute top-0 right-0" />
+                            )}
+                        </div>
                     </div>
                     <FooterOrderBoard
                         handleConfirmOrder={() => handleConfirmOrder()}
@@ -363,8 +460,9 @@ function OrderFood() {
                         <span onClick={() => {
                             // navigate("/order");
                             // dispatch(deleteFoodArr());
-                            console.log("newOrderFoods==================>", newOrderFoods);
                             handleUpdateFoods()
+                            setToggleNotiUpdate(false)
+                            setShowBtnFix(false)
 
                         }} className="py-2 px-4 border-2 border-black hover:bg-primary hover:text-white">Xác nhận</span>
                         <span onClick={() => {
@@ -376,9 +474,125 @@ function OrderFood() {
                 </div>
             </div>
         </div>}
-        {/* <ToastContainer /> */}
 
-    </div>
+        {/* PAYMENT */}
+        {openModalPayment && <div className=" z-50 absolute top-0 left-0 h-screen w-full ">
+            <div
+                className=" fixed h-full w-full bg-black bg-opacity-50 flex  overflow-y-scroll justify-center ">
+                <div data-aos="fade-down" className=" relative h-fit  w-[45%] bg-white mt-14 p-8   flex flex-col border-2 border-black">
+                    <div
+                        onClick={() => {
+                            handleCloseModalPayment()
+                        }}
+                        className=" absolute top-2 right-2 p-1 hover:bg-gray-200"><IoClose style={{ height: 20, width: 20 }} />
+                    </div>
+                    <div className="">
+                        <div className="text-center mb-5  font-bold text-xl">Hóa đơn</div>
+
+                        <div className="flex justify-between mb-4">
+                            <div className="">
+                                <div className="space-x-2 ">
+                                    <span className="font-bold">Nhân viên:</span>
+                                    <span>{FoodInOrder?.userId.userName}</span>
+                                </div>
+                                <div className="space-x-2">
+                                    <span className="font-bold">Order lúc:</span>
+                                    <span>{dayjs(FoodInOrder?.createdAt).format('h:mm A  DD/MM/YYYY ')}</span>
+                                </div>
+                            </div>
+                            <div >
+                                <div className="space-x-2">
+                                    <span className="font-bold">Bàn:</span>
+                                    <span>{tableName}</span>
+                                </div>
+
+
+                            </div>
+                        </div>
+
+                        <table className="table-auto  w-full">
+                            <thead className="" >
+                                <tr className="  border-y-2 border-dashed border-gray-400 ">
+                                    <th className="py-1">No</th>
+                                    <th className="px-4 text-center">Món ăn</th>
+                                    <th className="px-4 text-center">SL</th>
+                                    <th className="text-right">Đơn giá</th>
+                                    <th className=" text-right">Tổng Tiền</th>
+                                </tr>
+                            </thead>
+                            <tbody className="border-b-2  border-dashed border-gray-400">
+                                {FoodInOrder?.foods.map((item, index) => (
+                                    <tr className=" ">
+                                        <td className="py-1">{index + 1}</td>
+                                        <td className="px-2">{item.foodId.foodName}</td>
+                                        <td className="text-center">{item.quantity}</td>
+                                        <td className="text-right">{formatCurrency(item.foodId.revenue)}</td>
+                                        <td className="text-right">{formatCurrency(item.foodId.revenue * item.quantity)}</td>
+                                    </tr>
+                                ))}
+
+                            </tbody>
+                        </table>
+                        <div className="mt-4 flex justify-between">
+                            <span className="font-bold text-xl">Thành tiền</span>
+                            <span className="text-xl font-bold">{formatCurrency(FoodInOrder?.subTotal)}K</span>
+                        </div>
+                    </div>
+                    <div className="flex space-x-4 mt-4">
+                        <div className="flex text-nowrap flex-1">Phương thức thanh toán  </div>
+                        <div className="relative w-[50%]">
+                            {/* choose Options */}
+                            <div onClick={(e) => {
+                                e.stopPropagation()
+                                setOpenOptions(!openOptions)
+                            }} className={`${chooseSelect ? "text-primary" : ""} relative top-0 left-0 w-full px-2 py-1  border-2 rounded-xl flex items-center`}>
+                                <span className="flex-1">{chooseSelect ? chooseSelect : "Phương thức thanh toán "}</span>
+                                <div className={` ${openOptions ? "transform rotate-180  duration-150" : "transform rotate-0  duration-150"}`}>
+                                    <FaAngleDown />
+                                </div>
+                            </div>
+                            {/* Options */}
+                            {openOptions &&
+                                <div className="flex flex-col absolute top-10 left-0 h-full w-full bg-white rounded-xl">
+                                    {paymentMethos.map((item, index) => (
+                                        <span onClick={() => setChooseSelect(item.value)} className="hover:bg-gray-200 bg-white py-1 px-2 border first:rounded-t-xl last:rounded-b-xl " key={index}>{item.value}</span>
+                                    ))}
+                                </div>}
+                        </div>
+                    </div>
+                    <div className="mt-4 flex">
+                        <span className="flex-1">Nhận tiền của khách</span>
+                        <input value={formatCurrency(Number(customerPayment))} onChange={(e) => handleSetCustomerPayment(e)} type="text" className="px-2 py-1 border w-[50%] text-right " />
+                    </div>
+                    <div className="mt-4 flex">
+                        <span className="flex-1">Tiền thừa</span>
+                        <input value={formatCurrency(changeToReturn)} type="text" className="px-2 py-1 border w-[50%] text-right " />
+                    </div>
+                    <div className="mt-10 flex justify-end space-x-4">
+                        <button  onClick={() => {
+                            handleCloseModalPayment()
+                            
+                        }}   className="p-2 border-2 border-black hover:bg-primary hover:text-white">Xác nhận thanh toán </button>
+                        <button onClick={() => {
+                            handleCloseModalPayment()
+                        }} className="p-2 border-2 border-black hover:bg-primary hover:text-white">Đóng</button>
+                    </div>
+                    {/* <div className="flex w-full justify-between">
+                        <span onClick={() => {
+                            // navigate("/order");
+                            // dispatch(deleteFoodArr());
+                            // dispatch(setOpenModalConfirm(false))
+                        }} className="py-2 px-4 border-2 border-black hover:bg-primary hover:text-white">Yes !!!</span>
+                        <span onClick={() => {
+                            // handleCloseModalConfirm()
+                        }} className="py-2 px-4 border-2  border-black hover:bg-primary hover:text-white">No</span>
+                    </div> */}
+                </div>
+            </div>
+        </div>
+        }
+        {/* <ToastContainer /> */}
+    </div >
 }
 
 export default OrderFood;

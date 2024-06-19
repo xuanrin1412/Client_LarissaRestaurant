@@ -3,7 +3,17 @@ import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import profile from "../../assets/profile.jpg"
 import { UserAccount } from "../../components/navbar/Navbar"
-import { apiGetUserInfo } from "../../API/api"
+import { apiGetUserInfo, apiUpdateProfile } from "../../API/api"
+import { FaEdit } from "react-icons/fa";
+import { useForm, SubmitHandler } from "react-hook-form"
+
+type Inputs = {
+    _id: string | undefined,
+    userName?: string | undefined;
+    phoneNumber?: string | undefined;
+    address?: string | undefined;
+    email?: string | undefined;
+}
 
 export interface UserState {
     userName?: string | undefined;
@@ -45,15 +55,68 @@ function Account() {
         }
     }
 
+
+    // UPDATE PROFILE
+
+
+
+    const [edit, setEdit] = useState<boolean>(false)
+    const handleSaveProfile = () => {
+        console.log("click save ");
+    }
+
+    const {
+        register,
+        handleSubmit,
+        watch,
+        reset,
+    } = useForm<Inputs>({
+        defaultValues: {
+            address: data?.address,
+            email: data?.email,
+            phoneNumber: data?.phoneNumber,
+            userName: data?.userName
+        },
+    })
+    const onSubmit: SubmitHandler<Inputs> = (data) => {
+        console.log("data update", data);
+        apiUpdateProfile({
+            id: data._id, 
+            body: {
+                userName: data.userName,
+                email: data.email,
+                phoneNumber: data.phoneNumber,
+                address: data.address
+            }
+        }).then((res) => {
+            console.log({ res });
+            setEdit(false)
+        
+        }).catch((err) => {
+            console.log(err);
+        })
+
+    }
+
+    console.log(watch("userName"))
+
+
     useEffect(() => {
         apiGetUserInfo(userAccount?.id)
             .then((res) => {
-                setData(res.data.getUser)
+                setData(res.data.getUser),
+                    reset()
             })
             .catch(err => {
                 console.log(err);
             })
-    }, [userAccount?.id])
+    }, [userAccount?.id, reset])
+
+    useEffect(() => {
+        if (data) {
+            reset(data);
+        }
+    }, [data, reset]);
 
     return <div className=" pt-header h-screen grid grid-cols-2 ">
         <div className="flex items-center justify-center">
@@ -62,47 +125,27 @@ function Account() {
             </div>
         </div>
         <div className=" flex justify-center items-center ">
-            <div className="h-3/5 min-w-max border-2 border-black p-10 ">
-                <div className="text-2xl font-bold text-black border-primary text-center">Tài khoản người dùng </div>
-                <table className="table-auto mt-5 text-xl">
-                    <tbody >
-                        <tr className=" ">
-                            <td >
-                                <span className=" pr-5 font-medium">Tên người dùng:</span>
-                            </td>
-                            <td >
-                                <span>{data?.userName}</span>
-                            </td>
-                        </tr>
-                        <tr className=" ">
-                            <td >
-                                <span className=" pr-5 font-medium">Email:</span>
-                            </td>
-                            <td >
-                                <span>{data?.email}</span>
-                            </td>
-                        </tr>
-                        <tr className=" ">
-                            <td >
-                                <span className=" pr-5 font-medium">Số điện thoại:</span>
-                            </td>
-                            <td >
-                                <span>{data?.phoneNumber}</span>
-                            </td>
-                        </tr>
-                        <tr className=" ">
-                            <td >
-                                <span className=" pr-5 font-medium">Địa chỉ:</span>
-                            </td>
-                            <td >
-                                <span>{data?.address}</span>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+            <form onSubmit={handleSubmit(onSubmit)} className="w-[80%]  border-2 border-black p-10 relative ">
+                <div className="text-2xl font-bold text-black border-primary text-center pb-4">Tài khoản người dùng </div>
+                <div className="space-y-4 w-full">
+                    <input {...register("userName")} disabled={!edit} type="text" placeholder="UserName" className="w-full border-2 p-2 rounded-2xl text-center hover:border-primary" />
+                    <input {...register("email")} disabled={!edit} type="text" placeholder="Email" className="w-full border-2 p-2 rounded-2xl text-center hover:border-primary" />
+                    <input {...register("phoneNumber")} disabled={!edit} type="text" placeholder="Phone Number" className="w-full border-2 p-2 rounded-2xl text-center hover:border-primary" />
+                    <input {...register("address")} disabled={!edit} type="text" placeholder="Address" className="w-full border-2 p-2 rounded-2xl text-center hover:border-primary" />
+                    {/* <input type="submit" /> */}
+                </div>
+                <div className="flex flex-col space-y-3">
+
+                </div>
                 <div onClick={() => handleClickLogOut()} className="mt-10 flex items-center justify-center">
-                    <div className="bg-black text-white px-4 py-2 w-2/4 text-center hover:bg-primary">Log Out</div></div>
-            </div>
+                    <div className="bg-black text-white px-4 py-2 w-full text-center hover:bg-primary rounded-2xl">Log Out</div>
+                </div>
+                {edit ? <div className=" absolute top-2 right-2 flex space-x-2 ">
+                    <div onClick={() => setEdit(false)} className="text-[12px] p-1 px-2 border-2  text-white bg-gray-500" >Cancel</div>
+                    <button type="submit" onClick={() => handleSaveProfile()} className="text-[12px]  p-1 px-2 border-2  text-white bg-primary" >Save</button>
+                </div> : <FaEdit onClick={() => setEdit(!edit)} className="text-2xl absolute top-2 right-2" />}
+
+            </form>
         </div>
 
         {modalLogout ? <div className="bg-black bg-opacity-50 absolute top-0 left-0 w-full min-h-screen flex justify-center items-center">

@@ -72,7 +72,7 @@ const Navbar: React.FC = () => {
         return null;
     }
 
-    return <div className={`z-20 font-josefin  h-header flex items-center fixed top-0 left-0 w-full border-b-2 ${showCategoryBar ? "border-black" : "border-white"}`}>
+    return <div className={`z-20 font-josefin  h-header flex items-center fixed top-0 left-0 w-full border-b-2 border-black`}>
         <div className={`${showCategoryBar ? "bg-white" : "bg-black "} z-40 absolute top-0 left-0 w-full h-full`}></div>
         <div className={` ${showCategoryBar ? "text-black" : "text-white "} z-50  text-xl flex pt-2 justify-between font-medium styleLink items-center  w-full space-x-10`}>
             <div className={`${userAccount?.role === "admin" || userAccount?.role === "moderator" ? "hidden" : "flex flex-1  items-center justify-end space-x-8"}`}>
