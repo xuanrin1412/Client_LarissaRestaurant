@@ -1,7 +1,6 @@
 
-
 function Manager() {
-    return <div>Manager</div>;
+    return <div className="mt-header">Manager</div>;
 }
 
 export default Manager;

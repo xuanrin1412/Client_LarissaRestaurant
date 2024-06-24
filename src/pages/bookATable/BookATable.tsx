@@ -116,9 +116,9 @@ const BookATable: React.FC = () => {
 
     return <div className="mt-header w-full flex justify-center mb-20">
         <div className="w-3/4 mx-0">
-            <div className="flex justify-between mt-10  mb-10">
+            <div className="flex flex-col lg:flex-row justify-between mt-10  mb-10 space-y-1 lg::space-y-0">
                 {/* CHOOSE DATE */}
-                <div className={`${startDate ? "bg-primary border-2 border-black" : "bg-black "} px-4 py-2  text-white flex items-center space-x-2 w-[250px]`}>
+                <div className={`${startDate ? "bg-primary border-2 border-black" : "bg-black "} px-4 py-2  text-white flex items-center space-x-2 w-full lg:w-[250px]`}>
                     <div>Date</div>
                     <DatePicker
                         className={`${startDate ? "bg-primary react-datepicker-ignore-onclickoutside-1" : "bg-black react-datepicker-ignore-onclickoutside"}  outline-none text-center`}
@@ -130,12 +130,12 @@ const BookATable: React.FC = () => {
                 </div>
                 {/* TOTAL PERSON */}
                 <div className={`${numberPerson ? "bg-primary  border-2 border-black" : " bg-black"} flex items-center`}>
-                    <div className={`${numberPerson ? "bg-primary" : " bg-black"}  px-4 py-2 text-white`}>Total person</div>
+                    <div className={`${numberPerson ? "bg-primary" : " bg-black"} text-nowrap px-4 py-2 text-white`}>Total person</div>
                     <input value={numberPerson} type="number" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNumberPerson(e.target.value)} placeholder="Enter number"
-                        className={`${numberPerson ? "bg-primary" : " bg-black"} px-2 w-[150px] text-white outline-none`} />
+                        className={`${numberPerson ? "bg-primary" : " bg-black"} w-full lg:w-[150px] text-white outline-none`} />
                 </div>
                 {/* cHOOSE SPACE */}
-                <div className={`${selectSpace ? "bg-primary border-2 border-black" : "bg-black"} relative px-4 py-2  text-white flex items-center  w-[250px]`}>
+                <div className={`${selectSpace ? "bg-primary border-2 border-black" : "bg-black"} relative px-4 py-2  text-white flex items-center w-full  lg:w-[250px]`}>
                     <div onClick={(e) => {
                         setToggleSelectOptions(!toggleSelectOptions)
                         e.stopPropagation()
@@ -154,18 +154,18 @@ const BookATable: React.FC = () => {
                 </div>
             </div>
             {/* TIMES */}
-            <div className="grid grid-cols-6 gap-4  text-center">
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4  text-center">
                 {times.map((item, index) => (
                     <div onClick={() => setChooseTime(item.value)} key={index} className={`${item.value === chooseTime ? "bg-primary text-white" : ""} px-4 py-2 border-2 border-black`}>{item.value}</div>
                 ))}
             </div>
             {/* NOTE */}
             <div className="flex justify-center mt-8">
-                <textarea value={note} onChange={(e) => setNote(e.target.value)} placeholder="Add your note...." className="w-2/3 mx-auto p-4 min-h-20 max-h-80 border-2 rounded-none border-black focus:outline-none focus:border-primary" name="" id=""></textarea>
+                <textarea value={note} onChange={(e) => setNote(e.target.value)} placeholder="Add your note...." className="w-full lg:w-2/3 mx-auto p-4 min-h-20 max-h-80 border-2 rounded-none border-black focus:outline-none focus:border-primary" name="" id=""></textarea>
             </div>
             {/* BUTTON SUBMIT */}
             <div className="flex justify-center mt-20 cursor-pointer ">
-                <div onClick={() => showDataReservation(data)} className="w-1/5 text-center">
+                <div onClick={() => showDataReservation(data)} className=" w-full lg:w-1/5 text-center">
                     <button className="btnReservation">
                         Reservation
                         <div className="star-1">

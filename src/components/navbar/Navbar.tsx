@@ -8,6 +8,14 @@ import { useDispatch } from "react-redux";
 import { IFoodSlice } from "../../common/type";
 import { Logo } from "../../assets/Logo";
 import { IoNotificationsSharp } from "react-icons/io5";
+import { GiHamburgerMenu } from "react-icons/gi";
+import { IoCloseSharp } from "react-icons/io5";
+import { FaChevronRight } from "react-icons/fa";
+import { IoHome } from "react-icons/io5";
+import { MdOutlineRestaurantMenu } from "react-icons/md";
+import { MdTableBar } from "react-icons/md";
+import { RiLoginCircleFill } from "react-icons/ri";
+import profile from "../../assets/profile.jpg"
 
 
 export interface UserAccount {
@@ -21,6 +29,7 @@ const Navbar: React.FC = () => {
     const pathname = location.pathname;
     const dispatch = useDispatch();
     const navigate = useNavigate()
+    const [openSideBar, setOpenSideBar] = useState<boolean>(false)
     const foods: IFoodSlice[] = useAppSelector((state: RootState) => state.foods);
     const [showCategoryBar, setShowCategoryBar] = useState<boolean>(false);
     const [toggleNoti, setToggleNoti] = useState<boolean>(false)
@@ -72,19 +81,20 @@ const Navbar: React.FC = () => {
         return null;
     }
 
-    return <div className={`z-20 font-josefin  h-header flex items-center fixed top-0 left-0 w-full border-b-2 border-black`}>
+    return <div className={`z-20 font-josefin  h-header flex items-center fixed top-0 left-0 w-full border-b-2 border-black md:px-4 lg:px-0`}>
         <div className={`${showCategoryBar ? "bg-white" : "bg-black "} z-40 absolute top-0 left-0 w-full h-full`}></div>
-        <div className={` ${showCategoryBar ? "text-black" : "text-white "} z-50  text-xl flex pt-2 justify-between font-medium styleLink items-center  w-full space-x-10`}>
-            <div className={`${userAccount?.role === "admin" || userAccount?.role === "moderator" ? "hidden" : "flex flex-1  items-center justify-end space-x-8"}`}>
+        <div className={` ${showCategoryBar ? "text-black" : "text-white "} z-50  text-xl flex pt-2 justify-between font-medium styleLink items-center  w-full space-x-4  md:space-x-4  lg:space-x-10 `}>
+            <div className={`${userAccount?.role === "admin" || userAccount?.role === "moderator" ? "hidden" : " hidden md:flex flex-1   items-center justify-end md:space-x-4 lg:space-x-8"}`}>
                 {userAccount?.role == "moderator" ? "" :
-                    <div onClick={() => navigate("/")} className={`${pathname === "/" ? " text-red-500   font-bold    flex justify-center" : ""}`}>
-                        <a href="#">Home</a>
+                    <div onClick={() => navigate("/")} className={`${pathname === "/" ? " text-red-500   font-bold    flex justify-center" : ""} flex`}>
+                        <a href="#" className="pr-2">Home</a><IoHome />
                     </div>}
                 {userAccount?.role == "moderator" ? "" :
-                    <div onClick={() => navigate("/menu")} className={`${pathname === "/menu" ? "text-red-500    font-bold    justify-center" : ""}`}>
-                        <a href="#">Menu</a>
+                    <div onClick={() => navigate("/menu")} className={`${pathname === "/menu" ? "text-red-500    font-bold    justify-center" : ""} flex`}>
+                        <a href="#" className="pr-2">Menu</a><MdOutlineRestaurantMenu />
                     </div>}
             </div>
+
 
             {/* {userAccount.role == "moderator" ? "" : */}
             <div className="font-bold flex text-2xl  items-center w-fit  text-center">
@@ -96,7 +106,7 @@ const Navbar: React.FC = () => {
             </div>
             {/* } */}
 
-            <div className="flex-1 flex items-center justify-start space-x-8">
+            <div className="flex-1 items-center justify-start md:space-x-4 lg:space-x-8 hidden md:flex">
                 {userAccount?.role == "admin" ? <div className={`${pathname === "/manager" ? "text-red-500 font-bold justify-center" : ""}`}>
                     <Link to="/manager">Manager</Link>
                 </div> : ""}
@@ -113,18 +123,22 @@ const Navbar: React.FC = () => {
                     </div>
                 ) : null}
                 {userAccount?.role == "moderator" ? "" :
-                    <div onClick={() => navigate("/book-a-table")} className={`${pathname === "/book-a-table" ? "text-red-500 font-bold" : ""}`}>
-                        <a href="#">
-                            <span className="underline whitespace-nowrap ">Book A Table</span></a>
+                    <div onClick={() => navigate("/book-a-table")} className={`${pathname === "/book-a-table" ? "text-red-500 font-bold" : ""} `}>
+                        <a href="#" className="flex">
+                            <span className="underline whitespace-nowrap pr-2 ">Book A Table</span><MdTableBar /></a>
                     </div>}
                 {userAccount?.userName ?
                     <div onClick={() => navigate("/account")} className={`${pathname === "/account" ? "text-red-500 font-bold" : ""}`}>
                         <div onClick={() => handleClickAccountWhenHaveFoods()
                         } >
                             <a href="#">
-                                <div className="flex flex-wrap cursor-pointer">
-                                    <span className="capitalize">{userAccount.role} </span>
+                                <div className="flex  items-center cursor-pointer space-x-2">
+                              
+                                    {/* <span className="capitalize">{userAccount.role} </span> */}
                                     <span>{userAccount.userName}</span>
+                                    <div className="h-10 w-10 rounded-full">
+                                        <img src={profile} alt="" className="object-cover h-full w-full  rounded-full" />
+                                    </div>
                                 </div></a>
                         </div>
                     </div> : ""}
@@ -155,6 +169,7 @@ const Navbar: React.FC = () => {
                     </div>
                 ) : null}
 
+
                 {userAccount?.userName ?
                     ""
                     :
@@ -164,9 +179,79 @@ const Navbar: React.FC = () => {
                 }
                 {/* <GoogleSignInButton /> */}
             </div>
+
+            <div className="relative flex md:hidden">
+                <div
+                    onClick={() => setOpenSideBar(!openSideBar)}
+                    className={`absolute top-0 right-0 transform transition-all duration-300 ${openSideBar ? "translate-x-10 opacity-0" : "flex translate-x-0 opacity-100"} pr-4 flex md:hidden`}
+                >
+                    <GiHamburgerMenu className={`${showCategoryBar ? "text-black" : "text-white "}`} />
+                </div>
+                <div
+                    onClick={() => setOpenSideBar(!openSideBar)}
+                    className={`transform transition-all duration-300 ${openSideBar ? "flex translate-x-0 opacity-100" : "translate-x-10 opacity-0"
+                        } text-2xl pr-4 flex md:hidden`}
+                >
+                    <IoCloseSharp className={`${showCategoryBar ? "text-black" : "text-white "}`} />
+                </div>
+            </div>
         </div>
+        {openSideBar &&
+            <div className="absolute top-0 right-0 h-screen w-full">
+                <div className="absolute top-header right-0 w-full h-screen bg-black bg-opacity-50 z-10"></div>
+                <ul className=" animate__animated animate__fadeInRightBig animate__faster absolute border  top-header right-0 w-full h-screen sm:max-w-[400px] bg-white z-50 py-10 ">
+                    <a href="#" onClick={() => {
+                        navigate("/")
+                        setOpenSideBar(!openSideBar)
+                    }}
+                        className="flex text-xl items-center pl-5 space-x-4 py-5 hover:bg-gray-300 border">
+                        <span><FaChevronRight /></span>
+                        <span>Home</span>
+                        <span><IoHome /></span>
+                    </a>
+                    <a href="#" onClick={() => {
+                        navigate("/menu")
+                        setOpenSideBar(!openSideBar)
+                    }}
+                        className="flex text-xl items-center pl-5 space-x-4 py-5 hover:bg-gray-300 border">
+                        <span><FaChevronRight /></span>
+                        <span>Menu</span>
+                        <span><MdOutlineRestaurantMenu /></span>
+                    </a>
+                    <a href="#" onClick={() => {
+                        navigate("/book-a-table")
+                        setOpenSideBar(!openSideBar)
+                    }}
+                        className="flex text-xl items-center pl-5 space-x-4 py-5 hover:bg-gray-300 border">
+                        <span><FaChevronRight /></span>
+                        <span>Book A Table</span>
+                        <span><MdTableBar /></span>
+                    </a>
+                    <a href="#" onClick={() => {
+                        navigate("/login")
+                        setOpenSideBar(!openSideBar)
+                    }}
+                        className="flex text-xl items-center pl-5 space-x-4 py-5 hover:bg-gray-300 border">
+                        <span><FaChevronRight /></span>
+                        <span>Login</span>
+                        <span><RiLoginCircleFill /></span>
+                    </a>
 
-
+                    {/* <div className="flex">
+                        <span><FaChevronRight/></span>
+                        <span>Manager</span>
+                    </div>
+                    <div className="flex">
+                        <span><FaChevronRight/></span>
+                        <span>Order</span>
+                    </div>
+                    <div className="flex">
+                        <span><FaChevronRight/></span>
+                        <span></span>
+                    </div> */}
+                </ul>
+            </div>
+        }
     </div >;
 }
 

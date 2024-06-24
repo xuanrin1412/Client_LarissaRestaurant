@@ -118,14 +118,14 @@ function Account() {
         }
     }, [data, reset]);
 
-    return <div className=" pt-header h-screen grid grid-cols-2 ">
-        <div className="flex items-center justify-center">
-            <div className="h-96 w-96  border-2 border-black">
-                <img className="h-full w-full object-cover" src={profile} alt="" />
+    return <div className="pt-header grid grid-cols-1 lg:grid-cols-2 space-y-10 lg:space-y-0 pb-10 lg:pb-0 ">
+        <div className="flex items-center justify-center pt-10 lg:pt-0">
+            <div className="h-72 w-72 lg:h-96 lg:w-96 rounded-full lg:rounded-none  border-2 border-black">
+                <img className="h-full w-full object-cover  rounded-full lg:rounded-none" src={profile} alt="" />
             </div>
         </div>
-        <div className=" flex justify-center items-center ">
-            <form onSubmit={handleSubmit(onSubmit)} className="w-[80%]  border-2 border-black p-10 relative ">
+        <div className=" flex justify-center lg:items-center ">
+            <form onSubmit={handleSubmit(onSubmit)} className=" w-[90%] md:w-[80%] h-fit  border-2 border-black p-10 lg:my-10 relative ">
                 <div className="text-2xl font-bold text-black border-primary text-center pb-4">Tài khoản người dùng </div>
                 <div className="space-y-4 w-full">
                     <input {...register("userName")} disabled={!edit} type="text" placeholder="UserName" className="w-full border-2 p-2 rounded-2xl text-center hover:border-primary" />
@@ -144,7 +144,6 @@ function Account() {
                     <div onClick={() => setEdit(false)} className="text-[12px] p-1 px-2 border-2  text-white bg-gray-500" >Cancel</div>
                     <button type="submit" onClick={() => handleSaveProfile()} className="text-[12px]  p-1 px-2 border-2  text-white bg-primary" >Save</button>
                 </div> : <FaEdit onClick={() => setEdit(!edit)} className="text-2xl absolute top-2 right-2" />}
-
             </form>
         </div>
 

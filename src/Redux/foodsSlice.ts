@@ -27,7 +27,7 @@ const initialState: IState = {
     categoryWFood: [],
     total: 0,
     openModalConfirm: false,
-    openModalPayment:false
+    openModalPayment: false
 
 };
 const foodsSlice = createSlice({
@@ -184,9 +184,12 @@ const foodsSlice = createSlice({
                 }
             }
         },
+        closeOrder: (state) => {
+          state.foodsOrder = undefined
+        },
         // cancelUpdate: (state)=>{
         //     state.foodsOrder
-            
+
         // }
     },
     extraReducers: (builder) => {
@@ -195,5 +198,5 @@ const foodsSlice = createSlice({
         })
     },
 })
-export const { deleteOneFoodOD, changeQuantityInputOD,setOpenModalPayment, increaseQuantityOD, decreaseQuantityOD, setfoodsOrder, addFoodInFoodsOrder, createFoodArr, deleteFoodArr, deleteTotal, increaseQuantity, decreaseQuantity, changeQuantityInput, confirmOrder, setOpenModalConfirm, deleteOneFood } = foodsSlice.actions;
+export const { deleteOneFoodOD,closeOrder, changeQuantityInputOD, setOpenModalPayment, increaseQuantityOD, decreaseQuantityOD, setfoodsOrder, addFoodInFoodsOrder, createFoodArr, deleteFoodArr, deleteTotal, increaseQuantity, decreaseQuantity, changeQuantityInput, confirmOrder, setOpenModalConfirm, deleteOneFood } = foodsSlice.actions;
 export default foodsSlice.reducer

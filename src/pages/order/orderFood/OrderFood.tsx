@@ -1,18 +1,18 @@
 import { IoClose } from "react-icons/io5";
-import { SetStateAction, useEffect, useState } from "react";
 import 'react-toastify/dist/ReactToastify.css';
 import { IFoodSlice } from "../../../common/type";
-import { apiCreateOrder, apiUpdateFoods, apiUpdateNote } from "../../../API/api";
+import { FaAngleDown, FaRegEdit } from "react-icons/fa";
 import FooterOrderBoard from "./child/FooterOrderBoard";
+import { SetStateAction, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { IFoodsInOrder, ITableHaveOrders } from "../area/Area";
 import { UserAccount } from "../../../components/navbar/Navbar";
+import { formatCurrency } from "../../../utils/formartCurrency";
 import MenuOrderTable from "../../menuOrderTable/MenuOrderTable";
 import FoodsInOrderBoard from "../orderFood/child/FoodsInOrderBoard"
 import { RootState, useAppDispatch, useAppSelector } from "../../../Redux/store";
-import { decreaseQuantity, decreaseQuantityOD, deleteFoodArr, increaseQuantity, increaseQuantityOD, setOpenModalConfirm, setOpenModalPayment, setfoodsOrder } from "../../../Redux/foodsSlice";
-import { FaAngleDown, FaRegEdit } from "react-icons/fa";
-import { formatCurrency } from "../../../utils/formartCurrency";
+import { apiCreateBill, apiCreateOrder, apiUpdateFoods, apiUpdateNote } from "../../../API/api";
+import { closeOrder, decreaseQuantity, decreaseQuantityOD, deleteFoodArr, increaseQuantity, increaseQuantityOD, setOpenModalConfirm, setOpenModalPayment, setfoodsOrder } from "../../../Redux/foodsSlice";
 import dayjs from 'dayjs'
 
 // INTERACE FOR UPDATE 
@@ -65,8 +65,8 @@ function OrderFood() {
             removed: [],
             added: [],
         }
-        const newOrder = new Map(newOrderFoods?.map((item: IFoodsInOrder) => [item.foodId._id, item]))
-        const oldOrder = new Map(oldOrderFoods?.map((item: IFoodsInOrder) => [item.foodId._id, item]))
+        const newOrder = new Map(newOrderFoods?.map((item: IFoodsInOrder) => [item?.foodId?._id, item]))
+        const oldOrder = new Map(oldOrderFoods?.map((item: IFoodsInOrder) => [item?.foodId?._id, item]))
 
         const allIds = new Set([...oldOrder.keys(), ...newOrder.keys()])
         allIds.forEach((item) => {
@@ -91,7 +91,6 @@ function OrderFood() {
         });
         return updates;
     }
-
 
     // USESTATE
     const [data, setData] = useState<IFoodSlice[]>()
@@ -211,21 +210,21 @@ function OrderFood() {
 
 
     // PAYMENT METHOD
-    const [chooseSelect, setChooseSelect] = useState<string | undefined>()
-    const [openOptions, setOpenOptions] = useState<boolean>(false)
-    console.log("openOptions", openOptions);
-    const paymentMethos = [
+    const paymentMethods = [
         {
-            value: "Tiền mặt", label: "Tiền mặt"
+            value: "cash", label: "Tiền mặt"
         },
         {
-            value: "Chuyển khoản MoMo", label: "Chuyển khoản"
+            value: "momo", label: "Chuyển khoản"
         },
         {
-            value: "Chuyển khoản ngân hàng", label: "Chuyển khoản ngân hàng"
+            value: "bank", label: "Chuyển khoản ngân hàng"
         },
     ]
-
+    const [chooseSelect, setChooseSelect] = useState<{ value: string, label: string } | undefined>(paymentMethods[0])
+    console.log("chooseSelect", chooseSelect?.value);
+    const [openOptions, setOpenOptions] = useState<boolean>(false)
+    console.log("openOptions", openOptions);
     const [changeToReturn, setChangeToReturn] = useState<number | undefined>()
     const [customerPayment, setCustomerPayment] = useState<string>("");
     console.log("customerPayment==>", Number(customerPayment));
@@ -235,9 +234,17 @@ function OrderFood() {
             setCustomerPayment(value);
         }
     }
-
-
-
+    const handlePayment = async () => {
+        await apiCreateBill({ orderId, paymentMethod: chooseSelect?.value })
+            .then((res) => {
+                console.log("res handlePayment", res);
+                navigate("/order")
+                dispatch(closeOrder())
+            })
+            .catch(err => {
+                console.log(err);
+            })
+    }
 
     useEffect(() => {
         const handleUpdate = () => {
@@ -334,13 +341,13 @@ function OrderFood() {
                                 key={index}
                                 keyFoodsInOrderBoard={index}
                                 no={index + 1}
-                                _id={item.foodId._id}
+                                _id={item?.foodId?._id}
                                 FoodInOrder={FoodInOrder}
-                                foodName={item.foodId.foodName}
-                                onClickIncrease={() => handleIncreaseQuantity(item.foodId._id)}
-                                onClickDecrease={() => handleDecreaseQuantity(item.foodId._id)}
-                                itemQuantity={item.quantity}
-                                totalEachFood={item.totalEachFood}
+                                foodName={item?.foodId?.foodName}
+                                onClickIncrease={() => handleIncreaseQuantity(item?.foodId?._id)}
+                                onClickDecrease={() => handleDecreaseQuantity(item?.foodId?._id)}
+                                itemQuantity={item?.quantity}
+                                totalEachFood={item?.totalEachFood}
                             />
                         ))}</>}
                         {data && <> {data?.map((item, index) => (
@@ -348,13 +355,13 @@ function OrderFood() {
                                 key={index}
                                 keyFoodsInOrderBoard={index}
                                 no={index + 1}
-                                _id={item.food._id}
+                                _id={item?.food?._id}
                                 FoodInOrder={FoodInOrder}
-                                foodName={item.food.foodName}
-                                onClickIncrease={() => handleIncreaseQuantity(item.food._id)}
-                                onClickDecrease={() => handleDecreaseQuantity(item.food._id)}
-                                itemQuantity={item.quantity}
-                                totalEachFood={item.totalEachFood}
+                                foodName={item?.food?.foodName}
+                                onClickIncrease={() => handleIncreaseQuantity(item?.food?._id)}
+                                onClickDecrease={() => handleDecreaseQuantity(item?.food?._id)}
+                                itemQuantity={item?.quantity}
+                                totalEachFood={item?.totalEachFood}
                             />
                         ))}</>}
                     </div>
@@ -479,7 +486,7 @@ function OrderFood() {
         {openModalPayment && <div className=" z-50 absolute top-0 left-0 h-screen w-full ">
             <div
                 className=" fixed h-full w-full bg-black bg-opacity-50 flex  overflow-y-scroll justify-center ">
-                <div data-aos="fade-down" className=" relative h-fit  w-[45%] bg-white mt-14 p-8   flex flex-col border-2 border-black">
+                <div data-aos="fade-down" className=" relative h-fit w-11/12 sm:w-9/12 md:w-3/5 lg:w-[45%] bg-white mt-14 p-8   flex flex-col border-2 border-black">
                     <div
                         onClick={() => {
                             handleCloseModalPayment()
@@ -546,7 +553,7 @@ function OrderFood() {
                                 e.stopPropagation()
                                 setOpenOptions(!openOptions)
                             }} className={`${chooseSelect ? "text-primary" : ""} relative top-0 left-0 w-full px-2 py-1  border-2 rounded-xl flex items-center`}>
-                                <span className="flex-1">{chooseSelect ? chooseSelect : "Phương thức thanh toán "}</span>
+                                <span className="flex-1">{chooseSelect?.label}</span>
                                 <div className={` ${openOptions ? "transform rotate-180  duration-150" : "transform rotate-0  duration-150"}`}>
                                     <FaAngleDown />
                                 </div>
@@ -554,8 +561,8 @@ function OrderFood() {
                             {/* Options */}
                             {openOptions &&
                                 <div className="flex flex-col absolute top-10 left-0 h-full w-full bg-white rounded-xl">
-                                    {paymentMethos.map((item, index) => (
-                                        <span onClick={() => setChooseSelect(item.value)} className="hover:bg-gray-200 bg-white py-1 px-2 border first:rounded-t-xl last:rounded-b-xl " key={index}>{item.value}</span>
+                                    {paymentMethods.map((item, index) => (
+                                        <span onClick={() => setChooseSelect(item)} className="hover:bg-gray-200 bg-white py-1 px-2 border first:rounded-t-xl last:rounded-b-xl " key={index}>{item.label}</span>
                                     ))}
                                 </div>}
                         </div>
@@ -569,10 +576,11 @@ function OrderFood() {
                         <input value={formatCurrency(changeToReturn)} type="text" className="px-2 py-1 border w-[50%] text-right " />
                     </div>
                     <div className="mt-10 flex justify-end space-x-4">
-                        <button  onClick={() => {
+                        <button onClick={() => {
+                            handlePayment()
                             handleCloseModalPayment()
-                            
-                        }}   className="p-2 border-2 border-black hover:bg-primary hover:text-white">Xác nhận thanh toán </button>
+
+                        }} className="p-2 border-2 border-black hover:bg-primary hover:text-white">Xác nhận thanh toán </button>
                         <button onClick={() => {
                             handleCloseModalPayment()
                         }} className="p-2 border-2 border-black hover:bg-primary hover:text-white">Đóng</button>

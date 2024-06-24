@@ -114,7 +114,7 @@ function Area() {
                         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4 lg:gap-6">
                             {area.table.map((table, index) => (
                                 <div onClick={() => handleClickOrder(table._id, table.tableName)} key={index}
-                                    className="hover:shadow cursor-pointer relative w-full h-16 lg:h-20 border-4 border-gray-400 flex justify-center items-center rounded-2xl">
+                                    className="hover:shadow cursor-pointer relative w-full h-20 border-4 border-gray-400 flex justify-center items-center rounded-2xl">
                                     <span className="font-bold"> {table.tableName.split(' - ')[1]} -</span>&nbsp;
                                     <span> {table.capacity} ghế</span>
                                     {haveRedPoint(table._id)}

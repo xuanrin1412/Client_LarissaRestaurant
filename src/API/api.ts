@@ -107,10 +107,17 @@ interface IapiUpdateProfile {
 }
 export const apiUpdateProfile = ({ id, body }:IapiUpdateProfile) => {
     console.log( "dataaaa",id, body);
-    
     return axios.put(`${baseUrl}/register/${id}`,  body , { withCredentials: true })
 }
 
 
+// CREATE BILL
 
+interface IapiCreateBill {
+    orderId:string|undefined,
+     paymentMethod:string|undefined,
+}
+export const apiCreateBill = ({ orderId, paymentMethod }:IapiCreateBill) => {
+    return axios.post(`${baseUrl}/bill`, { orderId, paymentMethod }, { withCredentials: true })
+}
 
