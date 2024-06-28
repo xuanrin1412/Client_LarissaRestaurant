@@ -215,7 +215,7 @@ function OrderFood() {
             value: "cash", label: "Tiền mặt"
         },
         {
-            value: "momo", label: "Chuyển khoản"
+            value: "momo", label: "Chuyển khoản MoMo"
         },
         {
             value: "bank", label: "Chuyển khoản ngân hàng"

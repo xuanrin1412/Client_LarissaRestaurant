@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { FaAngleDown } from "react-icons/fa6";
 import DatePicker from "react-datepicker";
 import dayjs from 'dayjs'
+// import Dish from "../../assets/dish.png"
 
 const options = [
     { value: 'Near window' },
@@ -53,7 +54,7 @@ const BookATable: React.FC = () => {
     const [startDate, setStartDate] = useState<Date | null>(null);
     const [formattedDate, setFormattedDate] = useState<string>();
     console.log(formattedDate);
-    
+
     const [numberPerson, setNumberPerson] = useState<string | number>("")
     const [selectSpace, setSelectSpace] = useState<string>()
     const [chooseTime, setChooseTime] = useState<string>()
@@ -169,22 +170,22 @@ const BookATable: React.FC = () => {
                     <button className="btnReservation">
                         Reservation
                         <div className="star-1">
-                            <Star1/>
+                            <Star1 />
                         </div>
                         <div className="star-2">
-                           <Star2/>
+                            <Star2 />
                         </div>
                         <div className="star-3">
-                          <Star3/>
+                            <Star3 />
                         </div>
                         <div className="star-4">
-                           <Star4/>
+                            <Star4 />
                         </div>
                         <div className="star-5">
-                            <Star5/>
+                            <Star5 />
                         </div>
                         <div className="star-6">
-                          <Star6/>
+                            <Star6 />
                         </div>
                     </button>
                 </div>

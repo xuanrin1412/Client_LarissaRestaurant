@@ -7,7 +7,7 @@ import { useAppDispatch } from "../../../Redux/store";
 import { setfoodsOrder } from "../../../Redux/foodsSlice";
 const socket = io('http://localhost:3004');
 
-interface ITable {
+export interface ITable {
     _id: string,
     tableName: string,
     capacity: number,
@@ -17,7 +17,7 @@ interface IAreaWTable {
     table: ITable[]
 }
 
-interface IUserInfo {
+export interface IUserInfo {
     role: string,
     userName: string,
     email: string,

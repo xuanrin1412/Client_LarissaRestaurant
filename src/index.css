@@ -22,6 +22,11 @@ body.modal-open {
     text-shadow: 2px 2px 2px #000000;
 }
 
+.text-shadown-white {
+    text-shadow: 1px 1px 1px rgb(255, 255, 255);
+}
+
+
 .shadow {
     box-shadow: 1px 2px 8px black;
 }
@@ -540,3 +545,30 @@ input[type=number] {
 /* .animate__animated.animate__fadeInRightBig{
     --animate-duration: 1s;
 } */
+
+
+
+
+/* width */
+.scroll-bestseller::-webkit-scrollbar {
+    /* width: 5px; */
+    height: 8px;
+}
+
+/* Track */
+.scroll-bestseller::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 5px grey;
+    border-radius: 10px;
+}
+
+/* Handle */
+.scroll-bestseller::-webkit-scrollbar-thumb {
+    background: rgb(159, 0, 0);
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+/* Handle on hover */
+.scroll-bestseller::-webkit-scrollbar-thumb:hover {
+    background: #b30000;
+}

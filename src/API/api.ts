@@ -112,7 +112,6 @@ export const apiUpdateProfile = ({ id, body }:IapiUpdateProfile) => {
 
 
 // CREATE BILL
-
 interface IapiCreateBill {
     orderId:string|undefined,
      paymentMethod:string|undefined,
@@ -120,4 +119,16 @@ interface IapiCreateBill {
 export const apiCreateBill = ({ orderId, paymentMethod }:IapiCreateBill) => {
     return axios.post(`${baseUrl}/bill`, { orderId, paymentMethod }, { withCredentials: true })
 }
+export const apiGetAllBill = () => {
+    return axios.get(`${baseUrl}/bill`, { withCredentials: true })
+}
 
+export const apiGetOneBill = (id:string) => {
+    return axios.get(`${baseUrl}/bill/getOneBill/${id}`, { withCredentials: true })
+}
+
+
+
+export const apiGetBestSellingFoods = () => {
+    return axios.get(`${baseUrl}/order_food/bestSellingDishes`)
+}
