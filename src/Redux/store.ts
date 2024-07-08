@@ -1,5 +1,7 @@
-import { configureStore } from "@reduxjs/toolkit";
+import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import foodsReducer from "./foodsSlice"
+import ImageReducer from "./Image"
+import userReducer from "./userSlice"
 import { useDispatch, useSelector } from 'react-redux';
 import storage from 'redux-persist/lib/storage';
 import {
@@ -17,7 +19,15 @@ const persistConfig = {
   version: 1,
   storage,
 }
-const persistedReducer = persistReducer(persistConfig, foodsReducer)
+
+const rootReducer = combineReducers({
+  foods: foodsReducer,
+  image: ImageReducer,
+  user: userReducer,
+})
+
+
+const persistedReducer = persistReducer(persistConfig, rootReducer)
 export const store = configureStore({
   reducer: persistedReducer,
   middleware: (getDefaultMiddleware) =>

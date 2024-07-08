@@ -1,8 +1,9 @@
-import  { useEffect } from "react";
+import { useEffect } from "react";
 import Area from "./area/Area";
 import io from 'socket.io-client';
 const socket = io('http://localhost:3004');
 import { toast } from "react-toastify";
+import notiSound from "../../assets/notiSound.mp3"
 
 function Order() {
     useEffect(() => {
@@ -13,10 +14,10 @@ function Order() {
             console.log('Disconnected from server');
         });
         socket.on("new_order", (data) => {
+            const sound = new Audio(notiSound)
+            sound.play()
             console.log("new_order", data);
-            // notifyNewOrder(data.message);
             toast.success(data.message);
-
         });
         return () => {
             socket.off('connect');

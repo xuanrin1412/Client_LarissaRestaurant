@@ -1,5 +1,8 @@
+import { useEffect } from "react";
 import BannerIntro from "./bannerIntro/BannerIntro";
 import Intro from "./intro/intro";
+import io from 'socket.io-client';
+const socket = io('http://localhost:3004');
 // import React, { useState, useEffect } from 'react';
 // import { googleLogout, useGoogleLogin } from '@react-oauth/google';
 // import axios from 'axios';
@@ -43,6 +46,15 @@ function Home() {
     // );
 
     // log out function to log the user out of google and set the profile array to null
+
+    useEffect(() => {
+        console.log("jjjj", socket);
+        socket.on('hievent', (msg) => {
+            console.log("msg",msg);
+            
+        });
+
+    })
 
     return <div >
         <BannerIntro />

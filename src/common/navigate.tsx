@@ -1,3 +1,4 @@
+import BookATableManager from "../pages/bookATable/BookATableManager";
 import Manager from "../pages/manager/Manager";
 import MenuOrderTable from "../pages/menuOrderTable/MenuOrderTable";
 import Order from "../pages/order/Order";
@@ -19,6 +20,10 @@ const privatePage = [
     {
         link: "/order",
         element: <Order />
+    },
+    {
+        link: "/booking-manager",
+        element: <BookATableManager />
     },
 ]
 

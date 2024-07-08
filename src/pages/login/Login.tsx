@@ -4,16 +4,16 @@ import { Link, useNavigate } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebook, FaRegEye, FaRegEyeSlash } from "react-icons/fa";
 import { toast } from "react-toastify";
-import { JwtPayload, jwtDecode } from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 import { apiLogin } from "../../API/api";
-interface MyJwtPayload extends JwtPayload {
-    role?: string;
-    userName?: string;
-    id?: string;
-}
+import { useDispatch } from "react-redux";
+import { setUserInfo } from "../../Redux/userSlice";
+import { IUserInfo } from "../../common/types/userInfo";
+
 
 function Login() {
     const navigate = useNavigate()
+    const dispatch = useDispatch()
     const [userName, setUserName] = useState<string>("")
     const [password, setPassword] = useState<string>("")
     const [showPassword, setShowPassword] = useState<boolean>(false)
@@ -21,15 +21,17 @@ function Login() {
         e.preventDefault();
         apiLogin({ userName, password })
             .then((res) => {
-                const test = jwtDecode<MyJwtPayload>(res.data.tokenJWT);
-                console.log("test",test);
-                localStorage.setItem('larissa_userInfo', JSON.stringify(test));
-                const userRole = test.role;
-                if  (userRole == "moderator") {
+                // localStorage.setItem('larissa_userInfo', JSON.stringify(res));
+                const user: IUserInfo = jwtDecode(res.data.tokenJWT);
+                console.log("user when login",user);
+                
+                dispatch(setUserInfo({ userInfo: user }))
+                const userRole = user.role;
+                if (userRole == "moderator") {
                     console.log("hello");
                     navigate("/order");
-                } 
-                else if( userRole == "admin"){
+                }
+                else if (userRole == "admin") {
                     navigate("/manager");
                 }
                 else {
@@ -38,6 +40,8 @@ function Login() {
                 }
             })
             .catch(err => {
+                console.log("err",err.response.data.message);
+                
                 toast.error(err.response.data.message);
             });
     };
@@ -56,7 +60,7 @@ function Login() {
     }
     useEffect(() => {
 
-    }, [showPassword])
+    }, [showPassword, dispatch])
 
     return <div className="hero min-h-screen " style={{ backgroundImage: 'url(https://www.lux-review.com/wp-content/uploads/2022/05/Luxury-Dining.jpg)' }}>
         {/* <div className=" bg-opacity-90"></div> */}

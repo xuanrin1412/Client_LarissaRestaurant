@@ -1,44 +1,41 @@
-// import { createSlice, PayloadAction } from "@reduxjs/toolkit"
+import { createSlice, current, PayloadAction } from "@reduxjs/toolkit"
+import { IUserInfo } from "../common/types/userInfo"
 
-// export interface UserState {
-//     userName?: string | undefined;
-//     userRole?: string | undefined;
-//     phoneNumber?: string | undefined;
-//     address?: string | undefined;
-//     userId?: string | undefined;
-// }
-// interface userInfo {
-//     userAccount: UserState
-// }
+interface IUser {
+    refreshUserAccount: boolean,
+    userInfo: IUserInfo | null,
+    // managementName:string[]
+}
+const initialState: IUser = {
+    refreshUserAccount: false,
+    userInfo: null,
+    // managementName:
+}
+const userSlice = createSlice({
+    name: "user",
+    initialState,
+    reducers: {
+        setRefreshUserAccount: (state, action: PayloadAction<boolean>) => {
+            state.refreshUserAccount = action.payload
+        },
+        setUserInfo: (state, action: PayloadAction<{ userInfo: IUserInfo }>) => {
+            state.userInfo = action.payload.userInfo
+        },
+        updateUserInfo: (state, action: PayloadAction<{ userInfo: IUserInfo }>) => {
+            state.userInfo = action.payload.userInfo
+        },
+        updateUserAvatar: (state, action: PayloadAction< string >) => {
+            console.log('Updating avatar to:', action.payload);
+            if (state.userInfo) {
+                state.userInfo.avatar = action.payload;
+            }
+            console.log('Updated state.userInfo', current(state.userInfo));
+        },
+        clearUserInfo: (state) => {
+            state.userInfo = null
+        },
 
-// const initialState: userInfo = {
-//     userAccount: {},
-
-// }
-// const userSlice = createSlice({
-//     name: "user",
-//     initialState,
-//     reducers: {
-//         setUserAccount: (state, action: PayloadAction<UserState>) => {
-//             state.userAccount.userId = action.payload.userId
-//             state.userAccount.userName = action.payload.userName
-//             state.userAccount.phoneNumber = action.payload.phoneNumber
-//             state.userAccount.address = action.payload.address
-//             state.userAccount.userRole = action.payload.userRole
-//         },
-//         setUserNameEmty: (state)=>{
-//             state.userAccount.userName=""
-//         },
-//         setUserRoleEmty: (state)=>{
-//             state.userAccount.userRole=""
-//         }
-//         // setUserId: (state,action: PayloadAction<string>)=>{
-//         //     state.userId = action.payload;
-//         // },
-//         // setUserRole: (state,action: PayloadAction<string>)=>{
-//         //     state.userRole = action.payload;
-//         // }
-//     }
-// })
-// export const { setUserAccount,setUserNameEmty,setUserRoleEmty} = userSlice.actions;
-// export default userSlice.reducer
+    }
+})
+export const { setRefreshUserAccount, setUserInfo, updateUserInfo, clearUserInfo,updateUserAvatar } = userSlice.actions;
+export default userSlice.reducer

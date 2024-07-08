@@ -1,13 +1,17 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit"
-import { IFood, IFoodSlice, IMenu, IOrder } from "../common/type";
 import { apiGetCategoryWFood } from "../API/api";
 import { sumTotal } from "./common";
+import { IFood, IFoodSlice } from "../common/types/foods";
+import { IOrder } from "../common/types/order";
+import { IMenu } from "../common/types/menu";
 import { ITableHaveOrders } from "../pages/order/area/Area";
 
 export const getCategoryWFood = createAsyncThunk(
     'foods/getCategoryWFood',
     async () => {
         const response = await apiGetCategoryWFood()
+        console.log("call aipi getCategoryWFood", response.data);
+        
         return response.data
     }
 )

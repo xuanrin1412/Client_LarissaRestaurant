@@ -5,24 +5,22 @@ import { scrollCategoryBar } from "../../utils/scrollToTop";
 import { FaUser } from "react-icons/fa";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { IFoodSlice } from "../../common/type";
 import { Logo } from "../../assets/Logo";
 import { IoNotificationsSharp } from "react-icons/io5";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { IoCloseSharp } from "react-icons/io5";
 import { FaChevronRight } from "react-icons/fa";
 import { IoHome } from "react-icons/io5";
-import { MdOutlineRestaurantMenu } from "react-icons/md";
+import { MdOutlineRestaurantMenu, MdOutlineShoppingCart } from "react-icons/md";
 import { MdTableBar } from "react-icons/md";
 import { RiLoginCircleFill } from "react-icons/ri";
-import profile from "../../assets/profile.jpg"
-
-
-export interface UserAccount {
-    id: string,
-    userName: string,
-    role: string
-}
+import io from 'socket.io-client';
+import { toast } from 'react-toastify';
+const socket = io('http://localhost:3004');
+import { IoClose } from "react-icons/io5";
+import { IUserInfo } from "../../common/types/userInfo";
+import { IFoodSlice } from "../../common/types/foods";
+import { IdataBooking } from "../../common/types/bookATable";
 
 const Navbar: React.FC = () => {
     const location = useLocation();
@@ -30,7 +28,7 @@ const Navbar: React.FC = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate()
     const [openSideBar, setOpenSideBar] = useState<boolean>(false)
-    const foods: IFoodSlice[] = useAppSelector((state: RootState) => state.foods);
+    const foods: IFoodSlice[] = useAppSelector((state: RootState) => state.foods.foods);
     const [showCategoryBar, setShowCategoryBar] = useState<boolean>(false);
     const [toggleNoti, setToggleNoti] = useState<boolean>(false)
 
@@ -57,22 +55,40 @@ const Navbar: React.FC = () => {
             navigate("/order");
         }
     }
+    const userAccount: IUserInfo | null = useAppSelector(state => state.user.userInfo)
 
-    const userAccountString = localStorage.getItem("larissa_userInfo");
-    let userAccount: UserAccount | null = null;
-    if (userAccountString) {
-        try {
-            userAccount = JSON.parse(userAccountString) as UserAccount;
-        } catch (error) {
-            console.error("Error parsing user account from localStorage", error);
-        }
+
+    interface INotiList {
+        message: string,
+        bookingInfo: IdataBooking
     }
 
+    const [notiList, setNotiList] = useState<INotiList[]>([])
+    console.log("notiList", notiList);
+
+
+    const [viewCart, setViewCart] = useState<boolean>(false)
+
+
     useEffect(() => {
+        if (userAccount?.role === "admin" || userAccount?.role === "moderator") {
+            socket.on('newBooking', (newBooking) => {
+                setNotiList((prevList) => [...prevList, newBooking])
+                console.log("newBooking==========12=====", newBooking);
+                toast.success(newBooking.message);
+            });
+        }
         const handleScroll = () => scrollCategoryBar({ setShowCategoryBar });
+
+        const handleCloseNoti = () => {
+            setToggleNoti(false)
+        }
         window.addEventListener("scroll", handleScroll);
+        window.addEventListener("click", handleCloseNoti)
         return () => {
             window.removeEventListener("scroll", handleScroll);
+            window.removeEventListener("click", handleCloseNoti);
+            socket.off('newBooking');
         };
     }, [showCategoryBar, userAccount]);
 
@@ -122,53 +138,49 @@ const Navbar: React.FC = () => {
                         }>Menu</div>
                     </div>
                 ) : null}
-                {userAccount?.role == "moderator" ? "" :
+                {userAccount?.role === "admin" || userAccount?.role === "moderator" ? (
+                    <div className={`${pathname === "/booking-manager" ? "text-red-500 font-bold" : ""}`}>
+                        <Link to="/booking-manager">Booking</Link>
+                    </div>
+                ) : null}
+
+                {userAccount?.role === "admin" || userAccount?.role === "moderator" ? "" :
                     <div onClick={() => navigate("/book-a-table")} className={`${pathname === "/book-a-table" ? "text-red-500 font-bold" : ""} `}>
                         <a href="#" className="flex">
                             <span className="underline whitespace-nowrap pr-2 ">Book A Table</span><MdTableBar /></a>
                     </div>}
-                {userAccount?.userName ?
-                    <div onClick={() => navigate("/account")} className={`${pathname === "/account" ? "text-red-500 font-bold" : ""}`}>
-                        <div onClick={() => handleClickAccountWhenHaveFoods()
-                        } >
-                            <a href="#">
-                                <div className="flex  items-center cursor-pointer space-x-2">
-                              
-                                    {/* <span className="capitalize">{userAccount.role} </span> */}
-                                    <span>{userAccount.userName}</span>
-                                    <div className="h-10 w-10 rounded-full">
-                                        <img src={profile} alt="" className="object-cover h-full w-full  rounded-full" />
-                                    </div>
-                                </div></a>
-                        </div>
-                    </div> : ""}
+
                 {userAccount?.role === "admin" || userAccount?.role === "moderator" ? (
                     <div className={`relative ${pathname === "/notify" ? "text-red-500 font-bold" : ""}`}>
-                        <div onClick={() => setToggleNoti(!toggleNoti)} className="relative">
+                        <div onClick={(e) => {
+                            setToggleNoti(!toggleNoti)
+                            e.stopPropagation()
+                        }} className="relative">
                             <span className="text-2xl"><IoNotificationsSharp /></span>
-                            <span className="absolute -top-1 -right-[6px] flex h-4 w-4  items-center justify-center">
+
+                            {notiList.length > 0 && <span className="absolute -top-1 -right-[6px] flex h-4 w-4  items-center justify-center">
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00D2FF] opacity-75"></span>
                                 <span className="relative inline-flex rounded-full h-3 w-3 bg-[#00D2FF]"></span>
-                            </span>
+                            </span>}
+
                         </div>
-                        {toggleNoti &&
+                        {toggleNoti && notiList.length > 0 &&
                             <div className=" absolute top-[49px] -left-12">
-                                <div className=" relative text-black w-fit bg-white border-2 rounded-2xl border-black">
+                                <div onClick={(e) => e.stopPropagation()} className=" relative text-black  bg-white border-2 rounded-2xl border-black w-[200px]">
                                     <div className=" absolute -top-[10px] left-[51px] borderr h-4 w-4 bg-black"></div>
                                     <div className="text-[17px] px-4 py-2 font-bold text-black text-center bg-white border-b-2 rounded-t-[14px] border-black">Thông báo</div>
-                                    <div className="">
-                                        <div className="text-[15px] px-4 py-2 border hover:bg-gray-200  text-nowrap"><span className=" font-bold text-blue-600">Xuân Rin</span> vừa order bàn 3</div>
-                                        <div className="text-[15px] px-4 py-2 border hover:bg-gray-200   text-nowrap"> <span className="font-bold  text-red-600">Quốc Anh</span> vừa hủy order bàn 4</div>
-                                        <div className="text-[15px] px-4 py-2 border hover:bg-gray-200   text-nowrap"><span className="font-bold  text-blue-500">Sam </span> vừa order bàn 6</div>
-                                        <div className="text-[15px] px-4 py-2 border hover:bg-gray-200   text-nowrap  rounded-b-[14px]"><span className="font-bold  text-red-600">Sam </span> vừa order bàn 9 </div>
-                                    </div>
-
+                                    {notiList.map((item, index) => (
+                                        <div key={index} className="text-[15px] px-4 py-2 border hover:bg-gray-200  text-nowrap">{item.message}</div>
+                                    ))}
+                                    <div onClick={() => {
+                                        setNotiList([])
+                                        setToggleNoti(false)
+                                    }} className="text-[13px] px-4 py-1 border text-nowrap border-t-2 border-t-black rounded-b-[14px] bg-[#00D2FF] text-black text-center ">Đánh dấu đã đọc</div>
                                 </div>
                             </div>
                         }
                     </div>
                 ) : null}
-
 
                 {userAccount?.userName ?
                     ""
@@ -177,6 +189,24 @@ const Navbar: React.FC = () => {
                         <Link to="/login" className="flex ">Login{" "}<FaUser style={{ marginLeft: 10 }} /></Link>
                     </div>
                 }
+                <div onClick={() => setViewCart(!viewCart)}>
+                    <MdOutlineShoppingCart />
+                </div>
+                {userAccount?.userName ?
+                    <div onClick={() => navigate("/account")} className={`${pathname === "/account" ? "text-red-500 font-bold" : ""}`}>
+                        <div onClick={() => handleClickAccountWhenHaveFoods()
+                        } >
+                            <a href="#">
+                                <div className="flex  items-center cursor-pointer space-x-2">
+                                    {/* <span className="capitalize">{userAccount.role} </span> */}
+                                    <span>{userAccount.userName}</span>
+                                    <div className="h-10 w-10 rounded-full">
+                                        <img src={userAccount.avatar} alt="" className="object-cover h-full w-full  rounded-full" />
+                                    </div>
+                                </div></a>
+                        </div>
+                    </div> : ""}
+
                 {/* <GoogleSignInButton /> */}
             </div>
 
@@ -227,31 +257,81 @@ const Navbar: React.FC = () => {
                         <span>Book A Table</span>
                         <span><MdTableBar /></span>
                     </a>
+                    {/* {userAccount?.userName ?
+                        ""
+                        :
+                        <div className={`${pathname === "/login" ? "text-red-500 font-bold   " : ""}`}>
+                            <Link to="/login" className="flex ">Login{" "}<FaUser style={{ marginLeft: 10 }} /></Link>
+                        </div>
+                    } */}
                     <a href="#" onClick={() => {
-                        navigate("/login")
-                        setOpenSideBar(!openSideBar)
+                        if (userAccount?.userName) {
+                            navigate("/account")
+                            setOpenSideBar(!openSideBar)
+                        }else{
+                            navigate("/login")
+                            setOpenSideBar(!openSideBar)
+                        }
+
                     }}
                         className="flex text-xl items-center pl-5 space-x-4 py-5 hover:bg-gray-300 border">
                         <span><FaChevronRight /></span>
-                        <span>Login</span>
+                        <span>{userAccount?.userName ? "Tài Khoản của bạn" : "Login"}</span>
                         <span><RiLoginCircleFill /></span>
                     </a>
-
-                    {/* <div className="flex">
-                        <span><FaChevronRight/></span>
-                        <span>Manager</span>
-                    </div>
-                    <div className="flex">
-                        <span><FaChevronRight/></span>
-                        <span>Order</span>
-                    </div>
-                    <div className="flex">
-                        <span><FaChevronRight/></span>
-                        <span></span>
-                    </div> */}
                 </ul>
             </div>
         }
+
+        {viewCart && <div className="absolute top-0 right-0 h-screen w-full z-10">
+            <div className="absolute top-0 right-0 w-full h-screen bg-black bg-opacity-50 z-10"></div>
+            <div className=" animate__animated animate__fadeInRightBig animate__faster absolute border-2  top-0 right-0 w-full h-screen sm:max-w-[400px] bg-white z-50 flex flex-col justify-between border-black">
+                <div className={` ${showCategoryBar ? "" : ""} relative h-16 border-t-2 border-white bg-black text-white  mt-[60px] border-y-2 flex items-center justify-center text-2xl px-5`}>
+                    <span>Giỏ hàng</span>
+                    <IoClose className="absolute top-4 right-4" />
+                </div>
+                <ul className=" border-black h-[400px] overflow-y-scroll">
+                    <li className="border py-4 pl-2 flex items-center group/delete">
+                        <span className="w-7">1.</span>
+                        <span className="flex-1">Thit ga</span>
+                        <span className=" flex">
+                            <span className="h-7 w-7 hover:border hover:bg-gray-100  flex items-center justify-center">+</span>
+                            <input type="text" className="w-10 h-7 border text-center" value={1} />
+                            <span className="h-7 w-7 hover:border hover:bg-gray-100  flex items-center justify-center">-</span>
+                        </span>
+                        <span className="w-24">123.000.000</span>
+                        <span className="w-8 flex justify-center invisible  group-hover/delete:visible "><IoClose title="Delete" className="hover:transform hover:scale-150 hover:duration-300 hover:delay-300 cursor-pointer" /></span>
+                    </li>
+                    <li className="border py-4 pl-2 flex items-center group/delete">
+                        <span className="w-7">1.</span>
+                        <span className="flex-1">Thit ga</span>
+                        <span className=" flex">
+                            <span className="h-7 w-7 hover:border hover:bg-gray-100  flex items-center justify-center">+</span>
+                            <input type="text" className="w-10 h-7 border text-center" value={1} />
+                            <span className="h-7 w-7 hover:border hover:bg-gray-100  flex items-center justify-center">-</span>
+                        </span>
+                        <span className="w-24">123.000.000</span>
+                        <span className="w-8 flex justify-center invisible  group-hover/delete:visible "><IoClose title="Delete" className="hover:transform hover:scale-150 hover:duration-300 hover:delay-300 cursor-pointer" /></span>
+                    </li>
+                    <li className="border py-4 pl-2 flex items-center group/delete">
+                        <span className="w-7">1.</span>
+                        <span className="flex-1">Thit ga</span>
+                        <span className=" flex">
+                            <span className="h-7 w-7 hover:border hover:bg-gray-100  flex items-center justify-center">+</span>
+                            <input type="text" className="w-10 h-7 border text-center" value={1} />
+                            <span className="h-7 w-7 hover:border hover:bg-gray-100  flex items-center justify-center">-</span>
+                        </span>
+                        <span className="w-24">123.000.000</span>
+                        <span className="w-8 flex justify-center invisible  group-hover/delete:visible "><IoClose title="Delete" className="hover:transform hover:scale-150 hover:duration-300 hover:delay-300 cursor-pointer" /></span>
+                    </li>
+
+
+                </ul>
+                <div className="h-16 bg-white text-white flex items-center justify-center text-2xl border-t-2 ">
+                    <span className="bg-black text-white cursor-pointer  border-2 border-black py-1 w-8/12  flex justify-center hover:bg-primary">Thanh Toán</span>
+                </div>
+            </div>
+        </div>}
     </div >;
 }
 

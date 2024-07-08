@@ -2,6 +2,18 @@ import React, { useEffect, useState } from "react";
 import { FaAngleDown } from "react-icons/fa6";
 import DatePicker from "react-datepicker";
 import dayjs from 'dayjs'
+import "react-datepicker/dist/react-datepicker.css";
+import { toast } from "react-toastify";
+import { Star1 } from "../../assets/starButton/star1";
+import { Star2 } from "../../assets/starButton/star2";
+import { Star3 } from "../../assets/starButton/star3";
+import { Star4 } from "../../assets/starButton/star4";
+import { Star5 } from "../../assets/starButton/star5";
+import { Star6 } from "../../assets/starButton/star6";
+import { apiBookATable } from "../../API/api";
+import { IUserInfo } from "../../common/types/userInfo";
+import { useAppSelector } from "../../Redux/store";
+import { Reserved } from "../../common/types/bookATable";
 // import Dish from "../../assets/dish.png"
 
 const options = [
@@ -11,35 +23,19 @@ const options = [
     { value: 'High table' },
 ];
 const times = [
-    { value: '8:00' },
-    { value: '9:00' },
-    { value: '10:00' },
-    { value: '11:00' },
-    { value: '12:00' },
-    { value: '13:00' },
-    { value: '14:00' },
-    { value: '15:00' },
-    { value: '16:00' },
-    { value: '17:00' },
-    { value: '18:00' },
-    { value: '19:00' },
+    { value: '8:00 AM' },
+    { value: '9:00 AM' },
+    { value: '10:00 AM' },
+    { value: '11:00 AM' },
+    { value: '12:00 AM' },
+    { value: '1:00 PM' },
+    { value: '2:00 PM' },
+    { value: '3:00 PM' },
+    { value: '4:00 PM' },
+    { value: '5:00 PM' },
+    { value: '6:00 PM' },
+    { value: '7:00 PM' },
 ];
-
-import "react-datepicker/dist/react-datepicker.css";
-import { toast } from "react-toastify";
-import { Star1 } from "../../assets/starButton/star1";
-import { Star2 } from "../../assets/starButton/star2";
-import { Star3 } from "../../assets/starButton/star3";
-import { Star4 } from "../../assets/starButton/star4";
-import { Star5 } from "../../assets/starButton/star5";
-import { Star6 } from "../../assets/starButton/star6";
-interface Reserved {
-    date: string,
-    time: string,
-    totalPerson: string | number | undefined,
-    space: string,
-    note: string
-}
 
 const BookATable: React.FC = () => {
     const initial = {
@@ -69,7 +65,7 @@ const BookATable: React.FC = () => {
             setFormattedDate(dayjs(date).format('DD/MM/YYYY'));
         }
     };
-
+    const userAccount: IUserInfo | undefined = useAppSelector((state) => state.user.userInfo)
     const showDataReservation = (data: Reserved) => {
         // if(flag){
         //     return toast("Bạn đã đặt lịch ")
@@ -87,13 +83,26 @@ const BookATable: React.FC = () => {
             return toast.error(<span className="text-primary">Hãy chọn không gian !</span>)
         }
         // setFlag(true)
-        console.log("data", data);
-        toast("Thank you ! We will contact you soon")
-        setStartDate(null)
-        setChooseTime("")
-        setNumberPerson("")
-        setSelectSpace("")
-        setNote("")
+
+        if (userAccount) {
+            apiBookATable({ userInfo: userAccount, bookingInfo: data })
+                .then(res => {
+                    setStartDate(null)
+                    setChooseTime("")
+                    setNumberPerson("")
+                    setSelectSpace("")
+                    setNote("")
+                    toast("Thank you ! We will contact you soon")
+                    console.log("res", res);
+                })
+                .catch(error => {
+                    console.log("Error Fetching apiBookATable", error);
+                    return toast.error(error.response.data.message)
+                })
+            console.log("data", data);
+        } else {
+            toast.error("Hãy đăng nhập vào tài khoản để đặt bàn online!!!")
+        }
     }
 
     useEffect(() => {
@@ -191,7 +200,6 @@ const BookATable: React.FC = () => {
                 </div>
             </div>
         </div>
-
     </div>;
 }
 export default BookATable;

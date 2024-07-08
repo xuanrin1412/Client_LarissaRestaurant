@@ -1,17 +1,10 @@
 import React from 'react'
 import { Navigate, Outlet } from 'react-router-dom'
-import { UserAccount } from '../components/navbar/Navbar';
+import { IUserInfo } from '../common/types/userInfo';
+import { useAppSelector } from '../Redux/store';
 
 const PrivateRoutes: React.FC = () => {
-  const userAccountString = localStorage.getItem("larissa_userInfo");
-  let userAccount: UserAccount | null = null;
-  if (userAccountString) {
-    try {
-      userAccount = JSON.parse(userAccountString) as UserAccount;
-    } catch (error) {
-      console.error("Error parsing user account from localStorage", error);
-    }
-  }
+  const userAccount: IUserInfo | null = useAppSelector(state => state.user.userInfo)
   return (
     (userAccount?.role == "moderator" || userAccount?.role == "admin") ? <Outlet /> : <Navigate to='/login' />
   )

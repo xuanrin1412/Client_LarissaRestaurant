@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { IoIosSearch } from "react-icons/io";
 import { useLocation } from "react-router-dom";
-import { IFood, IMenu } from "../../common/type";
+
 import {  ITableHaveOrders } from "../order/area/Area";
 import { RootState, useAppDispatch, useAppSelector } from "../../Redux/store";
 import { addFoodInFoodsOrder, createFoodArr, getCategoryWFood } from "../../Redux/foodsSlice";
 import { formatCurrency } from "../../utils/formartCurrency";
+import { IMenu } from "../../common/types/menu";
+import { IFood } from "../../common/types/foods";
 
 function MenuOrderTable() {
     const param = useLocation()
@@ -15,10 +17,12 @@ function MenuOrderTable() {
     // console.log("=====",takeOrderFromTable);
     
     const [menuActive, setMenuActive] = useState<boolean>(false)
-    const categoryWFood: IMenu[] = useAppSelector((state: RootState) => state.categoryWFood);
+    const categoryWFood: IMenu[] = useAppSelector((state: RootState) => state.foods.categoryWFood);
+    console.log("categoryWFood order",categoryWFood);
+    
 
 
-    const FoodInOrder: ITableHaveOrders|undefined  = useAppSelector((state: RootState) => state.foodsOrder);
+    const FoodInOrder: ITableHaveOrders|undefined  = useAppSelector((state: RootState) => state.foods.foodsOrder);
     // console.log("=============take data OrderFoods in Redux  menu=========",FoodInOrder);
     const takeOrderID = FoodInOrder?.foods?.find(item=>item.orderId)?.orderId
     // console.log("testtttt",takeOrderID);

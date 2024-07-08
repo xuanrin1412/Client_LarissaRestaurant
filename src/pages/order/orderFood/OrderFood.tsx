@@ -1,25 +1,38 @@
 import { IoClose } from "react-icons/io5";
 import 'react-toastify/dist/ReactToastify.css';
-import { IFoodSlice } from "../../../common/type";
 import { FaAngleDown, FaRegEdit } from "react-icons/fa";
 import FooterOrderBoard from "./child/FooterOrderBoard";
 import { SetStateAction, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { IFoodsInOrder, ITableHaveOrders } from "../area/Area";
-import { UserAccount } from "../../../components/navbar/Navbar";
 import { formatCurrency } from "../../../utils/formartCurrency";
 import MenuOrderTable from "../../menuOrderTable/MenuOrderTable";
 import FoodsInOrderBoard from "../orderFood/child/FoodsInOrderBoard"
 import { RootState, useAppDispatch, useAppSelector } from "../../../Redux/store";
-import { apiCreateBill, apiCreateOrder, apiUpdateFoods, apiUpdateNote } from "../../../API/api";
+import { apiCreateBill, apiCreateOrder, apiMomoPayment, apiUpdateFoods, apiUpdateNote } from "../../../API/api";
 import { closeOrder, decreaseQuantity, decreaseQuantityOD, deleteFoodArr, increaseQuantity, increaseQuantityOD, setOpenModalConfirm, setOpenModalPayment, setfoodsOrder } from "../../../Redux/foodsSlice";
 import dayjs from 'dayjs'
+import { IUserInfo } from "../../../common/types/userInfo";
+import { IFoodSlice } from "../../../common/types/foods";
 
 // INTERACE FOR UPDATE 
 interface IOrderUpdates {
     updated: Array<IFoodsInOrder & { quantityChange: number; addedQuantity: number; removedQuantity: number }>;
     removed: IFoodsInOrder[];
     added: IFoodsInOrder[];
+}
+
+interface IMomoData{
+amount:number,
+deeplink:string,
+message:string,
+orderId:string,
+partnerCode:string,
+payUrl:string,
+qrCodeUrl:string,
+requestId:string,
+responseTime:number,
+resultCode:number,
 }
 
 function OrderFood() {
@@ -37,11 +50,11 @@ function OrderFood() {
 
 
     // TAKE DATA FROM REDUX
-    const total: number = useAppSelector((state: RootState) => state.total);
-    const foods: IFoodSlice[] = useAppSelector((state: RootState) => state.foods);
-    const openModalConfirm: boolean = useAppSelector((state: RootState) => state.openModalConfirm);
-    const openModalPayment: boolean = useAppSelector((state: RootState) => state.openModalPayment);
-    const FoodInOrder: ITableHaveOrders | undefined = useAppSelector((state: RootState) => state.foodsOrder);
+    const total: number = useAppSelector((state: RootState) => state.foods.total);
+    const foods: IFoodSlice[] = useAppSelector((state: RootState) => state.foods.foods);
+    const openModalConfirm: boolean = useAppSelector((state: RootState) => state.foods.openModalConfirm);
+    const openModalPayment: boolean = useAppSelector((state: RootState) => state.foods.openModalPayment);
+    const FoodInOrder: ITableHaveOrders | undefined = useAppSelector((state: RootState) => state.foods.foodsOrder);
     console.log("FoodInOrder-1", FoodInOrder);
 
 
@@ -96,16 +109,7 @@ function OrderFood() {
     const [data, setData] = useState<IFoodSlice[]>()
 
     // TAKE OUT USER ACCOUNT
-    const userAccountString = localStorage.getItem("larissa_userInfo");
-    let userAccount: UserAccount | null = null;
-    if (userAccountString) {
-        try {
-            userAccount = JSON.parse(userAccountString) as UserAccount;
-        } catch (error) {
-            console.error("Error parsing user account from localStorage", error);
-        }
-    }
-
+    const userAccount:IUserInfo |null = useAppSelector(state=>state.user.userInfo)
     // TAKE PARTERN FOOD TO PARSE INTO apiCreateOrder
     const foodForApi = foods.map(item => {
         return {
@@ -132,7 +136,7 @@ function OrderFood() {
 
     // HANDLE CONFIRM ORDER
     const handleConfirmOrder = async () => {
-        await apiCreateOrder({ userId: userAccount?.id, note: note, tableId: tableId, foods: foodForApi })
+        await apiCreateOrder({ userId: userAccount?._id, note: note, tableId: tableId, foods: foodForApi })
             .then(res => {
                 if (res.status == 200) {
                     dispatch(deleteFoodArr())
@@ -203,11 +207,8 @@ function OrderFood() {
     const handleCloseModalPayment = () => {
         dispatch(setOpenModalPayment(false))
     }
-
-
     const [toggleNotiUpdate, setToggleNotiUpdate] = useState<boolean>(false)
     const [showBtnFix, setShowBtnFix] = useState<boolean>(false)
-
 
     // PAYMENT METHOD
     const paymentMethods = [
@@ -245,6 +246,10 @@ function OrderFood() {
                 console.log(err);
             })
     }
+    
+    const [momoPaymentData, setMomoPaymentData] = useState<IMomoData>()
+    console.log("momoPaymentData",momoPaymentData);
+    
 
     useEffect(() => {
         const handleUpdate = () => {
@@ -269,6 +274,21 @@ function OrderFood() {
         if (foods) {
             setData(foods)
         }
+
+        // MOMO PAYMENT
+        const momoPayment = async () => {
+            try {
+                const res = await apiMomoPayment({ orderId, amount: FoodInOrder?.subTotal })
+                setMomoPaymentData(res.data.getPayment)
+                window.location.href = res.data.getPayment.payUrl;
+            } catch (error) {
+                console.log("Error fetching apiMomoPayment", error);
+            }
+        }
+        if (chooseSelect?.value == "momo") {
+            momoPayment()
+        }
+
         // HANDLE BACK BUTTON ON BROWSER 
         const handlePopstate = () => {
             if (foods.length > 0) {
@@ -284,7 +304,7 @@ function OrderFood() {
         return () => {
             window.removeEventListener("popstate", handlePopstate);
         };
-    }, [foods, total, navigate, dispatch, takeOrderFromTable, newOrderFoods, oldOrderFoods]);
+    }, [foods, total, navigate, dispatch, takeOrderFromTable, newOrderFoods, oldOrderFoods, chooseSelect]);
 
     useEffect(() => {
         const handleCalculate = () => {

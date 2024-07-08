@@ -1,17 +1,17 @@
 import { useState } from "react";
 import { Sales } from "./managementChild/Sales";
-import { FoodsManagerment } from "./managementChild/FoodsManagerment";
-import { AreaManagement } from "./managementChild/AreaManagement";
+import { FoodsManagement } from "./managementChild/FoodsManagement";
 import { TableManagement } from "./managementChild/TableManagement";
 import { CategoryManagement } from "./managementChild/CatergoryMangement";
 import { EmployeeManagement } from "./managementChild/EmployeeManagement";
+import { AreaManagement } from "./managementChild/AreaManagement";
 
 const listManagement = [
     "Doanh Số Bán Hàng",
-    "Quản Lý Doanh Mục Món",
     "Quản Lý Món Ăn",
-    "Quản Lý Khu Vực",
     "Quản Lý Bàn",
+    "Quản Lý Khu Vực",
+    "Quản Lý Doanh Mục Món",
     "Quản Lý Nhân Viên"
 ]
 
@@ -29,13 +29,13 @@ function Manager() {
 
             </div>
         </div>
-        <div className="z-0 pt-header absolute top-0 left-0 pl-[240px] w-full  h-full">
-            {managementName == "Doanh Số Bán Hàng" && <Sales/>}
-            {managementName == "Quản Lý Món Ăn" && <FoodsManagerment/>}
-            {managementName == "Quản Lý Khu Vực" && <AreaManagement/>}
-            {managementName == "Quản Lý Bàn" && <TableManagement/>}
-            {managementName == "Quản Lý Doanh Mục Món" && <div><CategoryManagement/></div>}
-            {managementName == "Quản Lý Nhân Viên" && <div><EmployeeManagement/></div>}
+        <div className=" pt-header absolute top-0 left-0 pl-[240px] w-full  h-full">
+            {managementName == "Doanh Số Bán Hàng" && <Sales />}
+            {managementName == "Quản Lý Món Ăn" && <FoodsManagement />}
+            {managementName == "Quản Lý Bàn" && <TableManagement />}
+            {managementName == "Quản Lý Khu Vực" && <AreaManagement />}
+            {managementName == "Quản Lý Doanh Mục Món" && <div><CategoryManagement /></div>}
+            {managementName == "Quản Lý Nhân Viên" && <div><EmployeeManagement /></div>}
         </div>
 
     </div>;

@@ -1,15 +1,15 @@
-import { IMenu } from "../../common/type";
 import { useEffect, useRef, useState } from "react";
 import { getCategoryWFood } from "../../Redux/foodsSlice";
 import { RootState, useAppDispatch, useAppSelector } from "../../Redux/store";
+import { IMenu } from "../../common/types/menu";
 
 const Menu: React.FC = () => {
     const dispatch = useAppDispatch();
     const [showCategoryBar, setShowCategoryBar] = useState<boolean>(false);
     const [activeCategory, setActiveCategory] = useState<string>();
     const categoryRefs = useRef<{ [key: string]: HTMLDivElement }>({});
-    const categoryWFood: IMenu[] = useAppSelector((state: RootState) => state.categoryWFood);
-    console.log(categoryWFood);
+    const categoryWFood: IMenu[] = useAppSelector((state: RootState) => state.foods.categoryWFood);
+    console.log("categoryWFood123312", categoryWFood);
 
 
     const scrollCategoryBar = () => {
@@ -41,6 +41,7 @@ const Menu: React.FC = () => {
 
         return () => {
             categoryWFood.forEach(category => {
+                // eslint-disable-next-line react-hooks/exhaustive-deps
                 const ref = categoryRefs.current[category.categoryName];
                 if (ref) {
                     observer.unobserve(ref);
@@ -51,7 +52,6 @@ const Menu: React.FC = () => {
 
     useEffect(() => {
         dispatch(getCategoryWFood());
-
         window.addEventListener("scroll", scrollCategoryBar);
         return () => {
             window.removeEventListener("scroll", scrollCategoryBar);
@@ -82,7 +82,6 @@ const Menu: React.FC = () => {
                 </div>
             )}
 
-
             {categoryWFood.filter(category => category.food.length > 0).map((category, categoryIndex) => (
                 <div key={categoryIndex} className="mb-10 lg:mb-20 first:mt-20">
                     <div
@@ -94,7 +93,7 @@ const Menu: React.FC = () => {
                     </div>
                     <div className="w-11/12 lg:w-[95%] xl:w-11/12 mx-auto grid lg:grid-cols-2 flex-wrap ">
                         {category.food.map((item, index) => (
-                            <div key={index} className={`${index % 2 === 0 ? "lg:border-r-2" : ""}  flex flex-col sm:flex-row items-center px-2 sm:px-4 md:px-8 py-5`}>
+                            <div key={index} className={`${index % 2 === 0 ? "lg:border-r-2" : ""}  flex flex-col sm:flex-row items-center px-2 sm:px-4 md:px-8 py-5 hover:bg-gray-100 relative group `}>
                                 <div className="flex w-full sm:w-fit  items-center justify-start space-x-6">
                                     <div className="w-36  h-36 sm:w-52 sm:h-52 ">
                                         <img
@@ -114,6 +113,13 @@ const Menu: React.FC = () => {
                                         {item.revenue && <div className="font-bold">{item.revenue}k</div>}
                                     </div>
                                     <div className="text-justify">{item.description || "No description available"}</div>
+                                </div>
+                                <div className="absolute invisible top-0 left-0 h-full w-full flex items-center justify-center group-hover:visible">
+                                    {/* <div className=" p-3 bg-black hover:cursor-pointer  text-white border-solid border-2 border-white">Thêm vào giỏ hàng</div> */}
+                                    <div className="button-borders">
+                                        <button className="primary-button"> Thêm vào giỏ hàng
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         ))}

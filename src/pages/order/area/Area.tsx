@@ -1,10 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { IFoodInfoInFoodOrder } from "../../../common/type";
 import { apiGetAllOrder, apiGetAreaWithTable } from "../../../API/api";
 import io from 'socket.io-client';
 import { useAppDispatch } from "../../../Redux/store";
 import { setfoodsOrder } from "../../../Redux/foodsSlice";
+import { IUserInfo } from "../../../common/types/userInfo";
+import { IFoodInfoInFoodOrder } from "../../../common/types/foods";
 const socket = io('http://localhost:3004');
 
 export interface ITable {
@@ -17,12 +18,6 @@ interface IAreaWTable {
     table: ITable[]
 }
 
-export interface IUserInfo {
-    role: string,
-    userName: string,
-    email: string,
-    phoneNumber: string,
-}
 
 export interface IFoodsInOrder {
     _id?: string,
@@ -33,7 +28,7 @@ export interface IFoodsInOrder {
 }
 
 export interface ITableHaveOrders {
-    createdAt:string,
+    createdAt: string,
     userId: IUserInfo,
     tableId: string,
     subTotal: number | undefined,
@@ -75,9 +70,6 @@ function Area() {
                     <span>{takeOutFood.subTotal}K</span>
                     <span>({totalFood})</span>
                 </div>
-                {/* <div className=" absolute -top-3 -left-2 bg-[#0b2b6b] border-2 border-black text-white font-medium h-6  rounded-lg flex items-center justify-center text-sm space-x-2 px-4 py-[14px]">
-                    <span>Reserved</span>
-                </div> */}
             </>
         }
     }
@@ -91,11 +83,11 @@ function Area() {
                 setData(res.data)
             })
 
+
         socket.on('all_orders', (allOrders) => {
-            // console.log("all_orders===============", allOrders.orders);
+            console.log("all_orders===============", allOrders.orders);
             setTablesHaveOrders(allOrders.orders)
         });
-
         socket.on('area_with_table', (areaWithTable) => {
             console.log("area_with_table===============", areaWithTable);
         });

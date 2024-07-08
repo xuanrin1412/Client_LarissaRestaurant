@@ -1,54 +1,16 @@
 import Money from "../../../assets/money.png"
 import Profits from "../../../assets/profits.png"
-import bestSeller from "../../../assets/bestSeller.png"
 import { Table } from 'antd';
 import type { TableColumnsType } from 'antd';
 import { useCallback, useEffect, useState } from "react";
 import { apiGetAllBill, apiGetBestSellingFoods, apiGetOneBill } from "../../../API/api";
 import { FaEye } from "react-icons/fa";
-import { IFoodsInOrder, ITable, IUserInfo } from "../../order/area/Area";
 import dayjs from 'dayjs'
 import { formatCurrency } from "../../../utils/formartCurrency";
 import { IoClose } from "react-icons/io5";
-
-interface DataType {
-    _id: string
-    userName: string;
-    createAt: string;
-    table: string;
-    total: string;
-
-}
+import { DataType, IbestSellingFoods, IBillDetails, IdataBills } from "../../../common/types/managerTypes/sales";
 
 
-
-
-interface IdataBills {
-    _id: string,
-    paymentMethod: string,
-    orderId: {
-        createdAt: string,
-        note: string,
-        statusPayment: string,
-        subTotal: number,
-        tableId: ITable,
-        updatedAt: string,
-        userId: IUserInfo
-        _id: string,
-    },
-    foodOrderDetail: {
-        orderId: {
-            createdAt: string
-            note: string
-            statusPayment: string
-            subTotal: number
-            tableId: ITable,
-            userId: IUserInfo
-            _id: string
-        }
-    },
-    profit: number
-}
 export const Sales = () => {
     const [dataBills, seDataBills] = useState<IdataBills[]>()
     console.log("dataBills", dataBills);
@@ -69,30 +31,7 @@ export const Sales = () => {
         };
     });
 
-    interface IbestSellingFoods {
-        totalSold: number,
-        foodId: string,
-        foodName: string,
-        picture: string
-    }
 
-    interface IBillDetails {
-        foods: IFoodsInOrder[]
-        getOneBill: {
-            orderId: {
-                _id: string,
-                createdAt: string,
-                userId: IUserInfo,
-                tableId: ITable,
-                subTotal: number | undefined,
-                status: string,
-                foods: IFoodsInOrder[],
-                note?: string | undefined
-            }
-            paymentMethod: string;
-            profit: number
-        }
-    }
 
     const [bestSellingFoods, setBestSellingFoods] = useState<IbestSellingFoods[] | undefined>()
 
