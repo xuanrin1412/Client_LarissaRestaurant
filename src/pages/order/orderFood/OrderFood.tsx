@@ -22,17 +22,17 @@ interface IOrderUpdates {
     added: IFoodsInOrder[];
 }
 
-interface IMomoData{
-amount:number,
-deeplink:string,
-message:string,
-orderId:string,
-partnerCode:string,
-payUrl:string,
-qrCodeUrl:string,
-requestId:string,
-responseTime:number,
-resultCode:number,
+interface IMomoData {
+    amount: number,
+    deeplink: string,
+    message: string,
+    orderId: string,
+    partnerCode: string,
+    payUrl: string,
+    qrCodeUrl: string,
+    requestId: string,
+    responseTime: number,
+    resultCode: number,
 }
 
 function OrderFood() {
@@ -109,7 +109,7 @@ function OrderFood() {
     const [data, setData] = useState<IFoodSlice[]>()
 
     // TAKE OUT USER ACCOUNT
-    const userAccount:IUserInfo |null = useAppSelector(state=>state.user.userInfo)
+    const userAccount: IUserInfo | null = useAppSelector(state => state.user.userInfo)
     // TAKE PARTERN FOOD TO PARSE INTO apiCreateOrder
     const foodForApi = foods.map(item => {
         return {
@@ -246,10 +246,10 @@ function OrderFood() {
                 console.log(err);
             })
     }
-    
+
     const [momoPaymentData, setMomoPaymentData] = useState<IMomoData>()
-    console.log("momoPaymentData",momoPaymentData);
-    
+    console.log("momoPaymentData", momoPaymentData);
+
 
     useEffect(() => {
         const handleUpdate = () => {
@@ -277,6 +277,7 @@ function OrderFood() {
 
         // MOMO PAYMENT
         const momoPayment = async () => {
+            localStorage.setItem("orderId-momo", JSON.stringify(orderId))
             try {
                 const res = await apiMomoPayment({ orderId, amount: FoodInOrder?.subTotal })
                 setMomoPaymentData(res.data.getPayment)

@@ -1,9 +1,9 @@
 import { MdOutlineReportProblem } from "react-icons/md";
-import { IFoodSlice } from "../../../../common/type";
 import { ITableHaveOrders } from "../../area/Area";
 import { useDispatch } from "react-redux";
 import { setOpenModalPayment } from "../../../../Redux/foodsSlice";
 import { formatCurrency } from "../../../../utils/formartCurrency";
+import { IFoodSlice } from "../../../../common/types/foods";
 interface IFooterOrderBoard {
     handleConfirmOrder: () => void,
     FoodInOrder: ITableHaveOrders | undefined,

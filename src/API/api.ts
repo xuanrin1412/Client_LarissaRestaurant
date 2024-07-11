@@ -1,8 +1,9 @@
-import axios from "axios"
+import { IAddTable } from "../pages/manager/managementChild/TableManagement";
+import { IFoodAdd, IFoodInfoInFoodOrder } from "../common/types/foods";
 import { IFoodsInOrder } from "../pages/order/area/Area";
 import { IUserInfo } from "../common/types/userInfo";
-import { IFoodAdd, IFoodInfoInFoodOrder } from "../common/types/foods";
 import { Reserved } from "../common/types/bookATable";
+import axios from "axios"
 interface IuserLogin {
     userName: string,
     password: string
@@ -21,33 +22,78 @@ export const apiLogin = ({ userName, password }: IuserLogin) => {
     }, { withCredentials: true });
 };
 
+//GET ALL MODERATOR
+export const apiGetAllModerator = () => {
+    return axios.get(`${baseUrl}/register/getAllModerator`, { withCredentials: true });
+};
+
 // AREA W TABLE
 export const apiGetAreaWithTable = () => {
     return axios.get(`${baseUrl}/area/getAreaWithTable`, { withCredentials: true })
 }
 //ADD AREA
-export const apiAddArea = (areaName:string) => {
-    return axios.post(`${baseUrl}/area`,{areaName}, { withCredentials: true })
+export const apiAddArea = (areaName: string) => {
+    return axios.post(`${baseUrl}/area`, { areaName }, { withCredentials: true })
 }
 //GET ALL AREA 
 export const apiGetAllArea = () => {
     return axios.get(`${baseUrl}/area`, { withCredentials: true })
 }
 // DELETE AREA 
-export const apiDeleteArea = (areaId:string|undefined) => {
+export const apiDeleteArea = (areaId: string | undefined) => {
     return axios.delete(`${baseUrl}/area/${areaId}`, { withCredentials: true })
 }
-
-
+// CREATE TABLE
+export const apiCreateTable = ({
+    tableName,
+    capacity,
+    areaId,
+}: IAddTable) => {
+    return axios.post(`${baseUrl}/table/`, {
+        tableName,
+        capacity,
+        areaId,
+    }, { withCredentials: true })
+}
+//UPDATE TABLE
+interface IUpdateTable {
+    tableName: string,
+    capacity: number | undefined
+}
+export const apiUpdateTable = (tableId: string, { tableName, capacity }: IUpdateTable) => {
+    return axios.put(`${baseUrl}/table/${tableId}`, { tableName, capacity }, { withCredentials: true })
+}
+// DELETE TABLE
+export const apiDeleteTable = (tableId: string) => {
+    return axios.delete(`${baseUrl}/table/${tableId}`, { withCredentials: true })
+}
 
 // CATEGORY W FOOD 
 export const apiGetCategoryWFood = () => {
     return axios.get(`${baseUrl}/category/getCategoryWithFood`, { withCredentials: true })
 }
 // DELETE FOOD
-export const apiDeleteFood = (foodId: string|undefined) => {
+export const apiDeleteFood = (foodId: string | undefined) => {
     return axios.delete(`${baseUrl}/food/${foodId}`, { withCredentials: true })
 }
+// GET ONE FOOD 
+export const apiGetOneFood = (foodId: string | undefined) => {
+    return axios.get(`${baseUrl}/food/find/${foodId}`, { withCredentials: true })
+}
+
+// UPDATE FOOD
+export const apiUpdateFoodItem = (_id: string | undefined, { categoryId, foodName, description, picture, costPrice, revenue, favourite }: IFoodAdd,) => {
+    return axios.put(`${baseUrl}/food/${_id}`, {
+        categoryId,
+        foodName,
+        description,
+        picture,
+        costPrice,
+        revenue,
+        favourite
+    }, { withCredentials: true })
+}
+
 
 // ALL CATEGORY
 export const apiGetAllCategory = () => {
@@ -119,6 +165,12 @@ export const apiUpdateFoods = ({ id, listIdRemoveFoods, newOrderFoods, listUpdat
         { totalOrder, listIdRemoveFoods, newOrderFoods, listUpdateQuanFoods },
         { withCredentials: true })
 }
+
+export const apiCheckOrderPayment = (orderId: string|undefined) => {
+    return axios.post(`http://localhost:3004/transaction-status`, { orderId },)
+}
+
+
 
 // GET All FOOD 
 export const apiGetAllFoods = () => {
@@ -224,9 +276,6 @@ export const apiUpdateStatusBooking = (id: string, newStatus: string) => {
     return axios.put(`${baseUrl}/book_a_table/updateStatus/${id}`, { newStatus }, { withCredentials: true })
 }
 
-
-
-
 // MOMO PAYMENT
 interface IapiMomoPayment {
     orderId: string | undefined,
@@ -236,10 +285,6 @@ export const apiMomoPayment = ({ orderId, amount }: IapiMomoPayment) => {
     console.log("payload apiMomoPayment------------", { orderId, amount });
     return axios.post(`http://localhost:3004/payment`, { orderId, amount }, { withCredentials: true })
 }
-
-
-
-
 
 export const apiUploadImage = (imageLocal: unknown) => {
     console.log("imageLocal", imageLocal);

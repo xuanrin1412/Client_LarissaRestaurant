@@ -9,6 +9,7 @@ import { apiLogin } from "../../API/api";
 import { useDispatch } from "react-redux";
 import { setUserInfo } from "../../Redux/userSlice";
 import { IUserInfo } from "../../common/types/userInfo";
+import Cookies from 'js-cookie';
 
 
 function Login() {
@@ -21,10 +22,10 @@ function Login() {
         e.preventDefault();
         apiLogin({ userName, password })
             .then((res) => {
-                // localStorage.setItem('larissa_userInfo', JSON.stringify(res));
+                Cookies.set('larissa_userInfo', JSON.stringify(res));
                 const user: IUserInfo = jwtDecode(res.data.tokenJWT);
                 console.log("user when login",user);
-                
+
                 dispatch(setUserInfo({ userInfo: user }))
                 const userRole = user.role;
                 if (userRole == "moderator") {

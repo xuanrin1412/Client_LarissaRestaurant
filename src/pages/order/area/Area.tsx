@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { apiGetAllOrder, apiGetAreaWithTable } from "../../../API/api";
+import { apiCheckOrderPayment, apiCreateBill, apiGetAllOrder, apiGetAreaWithTable } from "../../../API/api";
 import io from 'socket.io-client';
 import { useAppDispatch } from "../../../Redux/store";
 import { setfoodsOrder } from "../../../Redux/foodsSlice";
@@ -73,16 +73,25 @@ function Area() {
             </>
         }
     }
-
+    // const orderIdmomo = localStorage.getItem("orderId-momo")
+    const orderIdmomo = localStorage.getItem("orderId-momo")?.replace(/"/g, "");
+    console.log("cleanedOrderId:", orderIdmomo);
     useEffect(() => {
-        apiGetAllOrder().then(res => {
-            setTablesHaveOrders(res.data.orders)
-        })
+        const getAllOrder = async () => {
+            try {
+                const res = await apiGetAllOrder()
+                setTablesHaveOrders(res.data.orders)
+            } catch (error) {
+                console.log("Error fetching ", error);
+
+            }
+        }
+        getAllOrder()
+
         apiGetAreaWithTable()
             .then(res => {
                 setData(res.data)
             })
-
 
         socket.on('all_orders', (allOrders) => {
             console.log("all_orders===============", allOrders.orders);
@@ -91,11 +100,36 @@ function Area() {
         socket.on('area_with_table', (areaWithTable) => {
             console.log("area_with_table===============", areaWithTable);
         });
+
+        if (orderIdmomo) {
+            const checkPaymentByMomo = async () => {
+                try {
+                    const res = await apiCheckOrderPayment(orderIdmomo)
+                    console.log("apiCheckOrderPayment", res.data.transactionStatus);
+                    if (res.data.transactionStatus.resultCode == 0) {
+                        await apiCreateBill({ orderId: orderIdmomo, paymentMethod: "momo" })
+                            .then((res) => {
+                                console.log("res handlePayment MOMO", res);
+                                localStorage.removeItem("orderId-momo")
+                                getAllOrder()
+                            })
+                            .catch(err => {
+                                console.log(err);
+                            })
+                    }
+                } catch (error) {
+                    console.log("Error fetching apiCheckOrderPayment", error);
+                }
+            }
+            checkPaymentByMomo()
+        }
+
+
         return () => {
             socket.off('all_orders');
             socket.off('area_with_table');
         };
-    }, []);
+    }, [orderIdmomo]);
 
     return <div className=" my-header mx-4 lg:mx-10">
         {data?.map((area, index) => (

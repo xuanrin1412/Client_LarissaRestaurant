@@ -992,12 +992,6 @@ input[type=number] {
     }
 }
 
-/* 
-
-.styleSelect .ant-select-selector:hover {
-    border: 1px solid orange !important;
-    box-shadow: none !important;
-} */
 
 .styleSelect .ant-select-selector {
     border: 2px solid black !important;
@@ -1005,7 +999,7 @@ input[type=number] {
     border-radius: 12px !important;
 }
 
-/* .styleSelect .ant-select-selector:focus {
-    border: 1px solid orange !important;
-    box-shadow: none !important;
-} */
+.styleSelect.readOnlyy .ant-select-selection-item {
+    color: #000000 !important;
+    font-weight: 500 !important;
+}

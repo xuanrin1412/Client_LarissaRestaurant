@@ -1,38 +1,26 @@
-import { apiAddFoods, apiDeleteFood, apiGetAllCategory, apiGetAllFoods, apiUploadImage } from "../../../API/api";
+import { apiAddFoods, apiDeleteFood, apiGetAllCategory, apiGetAllFoods, apiGetOneFood, apiUpdateFoodItem, apiUploadImage } from "../../../API/api";
 import { Button, Input, InputRef, Select, Space, Table, TableColumnType, type TableColumnsType } from 'antd';
 import { IdataCategory, IdataFoods, IFoodAdd, IFoods } from "../../../common/types/foods";
 import { LoadingImage } from "../../../components/commons/loadingImage";
-import { useEffect, useRef, useState } from "react";
-import { FaCirclePlus } from "react-icons/fa6";
-import { FilterDropdownProps } from "antd/es/table/interface";
-import { SearchOutlined } from '@ant-design/icons';
-import Highlighter from "react-highlight-words";
-import { FaEdit, FaRegTrashAlt } from "react-icons/fa";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
-import { IoClose } from "react-icons/io5";
-import { AiFillPicture } from "react-icons/ai";
 import { formatCurrency } from "../../../utils/formartCurrency";
-import { useDispatch } from "react-redux";
+import { FilterDropdownProps } from "antd/es/table/interface";
 import { convertBase64 } from "../../../utils/conversebase";
-import { toast } from "react-toastify";
-import { AxiosError } from "axios";
+import { FaEdit, FaRegTrashAlt } from "react-icons/fa";
 import { setLoadingImage } from "../../../Redux/Image";
 import { useAppSelector } from "../../../Redux/store";
+import { useEffect, useRef, useState } from "react";
+import { FaCirclePlus } from "react-icons/fa6";
+import { SearchOutlined } from '@ant-design/icons';
+import Highlighter from "react-highlight-words";
+import { IoClose } from "react-icons/io5";
+import { AiFillPicture } from "react-icons/ai";
+import { useDispatch } from "react-redux";
+import { toast } from "react-toastify";
+import { AxiosError } from "axios";
 
 type DataIndex = keyof IdataFoods;
 export const FoodsManagement = () => {
-  const dispatch = useDispatch()
-  const [dataFoods, setDataFoods] = useState<IdataFoods[]>()
-  const [modalFoods, setModalFoods] = useState<boolean>(false)
-  const [listCategory, setListCategory] = useState<IdataCategory[]>()
-  const loadingImage: boolean = useAppSelector(state => state.image.loadingImage)
-  const listCategoryForSelectOption = listCategory?.map(item => {
-    return {
-      value: item._id,
-      label: item.categoryName,
-    }
-  })
-
   const {
     register,
     handleSubmit, control,
@@ -42,14 +30,17 @@ export const FoodsManagement = () => {
   } = useForm<IFoodAdd>(
     {
       criteriaMode: "all",
-    }
+    },
   )
 
-
-  const [deletedFood, setDeletedFood] = useState<boolean>(false)
+  const dispatch = useDispatch()
   const [foodItem, setFoodItem] = useState<IFoods>()
-  console.log({ foodItem });
-
+  const [dataFoods, setDataFoods] = useState<IdataFoods[]>()
+  const [modalFoods, setModalFoods] = useState<boolean>(false)
+  const [deletedFood, setDeletedFood] = useState<boolean>(false)
+  const [listCategory, setListCategory] = useState<IdataCategory[]>()
+  const [takeFoodItem, settakeFoodItem] = useState<IFoods | null>(null)
+  const loadingImage: boolean = useAppSelector(state => state.image.loadingImage)
   const [openModalConfirmDeleteFood, setOpenModalConfirmDeleteFood] = useState<boolean>(false)
 
   const handleOpenModalDeleteFood = async (Food: IFoods) => {
@@ -67,14 +58,19 @@ export const FoodsManagement = () => {
     }
   }
 
-
   const [addFood, setAddFood] = useState<boolean>(false)
   const [startEdit, setStartEdit] = useState<boolean>(false)
-
-  const handleOpenModalViewEdit = (Food: IFoods) => {
-    setFoodItem(Food)
+  const [readOnly, setReadOnly] = useState<boolean>(false)
+  const handleOpenModalViewEdit = async (foodId: string) => {
     setAddFood(false)
     setModalFoods(!modalFoods)
+    setReadOnly(true)
+    try {
+      const res = await apiGetOneFood(foodId)
+      settakeFoodItem(res.data.getOneFood)
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   const [searchText, setSearchText] = useState('');
@@ -206,15 +202,25 @@ export const FoodsManagement = () => {
       title: <span className="text-nowrap">Giá bán</span>,
       dataIndex: 'revenue',
       key: 'revenue',
-      width: 45,
+      width: 50,
       ...getColumnSearchProps('revenue'),
+      render: (record) => (
+        <div className=" text-nowrap float-right" >
+          {formatCurrency(record)} vnđ
+        </div>
+      ),
     },
     {
       title: <span className="text-nowrap">Giá gốc</span>,
       dataIndex: 'costPrice',
       key: 'costPrice',
-      width: 45,
+      width: 50,
       ...getColumnSearchProps('costPrice'),
+      render: (record) => (
+        <div className=" text-nowrap float-right" >
+          {formatCurrency(record)} vnđ
+        </div>
+      ),
     },
     {
       title: 'Mô tả',
@@ -234,7 +240,7 @@ export const FoodsManagement = () => {
       fixed: 'right',
       render: (record) => (
         <div className="flex space-x-4 justify-center">
-          <FaEdit onClick={() => handleOpenModalViewEdit(record)} className="text-[20px]" />
+          <FaEdit onClick={() => handleOpenModalViewEdit(record._id)} className="text-[20px]" />
           <FaRegTrashAlt onClick={() => handleOpenModalDeleteFood(record)} className="text-[20px]" />
         </div>
       ),
@@ -242,7 +248,6 @@ export const FoodsManagement = () => {
   ];
 
   const [sellingPrice, setSellingPrice] = useState<string>("");
-  console.log("sellingPrice==>", Number(sellingPrice));
   const handleSetSellingPrice = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/\./g, '');
     if (/^\d*$/.test(value)) {
@@ -252,7 +257,6 @@ export const FoodsManagement = () => {
   }
 
   const [costPrice, setCostPrice] = useState<string>("");
-  console.log("costPrice==>", Number(costPrice));
   const handleSetCostPrice = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/\./g, '');
     if (/^\d*$/.test(value)) {
@@ -260,7 +264,6 @@ export const FoodsManagement = () => {
       setValue("costPrice", Number(value));
     }
   }
-
 
   // UPLOAD IMAGE 
   const [displayImageFood, setDisplayImageFood] = useState<string>()
@@ -272,7 +275,6 @@ export const FoodsManagement = () => {
   }
   const handleUploadImage = (file: File) => {
     const foodImage = URL.createObjectURL(file);
-    console.log({ foodImage });
     setDisplayImageFood(foodImage);
   };
 
@@ -281,6 +283,7 @@ export const FoodsManagement = () => {
       const base64 = await convertBase64(fileUpload);
       const res = await apiUploadImage(base64)
       setDisplayImageFood(res.data)
+
       return res.data
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
@@ -292,39 +295,71 @@ export const FoodsManagement = () => {
   }
 
   const onSubmitAddFood: SubmitHandler<IFoodAdd> = async (data) => {
-    dispatch(setLoadingImage(true))
-    console.log("costPrice costPrice", data.costPrice)
     const costPrice = parseInt(String(data.costPrice).replace(/\./g, ''), 10)
     const revenue = parseInt(String(data.revenue).replace(/\./g, ''), 10)
-    console.log({ costPrice }, { revenue });
-    try {
-      const picture = await handleUploadToCloud()
-      const res = await apiAddFoods({
-        categoryId: data.categoryId,
-        foodName: data.foodName,
-        description: data.description,
-        picture: picture,
-        costPrice,
-        revenue,
-        favourite: data.favourite,
-      })
-      dispatch(setLoadingImage(false))
-      console.log("res apiAddFoods", res);
-      setValue("costPrice", 0);
-      setValue("revenue", 0);
-      setDisplayImageFood("")
-      reset()
-      console.log("reset?", reset());
-      toast.success("Thêm món ăn thành công !")
-    } catch (error) {
-      dispatch(setLoadingImage(false))
-      if (error instanceof AxiosError && error.response) {
-        console.log("Error fetching apiAddFoods", error);
-      } else {
-        console.log("Unexpected error", error);
+    if (startEdit) {
+      try {
+        const picture = await handleUploadToCloud()
+        apiUpdateFoodItem(takeFoodItem?._id, {
+          categoryId: data.categoryId,
+          foodName: data.foodName,
+          description: data.description,
+          picture: picture,
+          costPrice,
+          revenue,
+          favourite: data.favourite
+        })
+        setStartEdit(false)
+        setReadOnly(true)
+
+      } catch (error) {
+        dispatch(setLoadingImage(false))
+        if (error instanceof AxiosError && error.response) {
+          console.log("Error fetching apiUpdateFoodItem", error);
+        } else {
+          console.log("Unexpected error", error);
+        }
+      }
+    } else {
+      dispatch(setLoadingImage(true))
+      try {
+        const picture = await handleUploadToCloud()
+        await apiAddFoods({
+          categoryId: data.categoryId,
+          foodName: data.foodName,
+          description: data.description,
+          picture: picture,
+          costPrice,
+          revenue,
+          favourite: data.favourite,
+        })
+        dispatch(setLoadingImage(false))
+        setCostPrice("");
+        setSellingPrice("");
+        setValue("costPrice", 0);
+        setValue("revenue", 0);
+        setDisplayImageFood("")
+        reset()
+        toast.success("Thêm món ăn thành công !")
+      } catch (error) {
+        dispatch(setLoadingImage(false))
+        if (error instanceof AxiosError && error.response) {
+          console.log("Error fetching apiAddFoods", error);
+        } else {
+          console.log("Unexpected error", error);
+        }
       }
     }
+
   }
+
+  const listCategoryForSelectOption = listCategory?.map(item => {
+    return {
+      value: item._id,
+      label: item.categoryName,
+    }
+  })
+
 
   useEffect(() => {
     const getAllFoods = async () => {
@@ -363,18 +398,18 @@ export const FoodsManagement = () => {
       }
     }
     getAllCategory()
-    if (foodItem) {
-      // setValue("categoryId", foodItem.categoryId._id),
-      setValue("foodName", foodItem.foodName),
-        setValue("revenue", foodItem.revenue),
-        setValue("costPrice", foodItem.costPrice),
-        setValue("description", foodItem.description),
-        setValue("favourite", foodItem.favourite)
-      // setValue('categoryId', foodItem.categoryId._id);
-      setDisplayImageFood(foodItem.picture)
+    if (takeFoodItem) {
+      setValue("categoryId", takeFoodItem.categoryId._id),
+        setValue("foodName", takeFoodItem.foodName),
+        setValue("revenue", takeFoodItem.revenue),
+        setValue("costPrice", (takeFoodItem.costPrice)),
+        setValue("description", takeFoodItem.description),
+        setValue("favourite", takeFoodItem.favourite)
+      setValue("picture", takeFoodItem.picture)
+      setCostPrice(takeFoodItem.costPrice.toString());
+      setSellingPrice(takeFoodItem.revenue.toString());
+      setDisplayImageFood(takeFoodItem.picture)
     }
-
-
     if (modalFoods) {
       document.body.classList.add('modal-open');
     } else {
@@ -383,11 +418,11 @@ export const FoodsManagement = () => {
     return () => {
       document.body.classList.remove('modal-open');
     };
-  }, [deletedFood, modalFoods, foodItem, setValue])
+  }, [deletedFood, modalFoods, foodItem, setValue, takeFoodItem])
 
   return <div className="mt-5 flex-col pr-10">
-
-    <div className="flex justify-end mt-4 mb-8">
+    <div className="flex justify-between mt-4 mb-8 items-end">
+      <div className="text-2xl font-medium underline">Danh sách món ăn </div>
       <div className="border-2 border-slate-800 rounded-2xl hover:border-black">
         <button onClick={() => {
           setAddFood(true)
@@ -417,17 +452,19 @@ export const FoodsManagement = () => {
                         <Select
                           {...field}
                           showSearch
-                          placeholder="Hãy chọn doanh mục"
-                          className="styleSelect"
+                          disabled={readOnly}
+                          placeholder="Hãy chọn danh mục"
+                          className={`styleSelect ${readOnly == true ? "readOnlyy" : ""} `}
                           style={{ width: "100%", height: "41px" }}
                           optionFilterProp="label"
                           filterSort={(optionA, optionB) =>
                             (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
                           }
+                          defaultValue="value-1"
                           options={listCategoryForSelectOption}
                           onChange={(value) => field.onChange(value)}
                           onBlur={field.onBlur}
-                          value={field.value}
+                          value={field.value || null}
                         />
                         {error && <p className="text-red-500">{error.message}</p>}
                       </>
@@ -436,12 +473,13 @@ export const FoodsManagement = () => {
                 </div>
                 <div className="flex flex-col">
                   <label id="foodName" htmlFor="">Tên món ăn</label>
-                  <input {...register("foodName", { required: true })} className={`${errors.foodName ? "border-red-500" : "border-black"} outline-none p-2 border-2  rounded-xl`} type="text" id="foodName" placeholder="Nhập tên món ăn" />
+                  <input disabled={readOnly} {...register("foodName", { required: true })} className={`${errors.foodName ? "border-red-500" : "border-black"} ${readOnly ? "bg-gray-50 cursor-not-allowed" : ""} outline-none p-2 border-2  rounded-xl`} type="text" id="foodName" placeholder="Nhập tên món ăn" />
                 </div>
                 {errors.foodName && <span className="text-red-500">Hãy nhập tên món ăn !</span>}
                 <div className="flex flex-col">
                   <label id="description" htmlFor="description">Mô tả</label>
                   <textarea
+                    disabled={readOnly}
                     {...register("description", {
                       required: "Hãy nhập mô tả",
                       maxLength: {
@@ -449,7 +487,7 @@ export const FoodsManagement = () => {
                         message: "Hãy mô tả nhỏ hơn 300 ký tự"
                       },
                     })}
-                    className={`${errors.description ? "border-red-500" : "border-black"} outline-none p-2 border-2 rounded-xl h-[100px] overflow-y-visible`}
+                    className={`${errors.description ? "border-red-500" : "border-black"}  ${readOnly ? "bg-gray-50 cursor-not-allowed" : ""} outline-none p-2 border-2 rounded-xl h-[100px] overflow-y-visible`}
                     id="description"
                     placeholder="Nhập mô tả"
                   />
@@ -457,26 +495,26 @@ export const FoodsManagement = () => {
                 </div>
                 <div className="flex flex-col">
                   <label id="costPrice" htmlFor="">Giá gốc</label>
-                  <input  {...register("costPrice", {
+                  <input disabled={readOnly}  {...register("costPrice", {
                     minLength: {
                       value: 4,
                       message: "Nhập số tiền lớn hơn"
                     }
                   }
                   )} value={formatCurrency(Number(costPrice))}
-                    onChange={handleSetCostPrice} className={`${errors.costPrice ? "border-red-500" : "border-black"} outline-none p-2 border-2  rounded-xl`} type="text" id="foodName" placeholder="Nhập giá gốc" />
+                    onChange={handleSetCostPrice} className={`${errors.costPrice ? "border-red-500" : "border-black"} ${readOnly ? "bg-gray-50 cursor-not-allowed" : ""} outline-none p-2 border-2  rounded-xl`} type="text" id="foodName" placeholder="Nhập giá gốc" />
                 </div>
                 {errors.costPrice && <span className="text-red-500">Hãy nhập giá gốc !</span>}
                 <div className="flex flex-col">
                   <label id="revenue" htmlFor="">Giá bán</label>
-                  <input {...register("revenue", {
+                  <input disabled={readOnly}  {...register("revenue", {
                     minLength: {
                       value: 4,
                       message: "Nhập số tiền lớn hơn"
                     }
                   }
                   )} value={formatCurrency(Number(sellingPrice))}
-                    onChange={handleSetSellingPrice} className={`${errors.revenue ? "border-red-500" : "border-black"} outline-none p-2 border-2  rounded-xl`} type="text" id="foodName" placeholder="Nhập giá bán" />
+                    onChange={handleSetSellingPrice} className={`${errors.revenue ? "border-red-500" : "border-black"} ${readOnly ? "bg-gray-50 cursor-not-allowed" : ""} outline-none p-2 border-2  rounded-xl`} type="text" id="foodName" placeholder="Nhập giá bán" />
                 </div>
                 {errors.revenue && <span className="text-red-500">Hãy nhập giá bán !</span>}
                 <div className="flex space-x-4">
@@ -486,20 +524,21 @@ export const FoodsManagement = () => {
                     control={control}
                     defaultValue={false}
                     render={({ field }) => (
-                      <label className="relative inline-flex cursor-pointer items-center">
+                      <label className=" relative inline-flex cursor-pointer items-center">
                         <input
+                          disabled={readOnly}
                           id="switch"
                           type="checkbox"
-                          className="peer sr-only"
+                          className=" peer sr-only"
                           checked={field.value}
                           onChange={(e) => field.onChange(e.target.checked)}
                         />
-                        <div className="peer h-6 w-11 rounded-full border bg-slate-200 after:absolute after:left-[2px] after:top-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-slate-800 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:ring-green-300"></div>
+                        <div className={`${readOnly ? "bg-gray-50 cursor-not-allowed" : ""} peer h-6 w-11 rounded-full border bg-slate-200 after:absolute after:left-[2px] after:top-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-slate-800 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:ring-green-300`}></div>
                       </label>
                     )}
                   />
                 </div>
-                <div className="flex flex-col">
+                {readOnly ? "" : <div className="flex flex-col">
                   <Controller
                     name="picture"
                     control={control}
@@ -536,7 +575,8 @@ export const FoodsManagement = () => {
                       </>
                     )}
                   />
-                </div>
+                </div>}
+
                 {displayImageFood && <div className="w-full h-[300px]">
                   <img src={displayImageFood} className="h-full w-full object-cover" alt="" />
                 </div>}
@@ -547,10 +587,11 @@ export const FoodsManagement = () => {
                     <div>
                       {startEdit ?
                         <div className="flex space-x-2">
-                          <button className="border-2 py-2 px-6 border-black rounded-xl hover:bg-red-600 hover:text-white text-nowrap">Lưu thay đổi</button>
+                          <button onClick={handleSubmit(onSubmitAddFood)} className="border-2 py-2 px-6 border-black rounded-xl hover:bg-red-600 hover:text-white text-nowrap">Lưu thay đổi</button>
                           <button className="border-2 py-2 px-6 border-black rounded-xl hover:bg-red-600 hover:text-white text-nowrap">Hủy thay đổi</button>
                         </div> : <button onClick={() => {
                           setStartEdit(!startEdit)
+                          setReadOnly(false)
                           window.scrollTo({
                             top: 0,
                             behavior: 'smooth'
@@ -561,25 +602,32 @@ export const FoodsManagement = () => {
                   }
                   <button
                     onClick={() => {
-                      setStartEdit(!startEdit)
+                      setReadOnly(false)
+                      settakeFoodItem(null)
+                      setStartEdit(false)
                       setModalFoods(!modalFoods)
                       setValue("costPrice", 0);
                       setValue("revenue", 0);
+                      setCostPrice("0");
+                      setSellingPrice("0");
                       setDisplayImageFood("")
                       reset()
-                      console.log("reset?", reset());
                     }}
                     className="border-2 py-2 px-6 border-black  text-black rounded-xl hover:bg-red-600 hover:text-white">Đóng</button>
                 </div>
               </form>
             </div>
             <div onClick={() => {
+              setReadOnly(false)
+              settakeFoodItem(null)
+              setAddFood(false)
               setModalFoods(!modalFoods)
               setValue("costPrice", 0);
               setValue("revenue", 0);
+              setCostPrice("0");
+              setSellingPrice("0");
               setDisplayImageFood("")
               reset()
-              console.log("reset?", reset());
             }} className="absolute top-2 right-2 p-1 hover:bg-gray-200 hover:bg-opacity-20 rounded-full hover:cursor-pointer">
               <IoClose className=" text-xl text-white" />
             </div>
@@ -598,8 +646,19 @@ export const FoodsManagement = () => {
                 <button onClick={() => {
                   setOpenModalConfirmDeleteFood(!openModalConfirmDeleteFood)
                   handleDeleteFood()
+
                 }} className="border-2 py-2 px-6 border-black rounded-2xl hover:bg-red-600 hover:text-white">Xóa</button>
-                <button onClick={() => setOpenModalConfirmDeleteFood(!openModalConfirmDeleteFood)} className="border-2 py-2 px-6 border-black bg-black text-white rounded-2xl">Đóng</button>
+                <button onClick={() => {
+                  settakeFoodItem(null)
+                  setAddFood(false)
+                  setModalFoods(!modalFoods)
+                  setValue("costPrice", 0);
+                  setValue("revenue", 0);
+                  setDisplayImageFood("")
+                  reset()
+                  setDisplayImageFood("")
+                  setOpenModalConfirmDeleteFood(!openModalConfirmDeleteFood)
+                }} className="border-2 py-2 px-6 border-black bg-black text-white rounded-2xl">Đóng</button>
               </div>
             </div>
             <div onClick={() => setOpenModalConfirmDeleteFood(!openModalConfirmDeleteFood)} className="absolute top-2 right-2 p-1 hover:bg-gray-200 rounded-full hover:cursor-pointer">

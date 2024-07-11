@@ -1,25 +1,28 @@
-
-import React, { useEffect, useRef, useState } from 'react';
-import { SearchOutlined } from '@ant-design/icons';
-import type { InputRef, TableColumnsType, TableColumnType } from 'antd';
-import { Button, Input, Space, Table } from 'antd';
-import type { FilterDropdownProps } from 'antd/es/table/interface';
-import Highlighter from 'react-highlight-words';
-import { apiGetBookATable, apiGetOneBookATable } from '../../API/api';
-import dayjs from 'dayjs';
-import { FaEye } from 'react-icons/fa6';
-import SelectStatusBooking from './child/SelectStatusBooking';
-import { IoClose } from 'react-icons/io5';
-import io from 'socket.io-client';
 import { IColumnBooking, IdataBooking } from '../../common/types/bookATable';
+import type { InputRef, TableColumnsType, TableColumnType } from 'antd';
+import { apiGetBookATable, apiGetOneBookATable } from '../../API/api';
+import type { FilterDropdownProps } from 'antd/es/table/interface';
+import { useAppDispatch, useAppSelector } from '../../Redux/store';
+import SelectStatusBooking from './child/SelectStatusBooking';
+import React, { useEffect, useRef, useState } from 'react';
+import { setRefreshBooking } from '../../Redux/userSlice';
+import { SearchOutlined } from '@ant-design/icons';
+import { Button, Input, Space, Table } from 'antd';
+import Highlighter from 'react-highlight-words';
 const socket = io('http://localhost:3004');
+import { IoClose } from 'react-icons/io5';
+import { FaEye } from 'react-icons/fa6';
+import io from 'socket.io-client';
+import dayjs from 'dayjs';
+
 
 type DataIndex = keyof IColumnBooking;
 const BookATableManager: React.FC = () => {
-
+  const dispatch = useAppDispatch()
   const [searchText, setSearchText] = useState('');
   const [searchedColumn, setSearchedColumn] = useState('');
   const searchInput = useRef<InputRef>(null);
+  const refreshBooking = useAppSelector(state => state.user.refreshBooking)
 
   const handleSearch = (
     selectedKeys: string[],
@@ -141,7 +144,6 @@ const BookATableManager: React.FC = () => {
       ...getColumnSearchProps('status'),
       render: (text, record) => (
         <SelectStatusBooking text={text} idBooking={record._id} />
-
       ),
     },
     {
@@ -247,12 +249,15 @@ const BookATableManager: React.FC = () => {
       console.log("fetch lại data booking");
       getListBooking()
     });
+
+    if (refreshBooking) {
+      getListBooking()
+      dispatch(setRefreshBooking(false))
+    }
     return () => {
       socket.off('allBooking');
     };
-
-
-  }, [])
+  }, [dispatch, refreshBooking])
 
   return <div className='pt-header w-full ' >
     <div className='text-center font-bold text-2xl py-6'>

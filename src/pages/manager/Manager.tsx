@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Sales } from "./managementChild/Sales";
 import { FoodsManagement } from "./managementChild/FoodsManagement";
-import { TableManagement } from "./managementChild/TableManagement";
 import { CategoryManagement } from "./managementChild/CatergoryMangement";
 import { EmployeeManagement } from "./managementChild/EmployeeManagement";
 import { AreaManagement } from "./managementChild/AreaManagement";
+import { TableManagement } from "./managementChild/TableManagement";
 
 const listManagement = [
     "Doanh Số Bán Hàng",
@@ -16,7 +16,14 @@ const listManagement = [
 ]
 
 function Manager() {
-    const [managementName, setManagementName] = useState<string>(listManagement[0])
+    const [managementName, setManagementName] = useState<string>(() => {
+        return localStorage.getItem("managementName") || listManagement[0]
+    })
+
+    useEffect(() => {
+        localStorage.setItem("managementName", managementName)
+
+    }, [managementName])
 
     return <div className="pt-header h-screen flex relative">
         <div className=" absolute top-0 left-0 z-10 ">

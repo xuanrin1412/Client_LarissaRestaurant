@@ -1,36 +1,47 @@
+import { MdOutlineRestaurantMenu, MdOutlineShoppingCart } from "react-icons/md";
+import { decreaseQuantityCustomer, deleteOneFoodCustomer, increaseQuantityCustomer, setQuantityFoodInCard } from "../../Redux/foodsCustomer";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { RootState, useAppSelector } from "../../Redux/store";
+import { IdataBooking } from "../../common/types/bookATable";
 import { setOpenModalConfirm } from "../../Redux/foodsSlice";
 import { scrollCategoryBar } from "../../utils/scrollToTop";
-import { FaUser } from "react-icons/fa";
-import React, { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
-import { Logo } from "../../assets/Logo";
+import { IUserInfo } from "../../common/types/userInfo";
 import { IoNotificationsSharp } from "react-icons/io5";
+import { IFoodSlice } from "../../common/types/foods";
+import React, { useEffect, useState } from "react";
+import { RiLoginCircleFill } from "react-icons/ri";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { IoCloseSharp } from "react-icons/io5";
 import { FaChevronRight } from "react-icons/fa";
-import { IoHome } from "react-icons/io5";
-import { MdOutlineRestaurantMenu, MdOutlineShoppingCart } from "react-icons/md";
 import { MdTableBar } from "react-icons/md";
-import { RiLoginCircleFill } from "react-icons/ri";
-import io from 'socket.io-client';
-import { toast } from 'react-toastify';
 const socket = io('http://localhost:3004');
+import { useDispatch } from "react-redux";
 import { IoClose } from "react-icons/io5";
-import { IUserInfo } from "../../common/types/userInfo";
-import { IFoodSlice } from "../../common/types/foods";
-import { IdataBooking } from "../../common/types/bookATable";
+import { IoHome } from "react-icons/io5";
+import { Logo } from "../../assets/Logo";
+import { FaUser } from "react-icons/fa";
+import { toast } from 'react-toastify';
+import io from 'socket.io-client';
+import { formatCurrency } from "../../utils/formartCurrency";
 
 const Navbar: React.FC = () => {
     const location = useLocation();
-    const pathname = location.pathname;
     const dispatch = useDispatch();
     const navigate = useNavigate()
-    const [openSideBar, setOpenSideBar] = useState<boolean>(false)
-    const foods: IFoodSlice[] = useAppSelector((state: RootState) => state.foods.foods);
-    const [showCategoryBar, setShowCategoryBar] = useState<boolean>(false);
+    const pathname = location.pathname;
     const [toggleNoti, setToggleNoti] = useState<boolean>(false)
+    const [openSideBar, setOpenSideBar] = useState<boolean>(false)
+    const [showCategoryBar, setShowCategoryBar] = useState<boolean>(false);
+    const foodsCustomer = useAppSelector(state => state.foodsCustomer.foodsCustomer)
+    console.log("foodsCustomer", foodsCustomer);
+
+    const foods: IFoodSlice[] = useAppSelector((state: RootState) => state.foods.foods);
+    const quantityFoodInCard = useAppSelector(state => state.foodsCustomer.quantityFoodInCard)
+
+    const quantityFood = foodsCustomer.reduce((acc, current) => {
+        return acc + current.quantity
+    }, 0)
+    console.log("quantityFood", quantityFood);
 
     const handleClickMenuWhenHaveFoods = () => {
         if (foods.length > 0) {
@@ -55,6 +66,7 @@ const Navbar: React.FC = () => {
             navigate("/order");
         }
     }
+
     const userAccount: IUserInfo | null = useAppSelector(state => state.user.userInfo)
 
 
@@ -64,16 +76,42 @@ const Navbar: React.FC = () => {
     }
 
     const [notiList, setNotiList] = useState<INotiList[]>([])
-    console.log("notiList", notiList);
-
-
     const [viewCart, setViewCart] = useState<boolean>(false)
+
+    const totalBill = useAppSelector(state => state.foodsCustomer.totalOrderCustomer)
+    console.log(totalBill);
+
+
+
+    // const [quan, setQuan] = useState<string>(itemQuantity !== undefined ? String(itemQuantity) : "");
+
+    // const handleChangeQuantityInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    //     const value = e.target.value;
+    //     setQuan(value);
+    //     const numericValue = value === "" ? 1 : Number(value);
+    //     dispatch(changeQuantityInputCustomer({ _id, value: numericValue }));
+    // };
+
+    // const handleBlur = () => {
+    //     if (quan === "") {
+    //         setQuan("1");
+    //         dispatch(changeQuantityInputCustomer({ _id, value: 1 }));
+    //     }
+    // };
+
+    // useEffect(() => {
+    //     setQuan(itemQuantity !== undefined ? String(itemQuantity) : "1");
+    // }, [itemQuantity]);
+
+    const totalOrderCustomer = useAppSelector(state => state.foodsCustomer.totalOrderCustomer)
 
 
     useEffect(() => {
         if (userAccount?.role === "admin" || userAccount?.role === "moderator") {
             socket.on('newBooking', (newBooking) => {
                 setNotiList((prevList) => [...prevList, newBooking])
+                const notiOrder = localStorage.setItem("noti-order", JSON.stringify(notiList))
+                console.log("notiOrder", notiOrder);
                 console.log("newBooking==========12=====", newBooking);
                 toast.success(newBooking.message);
             });
@@ -83,14 +121,26 @@ const Navbar: React.FC = () => {
         const handleCloseNoti = () => {
             setToggleNoti(false)
         }
+        if (quantityFood > 0) {
+            dispatch(setQuantityFoodInCard({ quantityFood }))
+        } else {
+            dispatch(setQuantityFoodInCard({ quantityFood: 0 }))
+        }
         window.addEventListener("scroll", handleScroll);
         window.addEventListener("click", handleCloseNoti)
-        return () => {
-            window.removeEventListener("scroll", handleScroll);
-            window.removeEventListener("click", handleCloseNoti);
-            socket.off('newBooking');
-        };
-    }, [showCategoryBar, userAccount]);
+        // if (viewCart) {
+        //     document.body.classList.add('modal-open');
+        // } else {
+        //     document.body.classList.remove('modal-open');
+        // }
+        // return () => {
+        //     window.removeEventListener("scroll", handleScroll);
+        //     window.removeEventListener("click", handleCloseNoti);
+        //     document.body.classList.remove('modal-open');
+        //     socket.off('newBooking');
+        // };
+
+    }, [showCategoryBar, userAccount, notiList, quantityFood, viewCart, dispatch, quantityFoodInCard]);
 
     if ((userAccount?.role === "moderator" || userAccount?.role === "user") && pathname === "/manager") {
         navigate("/404");
@@ -190,7 +240,12 @@ const Navbar: React.FC = () => {
                     </div>
                 }
                 <div onClick={() => setViewCart(!viewCart)}>
-                    <MdOutlineShoppingCart />
+                    <div className="relative ">
+                        <MdOutlineShoppingCart />
+                        <div className={`${quantityFoodInCard && quantityFoodInCard > 0 ? "flex" : "hidden"} absolute -top-2 -right-4 p-1 bg-[#00D2FF] text-sm rounded-full h-[25px] w-[25px] flex items-center justify-center`}>
+                            {quantityFoodInCard && quantityFoodInCard > 0 ? quantityFoodInCard : ""}
+                        </div>
+                    </div>
                 </div>
                 {userAccount?.userName ?
                     <div onClick={() => navigate("/account")} className={`${pathname === "/account" ? "text-red-500 font-bold" : ""}`}>
@@ -206,7 +261,6 @@ const Navbar: React.FC = () => {
                                 </div></a>
                         </div>
                     </div> : ""}
-
                 {/* <GoogleSignInButton /> */}
             </div>
 
@@ -268,7 +322,7 @@ const Navbar: React.FC = () => {
                         if (userAccount?.userName) {
                             navigate("/account")
                             setOpenSideBar(!openSideBar)
-                        }else{
+                        } else {
                             navigate("/login")
                             setOpenSideBar(!openSideBar)
                         }
@@ -284,51 +338,44 @@ const Navbar: React.FC = () => {
         }
 
         {viewCart && <div className="absolute top-0 right-0 h-screen w-full z-10">
-            <div className="absolute top-0 right-0 w-full h-screen bg-black bg-opacity-50 z-10"></div>
+            <div onClick={(e) => {
+                e.stopPropagation()
+                setViewCart(!viewCart)
+            }} className="absolute top-0 right-0 w-full h-screen bg-black bg-opacity-50 z-40"></div>
             <div className=" animate__animated animate__fadeInRightBig animate__faster absolute border-2  top-0 right-0 w-full h-screen sm:max-w-[400px] bg-white z-50 flex flex-col justify-between border-black">
-                <div className={` ${showCategoryBar ? "" : ""} relative h-16 border-t-2 border-white bg-black text-white  mt-[60px] border-y-2 flex items-center justify-center text-2xl px-5`}>
+                <div className={` ${showCategoryBar ? "" : ""} relative h-16 border-t-2 border-white bg-black text-white  mt-[60px] border-y-2 flex items-center justify-center text-2xl px-5 z-40`}>
                     <span>Giỏ hàng</span>
-                    <IoClose className="absolute top-4 right-4" />
+                    <div className="p-[2px] hover:bg-gray-400 hover:bg-opacity-50 absolute top-3 right-4">
+                        <IoClose onClick={() => setViewCart(!viewCart)} className="" />
+                    </div>
                 </div>
-                <ul className=" border-black h-[400px] overflow-y-scroll">
-                    <li className="border py-4 pl-2 flex items-center group/delete">
-                        <span className="w-7">1.</span>
-                        <span className="flex-1">Thit ga</span>
-                        <span className=" flex">
-                            <span className="h-7 w-7 hover:border hover:bg-gray-100  flex items-center justify-center">+</span>
-                            <input type="text" className="w-10 h-7 border text-center" value={1} />
-                            <span className="h-7 w-7 hover:border hover:bg-gray-100  flex items-center justify-center">-</span>
-                        </span>
-                        <span className="w-24">123.000.000</span>
-                        <span className="w-8 flex justify-center invisible  group-hover/delete:visible "><IoClose title="Delete" className="hover:transform hover:scale-150 hover:duration-300 hover:delay-300 cursor-pointer" /></span>
-                    </li>
-                    <li className="border py-4 pl-2 flex items-center group/delete">
-                        <span className="w-7">1.</span>
-                        <span className="flex-1">Thit ga</span>
-                        <span className=" flex">
-                            <span className="h-7 w-7 hover:border hover:bg-gray-100  flex items-center justify-center">+</span>
-                            <input type="text" className="w-10 h-7 border text-center" value={1} />
-                            <span className="h-7 w-7 hover:border hover:bg-gray-100  flex items-center justify-center">-</span>
-                        </span>
-                        <span className="w-24">123.000.000</span>
-                        <span className="w-8 flex justify-center invisible  group-hover/delete:visible "><IoClose title="Delete" className="hover:transform hover:scale-150 hover:duration-300 hover:delay-300 cursor-pointer" /></span>
-                    </li>
-                    <li className="border py-4 pl-2 flex items-center group/delete">
-                        <span className="w-7">1.</span>
-                        <span className="flex-1">Thit ga</span>
-                        <span className=" flex">
-                            <span className="h-7 w-7 hover:border hover:bg-gray-100  flex items-center justify-center">+</span>
-                            <input type="text" className="w-10 h-7 border text-center" value={1} />
-                            <span className="h-7 w-7 hover:border hover:bg-gray-100  flex items-center justify-center">-</span>
-                        </span>
-                        <span className="w-24">123.000.000</span>
-                        <span className="w-8 flex justify-center invisible  group-hover/delete:visible "><IoClose title="Delete" className="hover:transform hover:scale-150 hover:duration-300 hover:delay-300 cursor-pointer" /></span>
-                    </li>
-
-
+                <ul className=" border-black h-[350px] overflow-y-scroll">
+                    <div>
+                        {foodsCustomer.map((item, index) => (
+                            <li key={index} className="border py-4 pl-2 flex items-center group/delete">
+                                <span className="w-7">{index + 1}</span>
+                                <span className="flex-1">{item.food.foodName}</span>
+                                <span className=" flex">
+                                    <span onClick={() => dispatch(increaseQuantityCustomer({ _id: item.food._id }))} className="h-7 w-7 hover:border hover:bg-gray-100  flex items-center justify-center">+</span>
+                                    <input value={item.quantity} min={1} className="w-10 h-7 border text-center" />
+                                    <span onClick={() => dispatch(decreaseQuantityCustomer({ _id: item.food._id }))} className="h-7 w-7 hover:border hover:bg-gray-100  flex items-center justify-center">-</span>
+                                </span>
+                                <span className="w-24 text-right">{formatCurrency(item.totalEachFood)}</span>
+                                <span className="w-8 flex justify-center invisible  group-hover/delete:visible ">
+                                    <IoClose onClick={() => dispatch(deleteOneFoodCustomer({ id: item.food._id }))} title="Delete" className="hover:transform hover:scale-150 hover:duration-300 hover:delay-300 cursor-pointer" /></span>
+                            </li>
+                        ))}
+                    </div>
+                    {quantityFoodInCard == 0 && <div className="h-full"><img className="h-full w-full object-cover" src="https://mir-s3-cdn-cf.behance.net/projects/404/2f038b134324769.Y3JvcCwxMDEwLDc5MCwyNSww.png" alt="" /></div>}
                 </ul>
-                <div className="h-16 bg-white text-white flex items-center justify-center text-2xl border-t-2 ">
-                    <span className="bg-black text-white cursor-pointer  border-2 border-black py-1 w-8/12  flex justify-center hover:bg-primary">Thanh Toán</span>
+                <div className="h-24 bg-white text-white space-y-2 flex items-center justify-center text-2xl border-t-2 flex-col ">
+                    {quantityFoodInCard > 0 && <div className="text-black">Tổng tiền: {formatCurrency(totalOrderCustomer)}VND</div>}
+                    {quantityFoodInCard > 0 && <a href="#" onClick={() => {
+                        setViewCart(false)
+                        navigate("/customerOrder")
+                    }} className="bg-black text-white cursor-pointer  border-2 border-black py-1 w-8/12  flex justify-center hover:bg-primary">
+                        Xem giỏ hàng
+                    </a>}
                 </div>
             </div>
         </div>}

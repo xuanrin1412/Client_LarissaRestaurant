@@ -1,15 +1,15 @@
-import { useEffect, useRef, useState } from "react";
 import { Button, Input, InputRef, Space, Table, TableColumnType, type TableColumnsType } from 'antd';
 import { apiAddArea, apiDeleteArea, apiGetAllArea } from "../../../API/api";
-import { FaCirclePlus } from "react-icons/fa6";
 import { FilterDropdownProps } from "antd/es/table/interface";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { FaEdit, FaRegTrashAlt } from "react-icons/fa";
+import { useEffect, useRef, useState } from "react";
 import { SearchOutlined } from '@ant-design/icons';
 import Highlighter from "react-highlight-words";
-import { FaEdit, FaRegTrashAlt } from "react-icons/fa";
-import { SubmitHandler, useForm } from "react-hook-form";
-import { AxiosError } from "axios";
+import { FaCirclePlus } from "react-icons/fa6";
 import { IoClose } from "react-icons/io5";
 import { toast } from "react-toastify";
+import { AxiosError } from "axios";
 
 
 interface IdataArea {

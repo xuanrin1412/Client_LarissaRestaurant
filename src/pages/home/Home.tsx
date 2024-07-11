@@ -50,8 +50,8 @@ function Home() {
     useEffect(() => {
         console.log("jjjj", socket);
         socket.on('hievent', (msg) => {
-            console.log("msg",msg);
-            
+            console.log("msg", msg);
+
         });
 
     })

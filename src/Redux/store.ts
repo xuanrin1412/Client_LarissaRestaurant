@@ -2,6 +2,7 @@ import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import foodsReducer from "./foodsSlice"
 import ImageReducer from "./Image"
 import userReducer from "./userSlice"
+import foodsCustomersReducer from "./foodsCustomer"
 import { useDispatch, useSelector } from 'react-redux';
 import storage from 'redux-persist/lib/storage';
 import {
@@ -24,8 +25,8 @@ const rootReducer = combineReducers({
   foods: foodsReducer,
   image: ImageReducer,
   user: userReducer,
+  foodsCustomer: foodsCustomersReducer,
 })
-
 
 const persistedReducer = persistReducer(persistConfig, rootReducer)
 export const store = configureStore({

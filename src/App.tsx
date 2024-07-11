@@ -14,6 +14,9 @@ import NotFount from "./pages/404/NotFount";
 import BookATable from "./pages/bookATable/BookATable";
 import Menu from "./pages/menu/Menu";
 import Home from "./pages/home/Home";
+import { CustomerOrder } from "./pages/customerOrder/CustomerOrder";
+import SuccessPaymentCustomer from "./components/Success";
+import CancelPaymentCustomer from "./components/Cancel";
 // import HomePageForUSer from "./utils/homePageforUser";
 
 function App() {
@@ -38,14 +41,17 @@ function App() {
             ))}
           </Route>
           {/* <Route element={<HomePageForUSer />}> */}
-            <Route path='/' element={<Home />} />
+          <Route path='/' element={<Home />} />
           {/* </Route> */}
           <Route path='/login' element={<Login />} />
           <Route path='/register' element={<Register />} />
           <Route path='/account' element={<Account />} />
           <Route path='/book-a-table' element={<BookATable />} />
           <Route path='/menu' element={<Menu />} />
+          <Route path='/customerOrder' element={<CustomerOrder />} />
           <Route path='/404' element={<NotFount />} />
+          <Route path='/cancel' element={<CancelPaymentCustomer />} />
+          <Route path='/success' element={<SuccessPaymentCustomer />} />
           <Route
             path="*"
             element={<NotFount />}

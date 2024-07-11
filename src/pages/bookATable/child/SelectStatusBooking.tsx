@@ -1,10 +1,13 @@
-import { useEffect, useState } from "react";
-import { apiUpdateStatusBooking } from "../../../API/api";
-import io from 'socket.io-client';
 import { ISelectStatusBooking } from "../../../common/types/bookATable";
+import { setRefreshBooking } from "../../../Redux/userSlice";
+import { apiUpdateStatusBooking } from "../../../API/api";
+import { useAppDispatch } from "../../../Redux/store";
+import { useEffect, useState } from "react";
+import io from 'socket.io-client';
 const socket = io('http://localhost:3004');
 
 const SelectStatusBooking = ({ text, idBooking }: ISelectStatusBooking) => {
+  const dispatch = useAppDispatch()
   const selectStatusOptions = [
     { label: 'Chưa xác nhận', value: 'Chưa xác nhận' },
     { label: 'Đã xác nhận', value: 'Đã xác nhận' },
@@ -23,7 +26,7 @@ const SelectStatusBooking = ({ text, idBooking }: ISelectStatusBooking) => {
     try {
       const res = await apiUpdateStatusBooking(idBooking, newStatus)
       console.log("res-apiUpdateStatusBooking", res);
-
+      dispatch(setRefreshBooking(true))
       setSelectValue({
         label: res.data?.updateBookingStatus.status,
         value: res.data?.updateBookingStatus.status,

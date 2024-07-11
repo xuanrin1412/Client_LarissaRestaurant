@@ -3,13 +3,15 @@ import { IUserInfo } from "../common/types/userInfo"
 
 interface IUser {
     refreshUserAccount: boolean,
+    refreshAreaWithTable: boolean,
+    refreshBooking: boolean,
     userInfo: IUserInfo | null,
-    // managementName:string[]
 }
 const initialState: IUser = {
     refreshUserAccount: false,
+    refreshAreaWithTable:false,
+    refreshBooking:false,
     userInfo: null,
-    // managementName:
 }
 const userSlice = createSlice({
     name: "user",
@@ -18,13 +20,19 @@ const userSlice = createSlice({
         setRefreshUserAccount: (state, action: PayloadAction<boolean>) => {
             state.refreshUserAccount = action.payload
         },
+        setRefreshBooking: (state, action: PayloadAction<boolean>) => {
+            state.refreshBooking = action.payload
+        },
+        setRefreshAreaWithTable: (state, action: PayloadAction<boolean>) => {
+            state.refreshAreaWithTable = action.payload
+        },
         setUserInfo: (state, action: PayloadAction<{ userInfo: IUserInfo }>) => {
             state.userInfo = action.payload.userInfo
         },
         updateUserInfo: (state, action: PayloadAction<{ userInfo: IUserInfo }>) => {
             state.userInfo = action.payload.userInfo
         },
-        updateUserAvatar: (state, action: PayloadAction< string >) => {
+        updateUserAvatar: (state, action: PayloadAction<string>) => {
             console.log('Updating avatar to:', action.payload);
             if (state.userInfo) {
                 state.userInfo.avatar = action.payload;
@@ -37,5 +45,5 @@ const userSlice = createSlice({
 
     }
 })
-export const { setRefreshUserAccount, setUserInfo, updateUserInfo, clearUserInfo,updateUserAvatar } = userSlice.actions;
+export const {setRefreshBooking, setRefreshUserAccount,setRefreshAreaWithTable, setUserInfo, updateUserInfo, clearUserInfo, updateUserAvatar } = userSlice.actions;
 export default userSlice.reducer

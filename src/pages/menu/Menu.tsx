@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { getCategoryWFood } from "../../Redux/foodsSlice";
 import { RootState, useAppDispatch, useAppSelector } from "../../Redux/store";
 import { IMenu } from "../../common/types/menu";
+import { createFoodCustomerArr } from "../../Redux/foodsCustomer";
 
 const Menu: React.FC = () => {
     const dispatch = useAppDispatch();
@@ -10,7 +11,6 @@ const Menu: React.FC = () => {
     const categoryRefs = useRef<{ [key: string]: HTMLDivElement }>({});
     const categoryWFood: IMenu[] = useAppSelector((state: RootState) => state.foods.categoryWFood);
     console.log("categoryWFood123312", categoryWFood);
-
 
     const scrollCategoryBar = () => {
         if (window.scrollY > 80) {
@@ -37,8 +37,6 @@ const Menu: React.FC = () => {
             });
         }, { threshold: 0.5 });
 
-
-
         return () => {
             categoryWFood.forEach(category => {
                 // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -64,7 +62,7 @@ const Menu: React.FC = () => {
                 The Taste Of The Food Life
             </div> */}
             {showCategoryBar && (
-                <div className="absolute top-0 left-0 lg:top-[30px] lg:left-10 z-50 ">
+                <div className="absolute top-0 left-0 lg:top-[30px] lg:left-10 z-10 ">
                     <div className="fixed w-[400px] flex flex-row">
                         {categoryWFood.map((category, categoryIndex) => (
                             <div data-aos="fade-right" className="box-shadow" key={categoryIndex}>
@@ -116,7 +114,11 @@ const Menu: React.FC = () => {
                                 </div>
                                 <div className="absolute invisible top-0 left-0 h-full w-full flex items-center justify-center group-hover:visible">
                                     {/* <div className=" p-3 bg-black hover:cursor-pointer  text-white border-solid border-2 border-white">Thêm vào giỏ hàng</div> */}
-                                    <div className="button-borders">
+                                    <div onClick={() => {
+                                        console.log("itemiiiii0", item);
+
+                                        dispatch(createFoodCustomerArr({ food: item, quantity: 1 }))
+                                    }} className="button-borders">
                                         <button className="primary-button"> Thêm vào giỏ hàng
                                         </button>
                                     </div>
