@@ -37,6 +37,8 @@ export const FoodsManagement = () => {
   const [foodItem, setFoodItem] = useState<IFoods>()
   const [dataFoods, setDataFoods] = useState<IdataFoods[]>()
   const [modalFoods, setModalFoods] = useState<boolean>(false)
+  console.log("modalFoods",modalFoods);
+  
   const [deletedFood, setDeletedFood] = useState<boolean>(false)
   const [listCategory, setListCategory] = useState<IdataCategory[]>()
   const [takeFoodItem, settakeFoodItem] = useState<IFoods | null>(null)
@@ -60,6 +62,8 @@ export const FoodsManagement = () => {
 
   const [addFood, setAddFood] = useState<boolean>(false)
   const [startEdit, setStartEdit] = useState<boolean>(false)
+  console.log("startEdit", startEdit);
+
   const [readOnly, setReadOnly] = useState<boolean>(false)
   const handleOpenModalViewEdit = async (foodId: string) => {
     setAddFood(false)
@@ -280,6 +284,8 @@ export const FoodsManagement = () => {
 
   const handleUploadToCloud = async () => {
     try {
+      console.log("fileUpload-->", fileUpload);
+
       const base64 = await convertBase64(fileUpload);
       const res = await apiUploadImage(base64)
       setDisplayImageFood(res.data)
@@ -288,31 +294,51 @@ export const FoodsManagement = () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       if (error.response.statusText == 'Payload Too Large') {
-        toast.error("Hãy chọn ảnh có kích thước nhỏ hơn 800x400px")
+        toast.error("Cập nhật ảnh thất bại hãy chọn ảnh có kích thước nhỏ hơn 800x400px")
       }
       console.log("Error fetchign iamgeUpload", error);
     }
   }
 
   const onSubmitAddFood: SubmitHandler<IFoodAdd> = async (data) => {
+    console.log("click onSubmitAddFood ");
     const costPrice = parseInt(String(data.costPrice).replace(/\./g, ''), 10)
     const revenue = parseInt(String(data.revenue).replace(/\./g, ''), 10)
     if (startEdit) {
+      console.log("click startEdit ");
+      dispatch(setLoadingImage(true))
       try {
-        const picture = await handleUploadToCloud()
-        apiUpdateFoodItem(takeFoodItem?._id, {
-          categoryId: data.categoryId,
-          foodName: data.foodName,
-          description: data.description,
-          picture: picture,
-          costPrice,
-          revenue,
-          favourite: data.favourite
-        })
+        if (fileUpload == undefined) {
+          console.log('fileUpload11111');
+          apiUpdateFoodItem(takeFoodItem?._id, {
+            categoryId: data.categoryId,
+            foodName: data.foodName,
+            description: data.description,
+            costPrice,
+            revenue,
+            favourite: data.favourite
+          })
+        } else {
+          console.log('no piccccc');
+          const picture = await handleUploadToCloud()
+          apiUpdateFoodItem(takeFoodItem?._id, {
+            categoryId: data.categoryId,
+            foodName: data.foodName,
+            description: data.description,
+            picture: picture,
+            costPrice,
+            revenue,
+            favourite: data.favourite
+          })
+        }
+        dispatch(setLoadingImage(false))
+        setModalFoods(false)
         setStartEdit(false)
         setReadOnly(true)
-
+        console.log("Edit thành công ");
+        toast.success("Chỉnh sửa thông tin món ăn thành công !")
       } catch (error) {
+        console.log("edit loi");
         dispatch(setLoadingImage(false))
         if (error instanceof AxiosError && error.response) {
           console.log("Error fetching apiUpdateFoodItem", error);
@@ -333,6 +359,7 @@ export const FoodsManagement = () => {
           revenue,
           favourite: data.favourite,
         })
+
         dispatch(setLoadingImage(false))
         setCostPrice("");
         setSellingPrice("");
@@ -341,6 +368,7 @@ export const FoodsManagement = () => {
         setDisplayImageFood("")
         reset()
         toast.success("Thêm món ăn thành công !")
+  
       } catch (error) {
         dispatch(setLoadingImage(false))
         if (error instanceof AxiosError && error.response) {

@@ -480,7 +480,7 @@ export const EmployeeManagement = () => {
           setAddFood(true)
           setModalFoods(!modalFoods)
         }} type="submit" className="flex text-white h-fit bg-slate-800 m-[2px]  font-bold items-center space-x-4 p-2  rounded-xl border-black hover:bg-black hover:text-white  hover:border-black">
-          <span className="text-nowrap">Thêm Nhân Viên</span> <FaCirclePlus />
+          <span className="text-nowrap">Thêm nhân viên</span> <FaCirclePlus />
         </button>
       </div>
     </div>
@@ -491,15 +491,35 @@ export const EmployeeManagement = () => {
           className=" fixed h-full w-full bg-black bg-opacity-50 flex  overflow-y-scroll justify-center pb-5 ">
           <div data-aos="fade-down" className="relative rounded-2xl h-fit w-11/12 sm:w-9/12 md:w-3/5 lg:w-[40%] bg-white mt-14  flex flex-col border-2 border-black">
             <div className="" >
-              <div className="bg-black text-white rounded-t-xl py-3 px-2 border-2 border-white  text-xl font-bold text-center border-b-2 ">{addFood ? "Thêm món ăn" : "Xem và chỉnh sửa món ăn"}</div>
+              <div className="bg-black text-white rounded-t-xl py-3 px-2 border-2 border-white  text-xl font-bold text-center border-b-2 ">{addFood ? "Chỉnh sửa" : "Xem và chỉnh sửa món ăn"}</div>
               <form className="p-8 space-y-3 border-t-2 border-black">
-                <div className="flex flex-col">
-                  <label id="userName" htmlFor="">Tên món ăn</label>
-                  <input disabled={readOnly} {...register("userName", { required: true })} className={`${errors.userName ? "border-red-500" : "border-black"} ${readOnly ? "bg-gray-50 cursor-not-allowed" : ""} outline-none p-2 border-2  rounded-xl`} type="text" id="foodName" placeholder="Nhập tên món ăn" />
+                <div className="flex flex-col"> 
+                  <label id="userName" htmlFor="">Tên NV</label>  
+                  <input disabled={readOnly} {...register("userName", { required: true })} className={`${errors.userName ? "border-red-500" : "border-black"} ${readOnly ? "bg-gray-50 cursor-not-allowed" : ""} outline-none p-2 border-2  rounded-xl`} type="text" id="foodName" placeholder="Nhập tên nhân viên" />
                 </div>
-                {errors.userName && <span className="text-red-500">Hãy nhập tên món ăn !</span>}
 
-                {readOnly ? "" : <div className="flex flex-col">
+                <div className="flex flex-col"> 
+                  <label id="userName" htmlFor="">SĐT</label>  
+                  <input disabled={readOnly} {...register("userName", { required: true })} className={`${errors.userName ? "border-red-500" : "border-black"} ${readOnly ? "bg-gray-50 cursor-not-allowed" : ""} outline-none p-2 border-2  rounded-xl`} type="text" id="foodName" placeholder="Nhập tên nhân viên" />
+                </div>
+
+                <div className="flex flex-col"> 
+                  <label id="userName" htmlFor="">Địa chỉ</label>  
+                  <input disabled={readOnly} {...register("userName", { required: true })} className={`${errors.userName ? "border-red-500" : "border-black"} ${readOnly ? "bg-gray-50 cursor-not-allowed" : ""} outline-none p-2 border-2  rounded-xl`} type="text" id="foodName" placeholder="Nhập tên nhân viên" />
+                </div>
+
+                <div className="flex flex-col"> 
+                  <label id="userName" htmlFor="">Email</label>  
+                  <input disabled={readOnly} {...register("userName", { required: true })} className={`${errors.userName ? "border-red-500" : "border-black"} ${readOnly ? "bg-gray-50 cursor-not-allowed" : ""} outline-none p-2 border-2  rounded-xl`} type="text" id="foodName" placeholder="Nhập tên nhân viên" />
+                </div>
+
+                
+                <div className="flex flex-col"> 
+                  <label id="userName" htmlFor="">Mật khẩu</label>  
+                  <input disabled={readOnly} {...register("userName", { required: true })} className={`${errors.userName ? "border-red-500" : "border-black"} ${readOnly ? "bg-gray-50 cursor-not-allowed" : ""} outline-none p-2 border-2  rounded-xl`} type="text" id="foodName" placeholder="Nhập tên nhân viên" />
+                </div>
+
+                {/* {readOnly ? "" : <div className="flex flex-col">
                   <Controller
                     name="avatar"
                     control={control}
@@ -536,13 +556,13 @@ export const EmployeeManagement = () => {
                       </>
                     )}
                   />
-                </div>}
+                </div>} */}
 
                 {displayImageFood && <div className="w-full h-[300px]">
                   <img src={displayImageFood} className="h-full w-full object-cover" alt="" />
                 </div>}
                 <div className="flex justify-between pt-4 font-bold space-x-2 ">
-                  {addFood && <button type="submit" onClick={handleSubmit(onSubmitAddFood)} className="border-2 py-2 px-6 border-black rounded-xl hover:bg-red-600 hover:text-white">Thêm món ăn
+                  {addFood && <button type="submit" onClick={handleSubmit(onSubmitAddFood)} className="border-2 py-2 px-6 border-black rounded-xl hover:bg-red-600 hover:text-white">Lưu
                   </button>}
                   {!addFood &&
                     <div>

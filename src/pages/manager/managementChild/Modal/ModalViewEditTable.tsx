@@ -26,7 +26,7 @@ export const ModalViewEditTable = ({ areaWithTableItem, setModalViewEditTables}:
         <div className="z-50 absolute top-0 left-0 h-screen w-full">
             <div className="fixed h-full w-full bg-black bg-opacity-50 flex overflow-y-scroll justify-center pb-5">
                 <div className="relative rounded-2xl h-fit w-11/12 sm:w-9/12 md:w-3/5 lg:w-[80%] bg-white mt-14 flex flex-col border-2 border-black">
-                    <div className="bg-black text-white rounded-t-xl py-3 px-2 border-2 border-white text-xl font-bold text-center border-b-2">Thêm bàn</div>
+                    <div className="bg-black text-white rounded-t-xl py-3 px-2 border-2 border-white text-xl font-bold text-center border-b-2">Chỉnh sữa bàn</div>
                     <form className="p-8 space-y-3 border-t-2 border-black">
                         <div className="flex flex-col">
                             <span>Khu vực</span>

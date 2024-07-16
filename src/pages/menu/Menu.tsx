@@ -3,6 +3,7 @@ import { getCategoryWFood } from "../../Redux/foodsSlice";
 import { RootState, useAppDispatch, useAppSelector } from "../../Redux/store";
 import { IMenu } from "../../common/types/menu";
 import { createFoodCustomerArr } from "../../Redux/foodsCustomer";
+import { formatCurrency } from "../../utils/formartCurrency";
 
 const Menu: React.FC = () => {
     const dispatch = useAppDispatch();
@@ -93,7 +94,7 @@ const Menu: React.FC = () => {
                         {category.food.map((item, index) => (
                             <div key={index} className={`${index % 2 === 0 ? "lg:border-r-2" : ""}  flex flex-col sm:flex-row items-center px-2 sm:px-4 md:px-8 py-5 hover:bg-gray-100 relative group `}>
                                 <div className="flex w-full sm:w-fit  items-center justify-start space-x-6">
-                                    <div className="w-36  h-36 sm:w-52 sm:h-52 ">
+                                    <div className="w-36  h-36 sm:w-48 sm:h-48 ">
                                         <img
                                             className="h-full w-full object-cover rounded-full"
                                             src={item.picture}
@@ -101,14 +102,14 @@ const Menu: React.FC = () => {
                                         />
                                     </div>
                                     <div className="flex sm:hidden flex-col justify-between text-xl flex-wrap w-full max-w-[160px]">
-                                        <div className="font-bold ">{item.foodName}</div>
-                                        {item.revenue && <div className="font-bold">{item.revenue}k</div>}
+                                        <div className="font-bold  flex-1">{item.foodName}</div>
+                                        {item.revenue && <div className="font-bold text-nowrap">{formatCurrency(item.revenue)} VNĐ</div>}
                                     </div>
                                 </div>
                                 <div className="flex-1 pl-4  px-0 md:px-4  space-y-2 pt-2 sm:pt-0">
                                     <div className="hidden sm:flex justify-between text-xl">
                                         <div className="font-bold">{item.foodName}</div>
-                                        {item.revenue && <div className="font-bold">{item.revenue}k</div>}
+                                        {item.revenue && <div className="font-bold text-nowrap">{formatCurrency(item.revenue)} VNĐ</div>}
                                     </div>
                                     <div className="text-justify">{item.description || "No description available"}</div>
                                 </div>

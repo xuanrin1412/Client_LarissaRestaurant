@@ -109,7 +109,14 @@ export const apiDeleteCategory = (idCategory: string | undefined) => {
     console.log("idCategory when call apiDeleteCategory", idCategory);
     return axios.delete(`${baseUrl}/category/${idCategory}`, { withCredentials: true })
 }
-
+//UPDATE CATEGORY
+interface IapiUpdateCategory {
+    idCategory: string|undefined,
+    categoryName:string|undefined
+}
+export const apiUpdateCategory = ({idCategory,categoryName}:IapiUpdateCategory) => {
+    return axios.put(`${baseUrl}/category/${idCategory}`, { categoryName }, { withCredentials: true })
+}
 
 
 

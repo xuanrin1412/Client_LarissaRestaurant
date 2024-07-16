@@ -27,7 +27,7 @@ export interface IFoodAdd {
     categoryId: string,
     foodName: string,
     description: string,
-    picture: string,
+    picture?: string,
     costPrice: number,
     revenue: number,
     favourite?: boolean,

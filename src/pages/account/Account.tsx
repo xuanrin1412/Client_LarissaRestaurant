@@ -70,8 +70,8 @@ function Account() {
             setEdit(false)
         }).catch((err) => {
             console.log(err);
+            toast.error("Thông tin đã tồn tại hãy thay đổi lại thông tin !")
         })
-
     }
     console.log(watch("userName"))
     useEffect(() => {
@@ -172,21 +172,21 @@ function Account() {
 
                 </div>
                 <div onClick={() => handleClickLogOut()} className="mt-10 flex items-center justify-center">
-                    <div className="bg-black text-white px-4 py-3 w-full text-center hover:bg-primary rounded-2xl">Log Out</div>
+                    <div className="bg-black text-white px-4 py-3 w-full text-center hover:bg-primary rounded-2xl">Đăng xuất</div>
                 </div>
                 {edit ? <div className=" absolute top-3 right-4 flex space-x-2 ">
-                    <div onClick={() => setEdit(false)} className="text-[12px] p-1 px-2 border-2  text-white bg-gray-500" >Cancel</div>
-                    <button type="submit" className="text-[12px]  p-1 px-2 border-2  text-white bg-primary" >Save</button>
+                    <div onClick={() => setEdit(false)} className="text-[12px] p-1 px-2 border-2  text-white bg-gray-500" >Hủy</div>
+                    <button type="submit" className="text-[12px]  p-1 px-2 border-2  text-white bg-primary" >Lưu</button>
                 </div> : <FaEdit onClick={() => setEdit(!edit)} className="text-2xl absolute top-2 right-2" />}
             </div>
         </div>
 
         {modalLogout ? <div className="bg-black bg-opacity-50 absolute top-0 left-0 w-full min-h-screen flex justify-center items-center">
             <div className="w-2/2 bg-white p-8 space-y-4 ">
-                <div>You want to Log Out ?</div>
+                <div>Bạn muốn đăng xuất ?</div>
                 <div className="flex justify-between">
-                    <span onClick={handleLogOut} className="p-1 px-4 border-2 border-black">Yes</span>
-                    <span onClick={() => setModalLogout(false)} className="p-1 px-4 border-2 border-black">No</span>
+                    <span onClick={handleLogOut} className="p-1 px-4 border-2 border-black">Đồng ý</span>
+                    <span onClick={() => setModalLogout(false)} className="p-1 px-4 border-2 border-black">Hủy</span>
                 </div>
             </div>
         </div> : ""}

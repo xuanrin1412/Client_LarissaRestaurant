@@ -386,11 +386,11 @@ function OrderFood() {
                             />
                         ))}</>}
                     </div>
-                    {showBtnFix && <button onClick={() => setToggleNotiUpdate(true)} className="bg-primary w-fit text-left text-white py-2 px-4">Update Order !</button>}
+                    {showBtnFix && <button onClick={() => setToggleNotiUpdate(true)} className="bg-primary w-fit text-left text-white py-2 px-4">Cập nhật order !</button>}
                     <div className="border-y-2  border-black flex justify-start p-2  ">
-                        <span className="mr-2">Note:</span>
+                        <span className="mr-2 text-nowrap">Ghi chú:</span>
                         <div className="relative min-h-12 w-full">
-                            <textarea disabled={editNote ? false : true} value={note} onChange={(e) => handleChangeNote(e.target.value)} placeholder="Enter Note..." className={` ${!editNote ? 'bg-gray-100 cursor-not-allowed' : ''} absolute top-0 left-0 w-[90%] px-2 h-full flex-1 min-h-12 outline-none`}></textarea>
+                            <textarea disabled={editNote ? false : true} value={note} onChange={(e) => handleChangeNote(e.target.value)} placeholder="Nhập ghi chú ..." className={` ${!editNote ? 'bg-gray-100 cursor-not-allowed' : ''} absolute top-0 left-0 w-[90%] px-2 h-full flex-1 min-h-12 outline-none`}></textarea>
                             {FoodInOrder && (
                                 editNote ? <div onClick={() => {
                                     setEditNote(!editNote)

@@ -55,7 +55,7 @@ function MenuOrderTable() {
                         onChange={(e) => setTextSearch(e.target.value)}
                         className="flex-1 h-10 rounded-l-lg px-4 outline-none"
                         type="text"
-                        placeholder="enter food name"
+                        placeholder="Nhập tên món ăn"
                     />
                     <div className="mx-2">
                         <IoIosSearch style={{ color: "black" }} />

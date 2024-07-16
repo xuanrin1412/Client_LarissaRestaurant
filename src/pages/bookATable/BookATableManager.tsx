@@ -168,7 +168,6 @@ const BookATableManager: React.FC = () => {
       dataIndex: 'time',
       key: 'time',
       width: 100,
-      ...getColumnSearchProps('time'),
       sorter: (a, b) => a.time.length - b.time.length,
       sortDirections: ['descend', 'ascend'],
     },
@@ -187,7 +186,7 @@ const BookATableManager: React.FC = () => {
       ...getColumnSearchProps('totalPerson'),
     },
     {
-      title: <span className='text-nowrap'>Note</span>,
+      title: <span className='text-nowrap'>Ghi chú</span>,
       dataIndex: 'note',
       key: 'note',
       width: 100,
@@ -205,7 +204,7 @@ const BookATableManager: React.FC = () => {
       render: (text) => <span className='text-nowrap'>{text}</span>,
     },
     {
-      title: <span className='text-nowrap'>Action</span>,
+      title: <span className='text-nowrap'>Tùy chọn</span>,
       key: 'operation',
       fixed: 'right',
       width: 70,

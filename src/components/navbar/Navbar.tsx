@@ -153,7 +153,7 @@ const Navbar: React.FC = () => {
             <div className={`${userAccount?.role === "admin" || userAccount?.role === "moderator" ? "hidden" : " hidden md:flex flex-1   items-center justify-end md:space-x-4 lg:space-x-8"}`}>
                 {userAccount?.role == "moderator" ? "" :
                     <div onClick={() => navigate("/")} className={`${pathname === "/" ? " text-red-500   font-bold    flex justify-center" : ""} flex`}>
-                        <a href="#" className="pr-2">Home</a><IoHome />
+                        <a href="#" className="pr-2">Trang chủ</a><IoHome />
                     </div>}
                 {userAccount?.role == "moderator" ? "" :
                     <div onClick={() => navigate("/menu")} className={`${pathname === "/menu" ? "text-red-500    font-bold    justify-center" : ""} flex`}>
@@ -190,14 +190,14 @@ const Navbar: React.FC = () => {
                 ) : null}
                 {userAccount?.role === "admin" || userAccount?.role === "moderator" ? (
                     <div className={`${pathname === "/booking-manager" ? "text-red-500 font-bold" : ""}`}>
-                        <Link to="/booking-manager">Booking</Link>
+                        <Link to="/booking-manager">Quản lý đặt bàn online</Link>
                     </div>
                 ) : null}
 
                 {userAccount?.role === "admin" || userAccount?.role === "moderator" ? "" :
                     <div onClick={() => navigate("/book-a-table")} className={`${pathname === "/book-a-table" ? "text-red-500 font-bold" : ""} `}>
                         <a href="#" className="flex">
-                            <span className="underline whitespace-nowrap pr-2 ">Book A Table</span><MdTableBar /></a>
+                            <span className="underline whitespace-nowrap pr-2 ">Đặt bàn Online</span><MdTableBar /></a>
                     </div>}
 
                 {userAccount?.role === "admin" || userAccount?.role === "moderator" ? (
@@ -236,17 +236,19 @@ const Navbar: React.FC = () => {
                     ""
                     :
                     <div className={`${pathname === "/login" ? "text-red-500 font-bold   " : ""}`}>
-                        <Link to="/login" className="flex ">Login{" "}<FaUser style={{ marginLeft: 10 }} /></Link>
+                        <Link to="/login" className="flex ">Đăng nhập{" "}<FaUser style={{ marginLeft: 10 }} /></Link>
                     </div>
                 }
-                <div onClick={() => setViewCart(!viewCart)}>
-                    <div className="relative ">
-                        <MdOutlineShoppingCart />
-                        <div className={`${quantityFoodInCard && quantityFoodInCard > 0 ? "flex" : "hidden"} absolute -top-2 -right-4 p-1 bg-[#00D2FF] text-sm rounded-full h-[25px] w-[25px] flex items-center justify-center`}>
-                            {quantityFoodInCard && quantityFoodInCard > 0 ? quantityFoodInCard : ""}
+                {userAccount?.role === "admin" || userAccount?.role === "moderator" ? "" :
+                    <div onClick={() => setViewCart(!viewCart)}>
+                        <div className="relative ">
+                            <MdOutlineShoppingCart />
+                            <div className={`${quantityFoodInCard && quantityFoodInCard > 0 ? "flex" : "hidden"} absolute -top-2 -right-4 p-1 bg-[#00D2FF] text-sm rounded-full h-[25px] w-[25px] flex items-center justify-center`}>
+                                {quantityFoodInCard && quantityFoodInCard > 0 ? quantityFoodInCard : ""}
+                            </div>
                         </div>
-                    </div>
-                </div>
+                    </div>}
+
                 {userAccount?.userName ?
                     <div onClick={() => navigate("/account")} className={`${pathname === "/account" ? "text-red-500 font-bold" : ""}`}>
                         <div onClick={() => handleClickAccountWhenHaveFoods()

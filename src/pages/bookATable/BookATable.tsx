@@ -17,10 +17,10 @@ import { Reserved } from "../../common/types/bookATable";
 // import Dish from "../../assets/dish.png"
 
 const options = [
-    { value: 'Near window' },
-    { value: 'Large yard' },
+    { value: 'Gần cửa sổ' },
+    { value: 'Sân lớn' },
     { value: 'Sofa' },
-    { value: 'High table' },
+    { value: 'Bàn cao' },
 ];
 const times = [
     { value: '8:00 AM' },
@@ -126,13 +126,13 @@ const BookATable: React.FC = () => {
 
     return <div className="mt-header w-full flex justify-center mb-20">
         <div className="w-3/4 mx-0">
-            <div className="flex flex-col lg:flex-row justify-between mt-10  mb-10 space-y-1 lg::space-y-0">
+            <div className="flex flex-col items-center lg:flex-row justify-between mt-10  mb-10 space-y-1 lg::space-y-0">
                 {/* CHOOSE DATE */}
-                <div className={`${startDate ? "bg-primary border-2 border-black" : "bg-black "} px-4 py-2  text-white flex items-center space-x-2 w-full lg:w-[250px]`}>
-                    <div>Date</div>
+                <div className={`${startDate ? "bg-primary border-2 border-black" : "bg-black "} px-4 py-2 h-[40px] mt-1  text-white flex items-center space-x-2 w-full lg:w-[250px]`}>
+                    <div className="">Ngày</div>
                     <DatePicker
                         className={`${startDate ? "bg-primary react-datepicker-ignore-onclickoutside-1" : "bg-black react-datepicker-ignore-onclickoutside"}  outline-none text-center`}
-                        placeholderText="Choose Date"
+                        placeholderText="Chọn ngày"
                         selected={startDate}
                         onChange={handleDateChange}
                         minDate={new Date()}
@@ -140,8 +140,8 @@ const BookATable: React.FC = () => {
                 </div>
                 {/* TOTAL PERSON */}
                 <div className={`${numberPerson ? "bg-primary  border-2 border-black" : " bg-black"} flex items-center`}>
-                    <div className={`${numberPerson ? "bg-primary" : " bg-black"} text-nowrap px-4 py-2 text-white`}>Total person</div>
-                    <input value={numberPerson} type="number" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNumberPerson(e.target.value)} placeholder="Enter number"
+                    <div className={`${numberPerson ? "bg-primary" : " bg-black"} text-nowrap px-4 py-2 text-white`}>Tổng khách</div>
+                    <input value={numberPerson} type="number" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNumberPerson(e.target.value)} placeholder="Nhập số người"
                         className={`${numberPerson ? "bg-primary" : " bg-black"} w-full lg:w-[150px] text-white outline-none`} />
                 </div>
                 {/* cHOOSE SPACE */}
@@ -177,7 +177,7 @@ const BookATable: React.FC = () => {
             <div className="flex justify-center mt-20 cursor-pointer ">
                 <div onClick={() => showDataReservation(data)} className=" w-full lg:w-1/5 text-center">
                     <button className="btnReservation">
-                        Reservation
+                        Đặt bàn
                         <div className="star-1">
                             <Star1 />
                         </div>

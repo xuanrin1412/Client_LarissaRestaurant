@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Button, Input, InputRef, Space, Table, TableColumnType, type TableColumnsType } from 'antd';
-import { apiAddCategory, apiDeleteCategory, apiGetAllCategory } from "../../../API/api";
+import { apiAddCategory, apiDeleteCategory, apiGetAllCategory, apiUpdateCategory } from "../../../API/api";
 import { FaCirclePlus } from "react-icons/fa6";
 import { FilterDropdownProps } from "antd/es/table/interface";
 import { SearchOutlined } from '@ant-design/icons';
@@ -13,6 +13,11 @@ import { toast } from "react-toastify";
 
 
 interface IdataCategory {
+  key: number,
+  _id: string,
+  categoryName: string
+}
+interface IgetdataCategory {
   _id: string,
   categoryName: string
 }
@@ -82,6 +87,42 @@ export const CategoryManagement = () => {
   }
 
   console.log(watch("categoryName"))
+
+
+  const [renameCategory, setRenameCategory] = useState<string>()
+  console.log("renameCategory", renameCategory);
+
+  const [openModalEditcategory, setOpenModalEditcategory] = useState<boolean>(false)
+
+  const handleOpenModalEditCategory = (record: IdataCategory) => {
+    console.log("click handleOpenModalEditCategory", record);
+    setOpenModalEditcategory(!openModalEditcategory)
+    setCategoryItem(record)
+    setRenameCategory(record.categoryName)
+  }
+
+  const handleUpdateCategory = async () => {
+    console.log("idCategory:,", categoryItem?._id, "categoryName:", renameCategory);
+    try {
+      const res = await apiUpdateCategory({ idCategory: categoryItem?._id, categoryName: renameCategory })
+      setAddedCategory(true)
+      reset()
+      console.log("res 123", res);
+      setOpenModalEditcategory(false)
+      toast.success("Cập nhật tên danh mục thành công")
+    } catch (error) {
+      if (error instanceof AxiosError && error.response) {
+        console.log("Error fetching apiUpdateCategory ", error.response);
+        toast.error(error.response.data.error)
+      }
+    }
+  }
+
+
+
+
+
+
 
   const [searchText, setSearchText] = useState('');
   const [searchedColumn, setSearchedColumn] = useState('');
@@ -179,17 +220,17 @@ export const CategoryManagement = () => {
   });
   const columns: TableColumnsType<IdataCategory> = [
     {
-      title: 'Id',
+      title: 'No.',
       width: 50,
-      dataIndex: '_id',
-      key: '_id',
+      dataIndex: 'key',
+      key: 'key',
       // fixed: 'left',
     },
     {
       title: 'Tên doanh mục món ăn',
       dataIndex: 'categoryName',
       key: 'categoryName',
-      width: 30,
+      width: 100,
       ...getColumnSearchProps('categoryName'),
     },
     // {
@@ -205,7 +246,7 @@ export const CategoryManagement = () => {
       width: 25,
       render: (record) => (
         <div className="flex space-x-4">
-          <FaEdit className="text-[20px]" />
+          <FaEdit onClick={() => handleOpenModalEditCategory(record)} className="text-[20px]" />
           <FaRegTrashAlt onClick={() => handleOpenModalDeleteCategory(record)} className="text-[20px]" />
         </div>
       ),
@@ -215,7 +256,14 @@ export const CategoryManagement = () => {
     const getAllCategory = async () => {
       try {
         const res = await apiGetAllCategory()
-        setDataCategory(res.data.getAllCategory)
+        const category: IgetdataCategory[] = res.data.getAllCategory
+        setDataCategory(category.map((item, index) => {
+          return {
+            key: index + 1,
+            _id: item._id,
+            categoryName: item.categoryName
+          }
+        }))
         console.log("res apiGetAllCategory", res.data.getAllCategory);
       } catch (error) {
         console.log("Error get all bills", error);
@@ -275,6 +323,36 @@ export const CategoryManagement = () => {
               </div>
             </div>
             <div onClick={() => setOpenModalConfirmDeleteCate(!openModalConfirmDeleteCate)} className="absolute top-2 right-2 p-1 hover:bg-gray-200 rounded-full hover:cursor-pointer">
+              <IoClose className=" text-xl" />
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+    {openModalEditcategory &&
+      <div className="z-50 absolute top-0 left-0 h-screen w-full ">
+        <div
+          className=" fixed h-full w-full bg-black bg-opacity-50 flex  overflow-y-scroll justify-center ">
+          <div data-aos="fade-down" className="relative rounded-2xl h-fit w-11/12 sm:w-9/12 md:w-3/5 lg:w-[30%] bg-white mt-36  flex flex-col border-2 border-black">
+            <div className="py-8 px-4" >
+              <span className=" text-[18px]">Chỉnh sửa tên danh mục</span>
+              <input value={renameCategory} onChange={(e) => setRenameCategory(e.target.value)} type="text" className="border-2 border-black w-full rounded-2xl p-2 mb-5" />
+              <div className="flex justify-between px-10 font-bold">
+                <button onClick={() => {
+                  handleUpdateCategory()
+                }} className="border-2 py-2 px-6 border-black rounded-2xl hover:bg-red-600 hover:text-white">Lưu</button>
+                <button onClick={() => {
+                  setCategoryItem(undefined)
+                  setRenameCategory("")
+                  setOpenModalEditcategory(!openModalEditcategory)
+                }} className="border-2 py-2 px-6 border-black bg-black text-white rounded-2xl">Đóng</button>
+              </div>
+            </div>
+            <div onClick={() => {
+              setCategoryItem(undefined)
+              setRenameCategory("")
+              setOpenModalEditcategory(!openModalEditcategory)
+            }} className="absolute top-2 right-2 p-1 hover:bg-gray-200 rounded-full hover:cursor-pointer">
               <IoClose className=" text-xl" />
             </div>
           </div>
