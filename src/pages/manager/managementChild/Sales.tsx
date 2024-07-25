@@ -2,15 +2,25 @@ import Money from "../../../assets/money.png"
 import Profits from "../../../assets/profits.png"
 import { Table } from 'antd';
 import type { TableColumnsType } from 'antd';
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 import { apiGetAllBill, apiGetBestSellingFoods, apiGetOneBill } from "../../../API/api";
 import { FaEye } from "react-icons/fa";
 import dayjs from 'dayjs'
 import { formatCurrency } from "../../../utils/formartCurrency";
 import { IoClose } from "react-icons/io5";
-import { DataType, IbestSellingFoods, IBillDetails, IdataBills } from "../../../common/types/managerTypes/sales";
+import { IAreaManager, IbestSellingFoods, IBillDetails, IdataBills } from "../../../common/types/managerTypes/sales";
+import { Button, Input, InputRef, Space, TableColumnType } from 'antd';
+
+import { FilterDropdownProps } from "antd/es/table/interface";
+
+import { useRef, useState } from "react";
+
+import { SearchOutlined } from '@ant-design/icons';
+import Highlighter from "react-highlight-words";
 
 
+
+type DataIndex = keyof IAreaManager;
 export const Sales = () => {
     const [dataBills, seDataBills] = useState<IdataBills[]>()
     console.log("dataBills", dataBills);
@@ -52,25 +62,120 @@ export const Sales = () => {
             })
     }, [modalViewBill]);
 
-    const columns: TableColumnsType<DataType> = [
+
+    const [searchText, setSearchText] = useState('');
+    const [searchedColumn, setSearchedColumn] = useState('');
+    const searchInput = useRef<InputRef>(null);
+    const handleSearch = (
+        selectedKeys: string[],
+        confirm: FilterDropdownProps['confirm'],
+        dataIndex: DataIndex,
+    ) => {
+        confirm();
+        setSearchText(selectedKeys[0]);
+        setSearchedColumn(dataIndex);
+    };
+    const handleReset = (clearFilters: () => void) => {
+        clearFilters();
+        setSearchText('');
+    };
+    const getColumnSearchProps = (dataIndex: DataIndex): TableColumnType<IAreaManager> => ({
+        filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
+            <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
+                <Input
+                    ref={searchInput}
+                    placeholder={`Search ${dataIndex}`}
+                    value={selectedKeys[0]}
+                    onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                    onPressEnter={() => handleSearch(selectedKeys as string[], confirm, dataIndex)}
+                    style={{ marginBottom: 8, display: 'block' }}
+                />
+                <Space>
+                    <Button
+                        type="primary"
+                        onClick={() => handleSearch(selectedKeys as string[], confirm, dataIndex)}
+                        icon={<SearchOutlined />}
+                        size="small"
+                        style={{ width: 90 }}
+                    >
+                        Search
+                    </Button>
+                    <Button
+                        onClick={() => clearFilters && handleReset(clearFilters)}
+                        size="small"
+                        style={{ width: 90 }}
+                    >
+                        Reset
+                    </Button>
+                    <Button
+                        type="link"
+                        size="small"
+                        onClick={() => {
+                            confirm({ closeDropdown: false });
+                            setSearchText((selectedKeys as string[])[0]);
+                            setSearchedColumn(dataIndex);
+                        }}
+                    >
+                        Filter
+                    </Button>
+                    <Button
+                        type="link"
+                        size="small"
+                        onClick={() => {
+                            close();
+                        }}
+                    >
+                        close
+                    </Button>
+                </Space>
+            </div>
+        ),
+        filterIcon: (filtered: boolean) => (
+            <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
+        ),
+        onFilter: (value, record) =>
+            record[dataIndex]
+                .toString()
+                .toLowerCase()
+                .includes((value as string).toLowerCase()),
+        onFilterDropdownOpenChange: (visible) => {
+            if (visible) {
+                setTimeout(() => searchInput.current?.select(), 100);
+            }
+        },
+        render: (text) =>
+            searchedColumn === dataIndex ? (
+                <Highlighter
+                    highlightStyle={{ backgroundColor: '#ffc069', padding: 0 }}
+                    searchWords={[searchText]}
+                    autoEscape
+                    textToHighlight={text ? text.toString() : ''}
+                />
+            ) : (
+                text
+            ),
+    });
+
+    const columns: TableColumnsType<IAreaManager> = [
         {
             title: 'Id Hóa đơn',
             width: 50,
             dataIndex: '_id',
             key: '_id',
             // fixed: 'left',
+            ...getColumnSearchProps('_id'),
         },
         {
             title: 'Nhân viên',
             dataIndex: 'userName',
             key: 'userName',
-            width: 30,
+            width: 25,
         },
         {
             title: 'Ngày',
             dataIndex: 'createAt',
             key: 'createAt',
-            width: 50,
+            width: 45,
         },
 
         {
@@ -83,10 +188,10 @@ export const Sales = () => {
             title: 'Tổng tiền',
             dataIndex: 'total',
             key: 'total',
-            width: 50,
+            width: 35,
         },
         {
-            title: 'Action',
+            title: <span className="text-nowrap">Hành động</span>,
             key: 'operation',
             fixed: 'right',
             width: 25,
@@ -171,9 +276,10 @@ export const Sales = () => {
                 </div>
             ))}
         </div>
-        <div className="pt-10">
+        <div className="pt-10"></div>
+        {/* <div className="pt-10">
             Lorem ipsum dolor, sit amet consectetur adipisicing elit. Provident libero quia asperiores, dignissimos esse molestias porro? Aut hic nulla, sapiente ut ab est cumque facilis repellendus porro cupiditate tempora alias?
-        </div>
+        </div> */}
 
         {modalViewBill && <div className=" z-50 absolute top-0 left-0 h-screen w-full ">
             <div

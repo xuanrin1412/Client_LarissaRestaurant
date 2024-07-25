@@ -243,7 +243,7 @@ export const TableManagement = () => {
       )
     },
     {
-      title: <span className="text-nowrap">Action</span>,
+      title: <span className="text-nowrap">Hành động</span>,
       key: 'operation',
       width: 40,
       fixed: 'right',

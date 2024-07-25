@@ -14,6 +14,7 @@ import { closeOrder, decreaseQuantity, decreaseQuantityOD, deleteFoodArr, increa
 import dayjs from 'dayjs'
 import { IUserInfo } from "../../../common/types/userInfo";
 import { IFoodSlice } from "../../../common/types/foods";
+import { toast } from "react-toastify";
 
 // INTERACE FOR UPDATE 
 interface IOrderUpdates {
@@ -142,6 +143,7 @@ function OrderFood() {
                     dispatch(deleteFoodArr())
                     navigate("/order")
                 }
+                toast.success("Order thành công")
             })
             .catch(error => {
                 console.log(error);
@@ -166,7 +168,7 @@ function OrderFood() {
                 totalOrder: totalOrder
             })
             .then(res => {
-                console.log("res apiUpdateFoods  ", res);
+                console.log("res apiUpdateFoods", res);
             })
             .catch(error => {
                 console.log(error);
@@ -218,17 +220,11 @@ function OrderFood() {
         {
             value: "momo", label: "Chuyển khoản MoMo"
         },
-        {
-            value: "bank", label: "Chuyển khoản ngân hàng"
-        },
     ]
     const [chooseSelect, setChooseSelect] = useState<{ value: string, label: string } | undefined>(paymentMethods[0])
-    console.log("chooseSelect", chooseSelect?.value);
     const [openOptions, setOpenOptions] = useState<boolean>(false)
-    console.log("openOptions", openOptions);
     const [changeToReturn, setChangeToReturn] = useState<number | undefined>()
     const [customerPayment, setCustomerPayment] = useState<string>("");
-    console.log("customerPayment==>", Number(customerPayment));
     const handleSetCustomerPayment = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value.replace(/\./g, '');
         if (/^\d*$/.test(value)) {
@@ -311,9 +307,7 @@ function OrderFood() {
         const handleCalculate = () => {
             if (FoodInOrder?.subTotal) {
                 const change = Number(customerPayment) - FoodInOrder?.subTotal
-                console.log("change", change);
                 setChangeToReturn(change)
-
             }
         }
         handleCalculate()

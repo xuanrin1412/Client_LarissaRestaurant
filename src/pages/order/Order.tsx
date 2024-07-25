@@ -19,10 +19,17 @@ function Order() {
             console.log("new_order", data);
             toast.success(data.message);
         });
+        socket.on("update_order", (data) => {
+            const sound = new Audio(notiSound)
+            sound.play()
+            console.log("update_order", data);
+            toast.success(data.message);
+        });
         return () => {
             socket.off('connect');
             socket.off('disconnect');
             socket.off('new_order');
+            socket.off('update_order');
         };
     }, []);
     return <div>

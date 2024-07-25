@@ -59,14 +59,14 @@ function Intro() {
             bg-[url('https://www.winesunfiltered.com/wp-content/uploads/2023/09/well-done-pork-steak-cutting-board-two-glasses-dry-red-wine-dinner-two-place-text-scaled.jpg')] 
             flex justify-end pr-[8%]">
             <div className=" h-full flex items-center justify-end max-w-[400px] px-8 md:px-0  font-greatVibes text-white font-medium text-shadow-Login text-[35px] tracking-[5px]">
-            "Lấy cảm hứng từ các món bò Châu Âu, chúng tôi đã sáng tạo Jump Steak tươi ngon, món ăn độc đáo kết hợp giữa hương vị truyền thống với sự kết hợp tinh tế của các nguyên liệu tươi ngon và kỹ thuật nấu chuẩn Châu Âu."
+                "Lấy cảm hứng từ các món bò Châu Âu, chúng tôi đã sáng tạo Jump Steak tươi ngon, món ăn độc đáo kết hợp giữa hương vị truyền thống với sự kết hợp tinh tế của các nguyên liệu tươi ngon và kỹ thuật nấu chuẩn Châu Âu."
             </div>
         </div>
-    <div>
- 
-    </div>
+        <div>
+
+        </div>
         <div className="h-full lg:mt-32 w-11/12 lg:w-3/4 mx-auto md:border-2 border-black flex flex-col md:grid md:grid-cols-2 rounded-2xl space-y-4 md:space-y-0 border-0 ">
-            <div className="relative border-r-0 md:border-r-2 border-gray-100 h-[800px] lg:h-full ">
+            <div className="relative border-r-0 md:border-r-2 border-gray-100 h-[500px] lg:h-full ">
                 <img className="h-full w-full object-cover rounded-l-xl rounded-r-xl md:rounded-r-none" src="https://images.summitmedia-digital.com/spotph/images/2023/12/13/50-great-1702427222.jpg" alt="" />
                 <div className="absolute top-0 left-0 text-white h-full w-full  flex items-center justify-center">
                     <div className=" p-10 text-center ">
@@ -78,8 +78,8 @@ function Intro() {
                 <img className="h-full w-full object-cover rounded-r-xl rounded-l-xl md:rounded-l-none" src="https://niococktails.co.uk/cdn/shop/articles/m-s-meeuwesen-QYWYnzvPTAQ-unsplash.jpg?v=1606153942" alt="" />
                 <div className="absolute top-0 left-0 text-white h-full w-full  flex items-center justify-center">
                     <div className="bg-white bg-opacity-20 p-10 text-center space-y-4">
-                        <div className="text-5xl font-bold text-shadow-Login">Drinks</div>
-                        <button onClick={() => handleClickDrinks()} className="py-2 px-3 text-xl bg-primary border-2 border-white rounded-[22px]">Watch Menu</button>
+                        <div className="text-3xl font-bold text-shadow-Login">Thức uống</div>
+                        <button onClick={() => handleClickDrinks()} className="py-2 px-3 text-xl bg-primary border-2 border-white rounded-[22px]">Xem Menu</button>
                     </div>
                 </div>
             </div>

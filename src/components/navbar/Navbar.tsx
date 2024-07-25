@@ -2,6 +2,7 @@ import { MdOutlineRestaurantMenu, MdOutlineShoppingCart } from "react-icons/md";
 import { decreaseQuantityCustomer, deleteOneFoodCustomer, increaseQuantityCustomer, setQuantityFoodInCard } from "../../Redux/foodsCustomer";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { RootState, useAppSelector } from "../../Redux/store";
+import { formatCurrency } from "../../utils/formartCurrency";
 import { IdataBooking } from "../../common/types/bookATable";
 import { setOpenModalConfirm } from "../../Redux/foodsSlice";
 import { scrollCategoryBar } from "../../utils/scrollToTop";
@@ -22,7 +23,7 @@ import { Logo } from "../../assets/Logo";
 import { FaUser } from "react-icons/fa";
 import { toast } from 'react-toastify';
 import io from 'socket.io-client';
-import { formatCurrency } from "../../utils/formartCurrency";
+
 
 const Navbar: React.FC = () => {
     const location = useLocation();
@@ -66,7 +67,6 @@ const Navbar: React.FC = () => {
             navigate("/order");
         }
     }
-
     const userAccount: IUserInfo | null = useAppSelector(state => state.user.userInfo)
 
 
@@ -77,45 +77,31 @@ const Navbar: React.FC = () => {
 
     const [notiList, setNotiList] = useState<INotiList[]>([])
     const [viewCart, setViewCart] = useState<boolean>(false)
-
     const totalBill = useAppSelector(state => state.foodsCustomer.totalOrderCustomer)
     console.log(totalBill);
-
-
-
-    // const [quan, setQuan] = useState<string>(itemQuantity !== undefined ? String(itemQuantity) : "");
-
-    // const handleChangeQuantityInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    //     const value = e.target.value;
-    //     setQuan(value);
-    //     const numericValue = value === "" ? 1 : Number(value);
-    //     dispatch(changeQuantityInputCustomer({ _id, value: numericValue }));
-    // };
-
-    // const handleBlur = () => {
-    //     if (quan === "") {
-    //         setQuan("1");
-    //         dispatch(changeQuantityInputCustomer({ _id, value: 1 }));
-    //     }
-    // };
-
-    // useEffect(() => {
-    //     setQuan(itemQuantity !== undefined ? String(itemQuantity) : "1");
-    // }, [itemQuantity]);
-
     const totalOrderCustomer = useAppSelector(state => state.foodsCustomer.totalOrderCustomer)
-
-
+    const [notiOrder, setNotiOrder] = useState<INotiList[]>([])
     useEffect(() => {
         if (userAccount?.role === "admin" || userAccount?.role === "moderator") {
             socket.on('newBooking', (newBooking) => {
                 setNotiList((prevList) => [...prevList, newBooking])
-                const notiOrder = localStorage.setItem("noti-order", JSON.stringify(notiList))
-                console.log("notiOrder", notiOrder);
                 console.log("newBooking==========12=====", newBooking);
                 toast.success(newBooking.message);
             });
         }
+        localStorage.setItem("noti-order", JSON.stringify(notiList));
+        const notiString = localStorage.getItem("noti-order");
+
+        if (notiString !== null) {
+            const noti = JSON.parse(notiString);
+            console.log("noti:::::", noti);
+            setNotiOrder(noti)
+        } else {
+            console.log("No notifications found in localStorage.");
+        }
+        // setNotiOrder(noti)
+
+
         const handleScroll = () => scrollCategoryBar({ setShowCategoryBar });
 
         const handleCloseNoti = () => {
@@ -133,12 +119,12 @@ const Navbar: React.FC = () => {
         // } else {
         //     document.body.classList.remove('modal-open');
         // }
-        // return () => {
-        //     window.removeEventListener("scroll", handleScroll);
-        //     window.removeEventListener("click", handleCloseNoti);
-        //     document.body.classList.remove('modal-open');
-        //     socket.off('newBooking');
-        // };
+        return () => {
+            // window.removeEventListener("scroll", handleScroll);
+            // window.removeEventListener("click", handleCloseNoti);
+            // document.body.classList.remove('modal-open');
+            socket.off('newBooking');
+        };
 
     }, [showCategoryBar, userAccount, notiList, quantityFood, viewCart, dispatch, quantityFoodInCard]);
 
@@ -153,31 +139,26 @@ const Navbar: React.FC = () => {
             <div className={`${userAccount?.role === "admin" || userAccount?.role === "moderator" ? "hidden" : " hidden md:flex flex-1   items-center justify-end md:space-x-4 lg:space-x-8"}`}>
                 {userAccount?.role == "moderator" ? "" :
                     <div onClick={() => navigate("/")} className={`${pathname === "/" ? " text-red-500   font-bold    flex justify-center" : ""} flex`}>
-                        <a href="#" className="pr-2">Trang chủ</a><IoHome />
+                        <a href="#" className="pr-2 text-nowrap">Trang chủ</a><IoHome />
                     </div>}
                 {userAccount?.role == "moderator" ? "" :
                     <div onClick={() => navigate("/menu")} className={`${pathname === "/menu" ? "text-red-500    font-bold    justify-center" : ""} flex`}>
                         <a href="#" className="pr-2">Menu</a><MdOutlineRestaurantMenu />
                     </div>}
             </div>
-
-
-            {/* {userAccount.role == "moderator" ? "" : */}
-            <div className="font-bold flex text-2xl  items-center w-fit  text-center">
+            <div className="font-bold flex text-xl sm:text-[22px]  md:text-2xl  items-center w-fit  text-center">
                 <span className="">Larissa</span>
                 <div className="h-8 w-8 mx-2">
                     <Logo color={showCategoryBar ? "black" : "white"} />
                 </div>
                 <span className=" ">Restaurants</span>
             </div>
-            {/* } */}
-
             <div className="flex-1 items-center justify-start md:space-x-4 lg:space-x-8 hidden md:flex">
                 {userAccount?.role == "admin" ? <div className={`${pathname === "/manager" ? "text-red-500 font-bold justify-center" : ""}`}>
-                    <Link to="/manager">Manager</Link>
+                    <Link to="/manager">Quản lý</Link>
                 </div> : ""}
                 {userAccount?.role === "admin" || userAccount?.role === "moderator" ? (
-                    <div className={`${pathname === "/order" ? "text-red-500 font-bold" : ""}`}>
+                    <div className={`cursor-pointer ${pathname === "/order" ? "text-red-500 font-bold" : ""}`}>
                         <div onClick={() => handleClickOrderWhenHaveFoods()
                         }>Order</div>
                     </div>
@@ -190,16 +171,14 @@ const Navbar: React.FC = () => {
                 ) : null}
                 {userAccount?.role === "admin" || userAccount?.role === "moderator" ? (
                     <div className={`${pathname === "/booking-manager" ? "text-red-500 font-bold" : ""}`}>
-                        <Link to="/booking-manager">Quản lý đặt bàn online</Link>
+                        <Link to="/booking-manager" className="text-nowrap">QL Đặt bàn</Link>
                     </div>
                 ) : null}
-
                 {userAccount?.role === "admin" || userAccount?.role === "moderator" ? "" :
                     <div onClick={() => navigate("/book-a-table")} className={`${pathname === "/book-a-table" ? "text-red-500 font-bold" : ""} `}>
                         <a href="#" className="flex">
-                            <span className="underline whitespace-nowrap pr-2 ">Đặt bàn Online</span><MdTableBar /></a>
+                            <span className="underline whitespace-nowrap pr-2 ">Đặt bàn</span><MdTableBar /></a>
                     </div>}
-
                 {userAccount?.role === "admin" || userAccount?.role === "moderator" ? (
                     <div className={`relative ${pathname === "/notify" ? "text-red-500 font-bold" : ""}`}>
                         <div onClick={(e) => {
@@ -207,36 +186,34 @@ const Navbar: React.FC = () => {
                             e.stopPropagation()
                         }} className="relative">
                             <span className="text-2xl"><IoNotificationsSharp /></span>
-
-                            {notiList.length > 0 && <span className="absolute -top-1 -right-[6px] flex h-4 w-4  items-center justify-center">
+                            {notiOrder.length > 0 && <span className="absolute -top-1 -right-[6px] flex h-4 w-4  items-center justify-center">
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00D2FF] opacity-75"></span>
                                 <span className="relative inline-flex rounded-full h-3 w-3 bg-[#00D2FF]"></span>
                             </span>}
-
                         </div>
-                        {toggleNoti && notiList.length > 0 &&
+                        {toggleNoti && notiOrder.length > 0 &&
                             <div className=" absolute top-[49px] -left-12">
                                 <div onClick={(e) => e.stopPropagation()} className=" relative text-black  bg-white border-2 rounded-2xl border-black w-[200px]">
                                     <div className=" absolute -top-[10px] left-[51px] borderr h-4 w-4 bg-black"></div>
                                     <div className="text-[17px] px-4 py-2 font-bold text-black text-center bg-white border-b-2 rounded-t-[14px] border-black">Thông báo</div>
-                                    {notiList.map((item, index) => (
+                                    {notiOrder.map((item, index) => (
                                         <div key={index} className="text-[15px] px-4 py-2 border hover:bg-gray-200  text-nowrap">{item.message}</div>
                                     ))}
                                     <div onClick={() => {
                                         setNotiList([])
                                         setToggleNoti(false)
+                                        // localStorage.removeItem("noti-order")
                                     }} className="text-[13px] px-4 py-1 border text-nowrap border-t-2 border-t-black rounded-b-[14px] bg-[#00D2FF] text-black text-center ">Đánh dấu đã đọc</div>
                                 </div>
                             </div>
                         }
                     </div>
                 ) : null}
-
                 {userAccount?.userName ?
                     ""
                     :
                     <div className={`${pathname === "/login" ? "text-red-500 font-bold   " : ""}`}>
-                        <Link to="/login" className="flex ">Đăng nhập{" "}<FaUser style={{ marginLeft: 10 }} /></Link>
+                        <Link to="/login" className="flex "><FaUser /></Link>
                     </div>
                 }
                 {userAccount?.role === "admin" || userAccount?.role === "moderator" ? "" :
@@ -248,7 +225,6 @@ const Navbar: React.FC = () => {
                             </div>
                         </div>
                     </div>}
-
                 {userAccount?.userName ?
                     <div onClick={() => navigate("/account")} className={`${pathname === "/account" ? "text-red-500 font-bold" : ""}`}>
                         <div onClick={() => handleClickAccountWhenHaveFoods()
@@ -258,24 +234,32 @@ const Navbar: React.FC = () => {
                                     {/* <span className="capitalize">{userAccount.role} </span> */}
                                     <span>{userAccount.userName}</span>
                                     <div className="h-10 w-10 rounded-full">
-                                        <img src={userAccount.avatar} alt="" className="object-cover h-full w-full  rounded-full" />
+                                        <img src={userAccount.avatar ? userAccount.avatar : "https://static.vecteezy.com/system/resources/thumbnails/005/129/844/small_2x/profile-user-icon-isolated-on-white-background-eps10-free-vector.jpg"} alt="" className="object-cover h-full w-full  rounded-full" />
                                     </div>
                                 </div></a>
                         </div>
                     </div> : ""}
-                {/* <GoogleSignInButton /> */}
             </div>
 
-            <div className="relative flex md:hidden">
+            <div className="relative flex md:hidden space-x-3">
+                {userAccount?.role === "admin" || userAccount?.role === "moderator" ? "" :
+                    <div onClick={() => setViewCart(!viewCart)}>
+                        <div className="relative ">
+                            <MdOutlineShoppingCart />
+                            <div className={`${quantityFoodInCard && quantityFoodInCard > 0 ? "flex" : "hidden"} absolute -top-2 -right-4  bg-[#00D2FF] text-sm rounded-full h-[22px] w-[22px] flex items-center justify-center`}>
+                                {quantityFoodInCard && quantityFoodInCard > 0 ? quantityFoodInCard : ""}
+                            </div>
+                        </div>
+                    </div>}
                 <div
                     onClick={() => setOpenSideBar(!openSideBar)}
-                    className={`absolute top-0 right-0 transform transition-all duration-300 ${openSideBar ? "translate-x-10 opacity-0" : "flex translate-x-0 opacity-100"} pr-4 flex md:hidden`}
+                    className={`absolute top-0 right-0 transform transition-all duration-300 cursor-pointer ${openSideBar ? "translate-x-10 opacity-0" : "flex translate-x-0 opacity-100"} pr-4 flex md:hidden`}
                 >
                     <GiHamburgerMenu className={`${showCategoryBar ? "text-black" : "text-white "}`} />
                 </div>
                 <div
                     onClick={() => setOpenSideBar(!openSideBar)}
-                    className={`transform transition-all duration-300 ${openSideBar ? "flex translate-x-0 opacity-100" : "translate-x-10 opacity-0"
+                    className={`transform transition-all duration-300 cursor-pointer  ${openSideBar ? "flex translate-x-0 opacity-100" : "translate-x-10 opacity-0"
                         } text-2xl pr-4 flex md:hidden`}
                 >
                     <IoCloseSharp className={`${showCategoryBar ? "text-black" : "text-white "}`} />
@@ -292,7 +276,7 @@ const Navbar: React.FC = () => {
                     }}
                         className="flex text-xl items-center pl-5 space-x-4 py-5 hover:bg-gray-300 border">
                         <span><FaChevronRight /></span>
-                        <span>Home</span>
+                        <span>Trang chủ</span>
                         <span><IoHome /></span>
                     </a>
                     <a href="#" onClick={() => {
@@ -310,7 +294,7 @@ const Navbar: React.FC = () => {
                     }}
                         className="flex text-xl items-center pl-5 space-x-4 py-5 hover:bg-gray-300 border">
                         <span><FaChevronRight /></span>
-                        <span>Book A Table</span>
+                        <span>Đặt bàn</span>
                         <span><MdTableBar /></span>
                     </a>
                     {/* {userAccount?.userName ?
@@ -332,7 +316,7 @@ const Navbar: React.FC = () => {
                     }}
                         className="flex text-xl items-center pl-5 space-x-4 py-5 hover:bg-gray-300 border">
                         <span><FaChevronRight /></span>
-                        <span>{userAccount?.userName ? "Tài Khoản của bạn" : "Login"}</span>
+                        <span>{userAccount?.userName ? "Tài Khoản của bạn" : "Đăng nhập"}</span>
                         <span><RiLoginCircleFill /></span>
                     </a>
                 </ul>
@@ -368,7 +352,7 @@ const Navbar: React.FC = () => {
                             </li>
                         ))}
                     </div>
-                    {quantityFoodInCard == 0 && <div className="h-full"><img className="h-full w-full object-cover" src="https://mir-s3-cdn-cf.behance.net/projects/404/2f038b134324769.Y3JvcCwxMDEwLDc5MCwyNSww.png" alt="" /></div>}
+                    {quantityFoodInCard == 0 && <div className="h-full"><img className="h-full w-full object-cover" src="https://i.pinimg.com/736x/2e/ac/fa/2eacfa305d7715bdcd86bb4956209038.jpg" alt="" /></div>}
                 </ul>
                 <div className="h-24 bg-white text-white space-y-2 flex items-center justify-center text-2xl border-t-2 flex-col ">
                     {quantityFoodInCard > 0 && <div className="text-black">Tổng tiền: {formatCurrency(totalOrderCustomer)}VND</div>}

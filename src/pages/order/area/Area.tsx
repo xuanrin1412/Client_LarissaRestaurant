@@ -137,7 +137,7 @@ function Area() {
                 {area.table.length > 0 &&
                     <div className="pt-10" >
                         <div className=" font-bold text-[18px] my-5">Khu vực {area.areaName}</div>
-                        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4 lg:gap-6">
+                        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 lg:gap-6">
                             {area.table.map((table, index) => (
                                 <div onClick={() => handleClickOrder(table._id, table.tableName)} key={index}
                                     className="hover:shadow cursor-pointer relative w-full h-20 border-4 border-gray-400 flex justify-center items-center rounded-2xl">

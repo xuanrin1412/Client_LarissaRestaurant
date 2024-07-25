@@ -1,20 +1,13 @@
 import { Link } from 'react-router-dom'
-import React from 'react'
-// import axios from 'axios'
+import { useEffect } from 'react'
+import { useAppDispatch } from '../Redux/store'
+import { deleteAllFoodsCustomer } from '../Redux/foodsCustomer'
 
 export default function SuccessPaymentCustomer() {
-    // const hanleDeleteAllProductInCart = async () => {
-    //     try {
-    //         await axios.delete('http://localhost:8080/product_cart/deleteAll', {
-    //             withCredentials: true,
-    //         })
-    //     } catch (error) {
-    //         console.error(
-    //             "Error fetch data Can't delete all product in user's cart ",
-    //             error,
-    //         )
-    //     }
-    // }
+    const dispatch = useAppDispatch()
+    useEffect(() => {
+        dispatch(deleteAllFoodsCustomer())
+    }, [dispatch])
 
     return (
         <div className=" w-full h-screen flex  items-center justify-center ">

@@ -26,6 +26,23 @@ export const apiLogin = ({ userName, password }: IuserLogin) => {
 export const apiGetAllModerator = () => {
     return axios.get(`${baseUrl}/register/getAllModerator`, { withCredentials: true });
 };
+//CREATE MODERATOR
+interface IapicreateModerator {
+    userName: string,
+    email: string,
+    phoneNumber: string,
+    address: string,
+    password: string,
+    role:string
+}
+export const apiCreateModerator = ({ userName, email, phoneNumber, address, password,role }: IapicreateModerator) => {
+    return axios.post(`${baseUrl}/register`, { userName, email, phoneNumber, address, password,role }, { withCredentials: true });
+};
+//DELETE MODERATOR
+export const apiDeleteModerator = (staffId: string|undefined) => {
+    return axios.delete(`${baseUrl}/register/${staffId}`, { withCredentials: true })
+}
+
 
 // AREA W TABLE
 export const apiGetAreaWithTable = () => {
@@ -42,6 +59,14 @@ export const apiGetAllArea = () => {
 // DELETE AREA 
 export const apiDeleteArea = (areaId: string | undefined) => {
     return axios.delete(`${baseUrl}/area/${areaId}`, { withCredentials: true })
+}
+// Update AREA 
+interface IapiUpdateArea {
+    idArea: string | undefined,
+    areaName: string | undefined,
+}
+export const apiUpdateArea = ({ idArea, areaName }: IapiUpdateArea) => {
+    return axios.put(`${baseUrl}/area/${idArea}`, { areaName }, { withCredentials: true })
 }
 // CREATE TABLE
 export const apiCreateTable = ({
@@ -111,10 +136,10 @@ export const apiDeleteCategory = (idCategory: string | undefined) => {
 }
 //UPDATE CATEGORY
 interface IapiUpdateCategory {
-    idCategory: string|undefined,
-    categoryName:string|undefined
+    idCategory: string | undefined,
+    categoryName: string | undefined
 }
-export const apiUpdateCategory = ({idCategory,categoryName}:IapiUpdateCategory) => {
+export const apiUpdateCategory = ({ idCategory, categoryName }: IapiUpdateCategory) => {
     return axios.put(`${baseUrl}/category/${idCategory}`, { categoryName }, { withCredentials: true })
 }
 
@@ -150,7 +175,7 @@ export const apiGetOrderFromTableID = (id: string) => {
     return axios.get(`${baseUrl}/order_food/findOrder/${id}`, { withCredentials: true })
 }
 
-// GET USER INFO
+// GET USER INFOf
 export const apiGetUserInfo = (id: string | undefined) => {
     return axios.get(`${baseUrl}/register/find/${id}`, { withCredentials: true })
 }
@@ -173,7 +198,7 @@ export const apiUpdateFoods = ({ id, listIdRemoveFoods, newOrderFoods, listUpdat
         { withCredentials: true })
 }
 
-export const apiCheckOrderPayment = (orderId: string|undefined) => {
+export const apiCheckOrderPayment = (orderId: string | undefined) => {
     return axios.post(`http://localhost:3004/transaction-status`, { orderId },)
 }
 

@@ -19,22 +19,6 @@ const foodsCustomer = createSlice({
     name: "foodsCustomer",
     initialState,
     reducers: {
-        // createFoodArr: (state, action: PayloadAction<{ food: IFood, quantity: number }>) => {
-        //     const index = state.foods.findIndex(item => item.food._id === action.payload.food._id)
-        //     if (index !== -1) {
-        //         state.foods[index].quantity++
-        //         state.foods[index].totalEachFood = state.foods[index].quantity * action.payload.food.revenue
-        //         state.total = sumTotal(state.foods)
-        //     } else {
-        //         const newFood = {
-        //             food: action.payload.food,
-        //             quantity: action.payload.quantity,
-        //             totalEachFood: action.payload.food.revenue
-        //         }
-        //         state.foods.push(newFood)
-        //         state.total = sumTotal(state.foods)
-        //     }
-        // },
         createFoodCustomerArr: (state, action: PayloadAction<{ food: IFood, quantity: number }>) => {
             const index = state.foodsCustomer.findIndex(item => item.food._id === action.payload.food._id)
             if (index !== -1) {
@@ -67,6 +51,11 @@ const foodsCustomer = createSlice({
             }
             state.totalOrderCustomer = sumTotal(state.foodsCustomer)
         },
+        deleteAllFoodsCustomer: (state) => {
+            state.foodsCustomer = []
+            state.quantityFoodInCard = 0
+            state.totalOrderCustomer = 0
+        },
         changeQuantityInputCustomer: (state, action: PayloadAction<{ _id: string, value: number }>) => {
             const index = state.foodsCustomer.findIndex(item => item.food._id === action.payload._id);
             if (state.foodsCustomer[index].quantity) {
@@ -87,5 +76,5 @@ const foodsCustomer = createSlice({
         },
     }
 })
-export const { createFoodCustomerArr, deleteOneFoodCustomer, changeQuantityInputCustomer, increaseQuantityCustomer, decreaseQuantityCustomer, setQuantityFoodInCard } = foodsCustomer.actions;
+export const { deleteAllFoodsCustomer,createFoodCustomerArr, deleteOneFoodCustomer, changeQuantityInputCustomer, increaseQuantityCustomer, decreaseQuantityCustomer, setQuantityFoodInCard } = foodsCustomer.actions;
 export default foodsCustomer.reducer

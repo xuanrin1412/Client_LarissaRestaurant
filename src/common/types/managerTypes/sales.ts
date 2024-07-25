@@ -1,7 +1,7 @@
 import { IFoodsInOrder, ITable } from "../../../pages/order/area/Area";
 import { IUserInfo } from "../userInfo";
 
-export interface DataType {
+export interface IAreaManager {
     _id: string
     userName: string;
     createAt: string;

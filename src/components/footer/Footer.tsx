@@ -32,11 +32,11 @@ function Footer() {
             {/* OPEN CLOSE HOUR */}
             <div className="flex flex-col md:flex-row  md:justify-between">
                 <div className="text-white md:w-5/12 lg:w-1/4  flex flex-col items-center md:pt-14 text-xl">
-                    <div className="text-2xl md:text-3xl bg-gradient-to-r from-[#FF006B] to-[#749BF7] bg-clip-text text-transparent font-bold">Open hours </div>
-                    <div className="pt-1 md:pt-4">Monday {"-->"} Friday</div>
+                    <div className="text-2xl md:text-3xl bg-gradient-to-r from-[#FF006B] to-[#749BF7] bg-clip-text text-transparent font-bold">Mở cửa</div>
+                    <div className="pt-1 md:pt-4">Thứ 2 {"-->"} Thứ 6</div>
                     <div className="pb-6">09:00 - 22:00</div>
-                    <div className="text-2xl md:text-3xl bg-gradient-to-r from-[#d63030] to-[#749BF7] bg-clip-text text-transparent font-bold">Close</div>
-                    <div className="pt-0 md:pt-4">Sartuday & Sunday </div>
+                    <div className="text-2xl md:text-3xl bg-gradient-to-r from-[#d63030] to-[#749BF7] bg-clip-text text-transparent font-bold">Đóng cửa</div>
+                    <div className="pt-0 md:pt-4">Thứ 7 & Chủ nhật </div>
                 </div>
                 <div className="text-white w-full text-center md:w-7/12 lg:w-8/12 md:pt-14 md:text-left text-xl ">
                     <div className="py-8 md:py-0">
@@ -51,13 +51,13 @@ function Footer() {
                     </div>
                     <div className="w-full flex flex-wrap md:py-8">
                         <div className="w-full flex items-center justify-center text-center md:justify-start animate-bounce">
-                            <span className="pr-2">Click to get location</span>
+                            <span className="pr-2">Nhấn vào địa chỉ để đến</span>
                             <FaRegHandPointRight className="mr-4 transform rotate-90 " />
                         </div>
                         <a className="w-full" href="https://www.google.com/maps/place/79+%C4%90.+TL+08,+Th%E1%BA%A1nh+L%E1%BB%99c,+Qu%E1%BA%ADn+12,+Th%C3%A0nh+ph%E1%BB%91+H%E1%BB%93+Ch%C3%AD+Minh,+Vietnam/@10.8568155,106.6758753,17z/data=!3m1!4b1!4m6!3m5!1s0x317528356de54113:0x9862530dacc0a67e!8m2!3d10.8568102!4d106.6784502!16s%2Fg%2F11j0pvj450?entry=ttu">79/14 TL 08 , phường Thạnh Lộc , quận 12 , HCM</a>
                     </div>
                     <div className="w-full flex flex-col items-center md:items-start">
-                        <span> Follow us </span>
+                        <span> Theo dõi chúng tôi  </span>
                         <div className=" card flex justify-center md:justify-start space-x-4">
                             <a className="social-link1">
                                 <svg className="color: white bi bi-instagram" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">

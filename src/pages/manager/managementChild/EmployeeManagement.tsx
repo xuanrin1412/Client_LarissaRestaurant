@@ -1,22 +1,18 @@
-import { apiAddFoods, apiDeleteFood, apiGetAllModerator, apiGetOneFood, apiUpdateFoodItem, apiUploadImage } from "../../../API/api";
+import { apiCreateModerator, apiDeleteModerator, apiGetAllModerator, apiGetUserInfo, apiUpdateProfile } from "../../../API/api";
 import { Button, Input, InputRef, Space, Table, TableColumnType, type TableColumnsType } from 'antd';
-import { IdataCategory, IFoodAdd, IFoods } from "../../../common/types/foods";
 import { LoadingImage } from "../../../components/commons/loadingImage";
-import { Controller, SubmitHandler, useForm } from "react-hook-form";
+import { FaCirclePlus, FaRegEye, FaRegEyeSlash } from "react-icons/fa6";
 import { FilterDropdownProps } from "antd/es/table/interface";
-import { convertBase64 } from "../../../utils/conversebase";
+import { SubmitHandler, useForm } from "react-hook-form";
 import { FaEdit, FaRegTrashAlt } from "react-icons/fa";
-import { setLoadingImage } from "../../../Redux/Image";
 import { useAppSelector } from "../../../Redux/store";
 import { useEffect, useRef, useState } from "react";
-import { FaCirclePlus } from "react-icons/fa6";
 import { SearchOutlined } from '@ant-design/icons';
 import Highlighter from "react-highlight-words";
 import { IoClose } from "react-icons/io5";
-import { AiFillPicture } from "react-icons/ai";
-import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { AxiosError } from "axios";
+import CryptoJS from "crypto-js"
 
 type DataIndex = keyof IDataModeratorsDisplay;
 interface IdataModerators {
@@ -27,6 +23,7 @@ interface IdataModerators {
   email: string;
   phoneNumber: string;
   address: string;
+  password: string;
 }
 interface IDataModeratorsDisplay {
   key: number;
@@ -37,40 +34,42 @@ interface IDataModeratorsDisplay {
   email: string;
   phoneNumber: string;
   address: string;
+  password: string;
 }
 
 export const EmployeeManagement = () => {
+  const [showPassword, setShowPassword] = useState<boolean>(false)
+
   const {
     register,
-    handleSubmit, control,
+    handleSubmit,
     setValue,
     reset,
     formState: { errors },
-  } = useForm<IdataModerators>(
+  } = useForm<IDataModeratorsDisplay>(
     {
       criteriaMode: "all",
     },
   )
 
-  const dispatch = useDispatch()
-  const [foodItem, setFoodItem] = useState<IFoods>()
-  // const [dataFoods, setDataFoods] = useState<IdataFoods[]>()
+  const [staffData, setStaffData] = useState<IDataModeratorsDisplay>()
   const [dataModerators, setDataModerators] = useState<IDataModeratorsDisplay[]>()
   const [modalFoods, setModalFoods] = useState<boolean>(false)
-  const [deletedFood, setDeletedFood] = useState<boolean>(false)
-  // const [listCategory, setListCategory] = useState<IdataCategory[]>()
-  const [takeFoodItem, settakeFoodItem] = useState<IFoods | null>(null)
-  const loadingImage: boolean = useAppSelector(state => state.image.loadingImage)
-  const [openModalConfirmDeleteFood, setOpenModalConfirmDeleteFood] = useState<boolean>(false)
+  const [deletedStaff, setDeletedStaff] = useState<boolean>(false)
+  const [takeOneStaff, setTakeOneStaff] = useState<IDataModeratorsDisplay | null>(null)
 
-  const handleOpenModalDeleteFood = async (Food: IFoods) => {
-    setOpenModalConfirmDeleteFood(!openModalConfirmDeleteFood)
-    setFoodItem(Food)
+  const loadingImage: boolean = useAppSelector(state => state.image.loadingImage)
+  const [openModalConfirmDeleteStaff, setOpenModalConfirmDeleteStaff] = useState<boolean>(false)
+
+  const handleOpenModalDeleteStaff = async (record: IDataModeratorsDisplay) => {
+    setOpenModalConfirmDeleteStaff(!openModalConfirmDeleteStaff)
+    setStaffData(record)
   }
   const handleDeleteFood = async () => {
     try {
-      await apiDeleteFood(foodItem?._id)
-      setDeletedFood(true)
+      await apiDeleteModerator(staffData?._id)
+      setDeletedStaff(true)
+      toast.success("Xóa nhân viên thành công")
     } catch (error) {
       if (error instanceof AxiosError && error.response) {
         console.log("Error fetching apiDeleteFood", error);
@@ -81,13 +80,13 @@ export const EmployeeManagement = () => {
   const [addFood, setAddFood] = useState<boolean>(false)
   const [startEdit, setStartEdit] = useState<boolean>(false)
   const [readOnly, setReadOnly] = useState<boolean>(false)
-  const handleOpenModalViewEdit = async (foodId: string) => {
+  const handleOpenModalViewEdit = async (id: string) => {
     setAddFood(false)
     setModalFoods(!modalFoods)
     setReadOnly(true)
     try {
-      const res = await apiGetOneFood(foodId)
-      settakeFoodItem(res.data.getOneFood)
+      const res = await apiGetUserInfo(id)
+      setTakeOneStaff(res.data.getUser)
     } catch (error) {
       console.log(error);
     }
@@ -97,6 +96,20 @@ export const EmployeeManagement = () => {
   const [searchText, setSearchText] = useState('');
   const [searchedColumn, setSearchedColumn] = useState('');
   const searchInput = useRef<InputRef>(null);
+
+  const showPass = () => {
+    const elementPassword = document.getElementsByClassName("password");
+    if ((elementPassword[0] as HTMLInputElement).type === "password") {
+      (elementPassword[0] as HTMLInputElement).type = "text"
+      setShowPassword(true)
+
+    } else {
+      (elementPassword[0] as HTMLInputElement).type = "password"
+      setShowPassword(false)
+    }
+  }
+
+
   const handleSearch = (
     selectedKeys: string[],
     confirm: FilterDropdownProps['confirm'],
@@ -228,19 +241,6 @@ export const EmployeeManagement = () => {
       width: 140,
       ...getColumnSearchProps('address'),
     },
-    // {
-    //   title: <span className="text-nowrap">Giá gốc</span>,
-    //   dataIndex: 'costPrice',
-    //   key: 'costPrice',
-    //   width: 50,
-    //   ...getColumnSearchProps('costPrice'),
-    //   render: (record) => (
-    //     <div className=" text-nowrap float-right" >
-    //       {formatCurrency(record)} vnđ
-    //     </div>
-    //   ),
-    // },
-
     {
       title: <span className="text-nowrap">Hành động</span>,
       key: 'operation',
@@ -248,126 +248,76 @@ export const EmployeeManagement = () => {
       fixed: 'right',
       render: (record) => (
         <div className="flex space-x-4 justify-center">
-          <FaEdit onClick={() => handleOpenModalViewEdit(record._id)} className="text-[20px]" />
-          <FaRegTrashAlt onClick={() => handleOpenModalDeleteFood(record)} className="text-[20px]" />
+          <FaEdit onClick={() => handleOpenModalViewEdit(record._id)} className="text-[20px] cursor-pointer" />
+          <FaRegTrashAlt onClick={() => handleOpenModalDeleteStaff(record)} className="text-[20px] cursor-pointer" />
         </div>
       ),
     },
   ];
 
-  // const [sellingPrice, setSellingPrice] = useState<string>("");
-  // const handleSetSellingPrice = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const value = e.target.value.replace(/\./g, '');
-  //   if (/^\d*$/.test(value)) {
-  //     setSellingPrice(value);
-  //     setValue("revenue", Number(value));
-  //   }
-  // }
-
-  // const [costPrice, setCostPrice] = useState<string>("");
-  // const handleSetCostPrice = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const value = e.target.value.replace(/\./g, '');
-  //   if (/^\d*$/.test(value)) {
-  //     setCostPrice(value);
-  //     setValue("costPrice", Number(value));
-  //   }
-  // }
-
-  // UPLOAD IMAGE 
-  const [displayImageFood, setDisplayImageFood] = useState<string>()
-  const [fileUpload, setFileUpload] = useState<File | undefined | Blob>()
-  const hiddenInputFile = useRef<HTMLInputElement | null>(null)
-
-  const handleClickHiddenInputFile = () => {
-    hiddenInputFile?.current?.click()
-  }
-  const handleUploadImage = (file: File) => {
-    const foodImage = URL.createObjectURL(file);
-    setDisplayImageFood(foodImage);
-  };
-
-  const handleUploadToCloud = async () => {
-    try {
-      const base64 = await convertBase64(fileUpload);
-      const res = await apiUploadImage(base64)
-      setDisplayImageFood(res.data)
-
-      return res.data
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      if (error.response.statusText == 'Payload Too Large') {
-        toast.error("Hãy chọn ảnh có kích thước nhỏ hơn 800x400px")
-      }
-      console.log("Error fetchign iamgeUpload", error);
-    }
-  }
-
-  const onSubmitAddFood: SubmitHandler<IFoodAdd> = async (data) => {
-    const costPrice = parseInt(String(data.costPrice).replace(/\./g, ''), 10)
-    const revenue = parseInt(String(data.revenue).replace(/\./g, ''), 10)
+  const onSubmitAddModerator: SubmitHandler<IDataModeratorsDisplay> = async (data) => {
     if (startEdit) {
+      setStartEdit(false)
+      setReadOnly(true)
+      console.log("UPDATE DATA", data);
       try {
-        const picture = await handleUploadToCloud()
-        apiUpdateFoodItem(takeFoodItem?._id, {
-          categoryId: data.categoryId,
-          foodName: data.foodName,
-          description: data.description,
-          picture: picture,
-          costPrice,
-          revenue,
-          favourite: data.favourite
+        const res = await apiUpdateProfile({
+          id: takeOneStaff?._id,
+          body: {
+            userName: data?.userName,
+            email: data?.email,
+            avatar: data?.avatar,
+            phoneNumber: data?.phoneNumber,
+            address: data?.address,
+          }
         })
-        setStartEdit(false)
-        setReadOnly(true)
-
+        reset()
+        console.log("res update user info", res);
+        setModalFoods(!modalFoods)
+        toast.success("Cập nhật thông tin thành công !")
       } catch (error) {
-        dispatch(setLoadingImage(false))
         if (error instanceof AxiosError && error.response) {
-          console.log("Error fetching apiUpdateFoodItem", error);
-        } else {
-          console.log("Unexpected error", error);
+          console.log("Error Fetching apiUpdateProfile", error?.response.data.message);
+          toast.error(error?.response.data.message)
         }
       }
     } else {
-      dispatch(setLoadingImage(true))
       try {
-        const picture = await handleUploadToCloud()
-        await apiAddFoods({
-          categoryId: data.categoryId,
-          foodName: data.foodName,
-          description: data.description,
-          picture: picture,
-          costPrice,
-          revenue,
-          favourite: data.favourite,
+        const res = await apiCreateModerator({
+          userName: data.userName,
+          email: data.email,
+          phoneNumber: data.phoneNumber,
+          address: data.address,
+          password: data.password,
+          role: "moderator",
         })
-        dispatch(setLoadingImage(false))
-        // setCostPrice("");
-        // setSellingPrice("");
-        // setValue("costPrice", 0);
-        // setValue("revenue", 0);
-        setDisplayImageFood("")
+        setDeletedStaff(true)
+        console.log("res apiCreateModerator", res.data.newUser);
         reset()
-        toast.success("Thêm món ăn thành công !")
+        toast.success("Thêm nhân viên thành công")
       } catch (error) {
-        dispatch(setLoadingImage(false))
         if (error instanceof AxiosError && error.response) {
-          console.log("Error fetching apiAddFoods", error);
-        } else {
-          console.log("Unexpected error", error);
+          console.log("Error Fetching apiCreateModerator", error?.response.data.message);
+          toast.error(error?.response.data.message)
         }
       }
     }
-
   }
 
-  // const listCategoryForSelectOption = listCategory?.map(item => {
-  //   return {
-  //     value: item._id,
-  //     label: item.categoryName,
-  //   }
-  // })
-
+  const handleCancelEdit = () => {
+    if (takeOneStaff) {
+      const bytes = CryptoJS.AES.decrypt(takeOneStaff.password, 'xuanrin');
+      const originalPass = bytes.toString(CryptoJS.enc.Utf8);
+      console.log({ originalPass });
+      setValue("address", takeOneStaff?.address),
+        setValue("email", takeOneStaff?.email),
+        setValue("password", originalPass),
+        setValue("phoneNumber", takeOneStaff?.phoneNumber),
+        setValue("userName", takeOneStaff?.userName)
+    }
+    setStartEdit(!startEdit)
+    setReadOnly(true)
+  }
 
   useEffect(() => {
     // const getAllFoods = async () => {
@@ -404,20 +354,11 @@ export const EmployeeManagement = () => {
     //   } catch (error) {
     //     console.log("Error get all bills", error);
     //   }
-    // }
+    // 
     // getAllCategory()
-    // if (takeFoodItem) {
-    //   setValue("categoryId", takeFoodItem.categoryId._id),
-    //     setValue("foodName", takeFoodItem.foodName),
-    //     setValue("revenue", takeFoodItem.revenue),
-    //     setValue("costPrice", (takeFoodItem.costPrice)),
-    //     setValue("description", takeFoodItem.description),
-    //     setValue("favourite", takeFoodItem.favourite)
-    //   setValue("picture", takeFoodItem.picture)
-    //   setCostPrice(takeFoodItem.costPrice.toString());
-    //   setSellingPrice(takeFoodItem.revenue.toString());
-    //   setDisplayImageFood(takeFoodItem.picture)
-    // }
+
+
+
     // if (modalFoods) {
     //   document.body.classList.add('modal-open');
     // } else {
@@ -444,6 +385,7 @@ export const EmployeeManagement = () => {
             address: item.address,
             avatar: item.avatar,
             role: item.role,
+            password: item.password
           }
         }))
 
@@ -467,12 +409,23 @@ export const EmployeeManagement = () => {
       }
     }
     GetAllModarator()
-
-
-  }, [deletedFood, modalFoods, foodItem, setValue, takeFoodItem])
+    if (deletedStaff) {
+      GetAllModarator()
+      setDeletedStaff(false)
+    }
+    if (takeOneStaff) {
+      const bytes = CryptoJS.AES.decrypt(takeOneStaff.password, 'xuanrin');
+      const originalPass = bytes.toString(CryptoJS.enc.Utf8);
+      console.log({ originalPass });
+      setValue("address", takeOneStaff?.address),
+        setValue("email", takeOneStaff?.email),
+        setValue("password", originalPass),
+        setValue("phoneNumber", takeOneStaff?.phoneNumber),
+        setValue("userName", takeOneStaff?.userName)
+    }
+  }, [modalFoods, staffData, setValue, takeOneStaff, showPassword, deletedStaff])
 
   return <div className="mt-5 flex-col pr-10">
-
     <div className="flex justify-between items-end mt-4 mb-8">
       <div className="text-2xl font-medium underline">Danh sách nhân viên</div>
       <div className="border-2 border-slate-800 rounded-2xl hover:border-black">
@@ -491,85 +444,82 @@ export const EmployeeManagement = () => {
           className=" fixed h-full w-full bg-black bg-opacity-50 flex  overflow-y-scroll justify-center pb-5 ">
           <div data-aos="fade-down" className="relative rounded-2xl h-fit w-11/12 sm:w-9/12 md:w-3/5 lg:w-[40%] bg-white mt-14  flex flex-col border-2 border-black">
             <div className="" >
-              <div className="bg-black text-white rounded-t-xl py-3 px-2 border-2 border-white  text-xl font-bold text-center border-b-2 ">{addFood ? "Chỉnh sửa" : "Xem và chỉnh sửa món ăn"}</div>
+              <div className="bg-black text-white rounded-t-xl py-3 px-2 border-2 border-white  text-xl font-bold text-center border-b-2 ">{addFood ? "Thêm Nhân viên" : "Xem và chỉnh sửa món ăn"}</div>
               <form className="p-8 space-y-3 border-t-2 border-black">
-                <div className="flex flex-col"> 
-                  <label id="userName" htmlFor="">Tên NV</label>  
-                  <input disabled={readOnly} {...register("userName", { required: true })} className={`${errors.userName ? "border-red-500" : "border-black"} ${readOnly ? "bg-gray-50 cursor-not-allowed" : ""} outline-none p-2 border-2  rounded-xl`} type="text" id="foodName" placeholder="Nhập tên nhân viên" />
+                <div className="flex flex-col">
+                  <label htmlFor="userName">Tên NV</label>
+                  <input {...register("userName", { required: "Hãy nhập tên nhân viên *" })} disabled={readOnly}
+                    className={`${errors.userName ? "border-red-500" : "border-black"} 
+                  ${readOnly ? "bg-gray-50 cursor-not-allowed" : ""} outline-none p-2 border-2  rounded-xl`} type="text" id="userName" placeholder="Nhập tên nhân viên" />
+                  {errors.userName && <p className="text-red-500">{errors.userName?.message}</p>}
                 </div>
 
-                <div className="flex flex-col"> 
-                  <label id="userName" htmlFor="">SĐT</label>  
-                  <input disabled={readOnly} {...register("userName", { required: true })} className={`${errors.userName ? "border-red-500" : "border-black"} ${readOnly ? "bg-gray-50 cursor-not-allowed" : ""} outline-none p-2 border-2  rounded-xl`} type="text" id="foodName" placeholder="Nhập tên nhân viên" />
+                <div className="flex flex-col">
+                  <label htmlFor="phoneNumber">SĐT</label>
+                  <input disabled={readOnly} {...register("phoneNumber",
+                    {
+                      required: "Hãy nhập số điện thoại",
+                      pattern: {
+                        value: /^\d{10}$/,
+                        message: "Số điện thoại không hợp lệ!"
+                      }
+                    }
+                  )}
+                    className={`${errors.phoneNumber ? "border-red-500" : "border-black"} 
+                  ${readOnly ? "bg-gray-50 cursor-not-allowed" : ""} outline-none p-2 border-2  rounded-xl`} type="text" id="phoneNumber" placeholder="Nhập SĐT" />
+                  {errors.phoneNumber && <p className="text-red-500">{errors.phoneNumber?.message}</p>}
                 </div>
 
-                <div className="flex flex-col"> 
-                  <label id="userName" htmlFor="">Địa chỉ</label>  
-                  <input disabled={readOnly} {...register("userName", { required: true })} className={`${errors.userName ? "border-red-500" : "border-black"} ${readOnly ? "bg-gray-50 cursor-not-allowed" : ""} outline-none p-2 border-2  rounded-xl`} type="text" id="foodName" placeholder="Nhập tên nhân viên" />
+                <div className="flex flex-col">
+                  <label htmlFor="address">Địa chỉ</label>
+                  <input disabled={readOnly} {...register("address", { required: "Hãy nhập địa chỉ *" })}
+                    className={`${errors.address ? "border-red-500" : "border-black"} 
+                  ${readOnly ? "bg-gray-50 cursor-not-allowed" : ""} outline-none p-2 border-2  rounded-xl`} type="text" id="address" placeholder="Nhập Địa chỉ" />
+                  {errors.address && <p className="text-red-500">{errors.address?.message}</p>}
                 </div>
 
-                <div className="flex flex-col"> 
-                  <label id="userName" htmlFor="">Email</label>  
-                  <input disabled={readOnly} {...register("userName", { required: true })} className={`${errors.userName ? "border-red-500" : "border-black"} ${readOnly ? "bg-gray-50 cursor-not-allowed" : ""} outline-none p-2 border-2  rounded-xl`} type="text" id="foodName" placeholder="Nhập tên nhân viên" />
-                </div>
-
-                
-                <div className="flex flex-col"> 
-                  <label id="userName" htmlFor="">Mật khẩu</label>  
-                  <input disabled={readOnly} {...register("userName", { required: true })} className={`${errors.userName ? "border-red-500" : "border-black"} ${readOnly ? "bg-gray-50 cursor-not-allowed" : ""} outline-none p-2 border-2  rounded-xl`} type="text" id="foodName" placeholder="Nhập tên nhân viên" />
-                </div>
-
-                {/* {readOnly ? "" : <div className="flex flex-col">
-                  <Controller
-                    name="avatar"
-                    control={control}
-                    rules={{ required: 'Vui lòng upload ảnh món ăn' }}
-                    render={({ field }) => (
-                      <>
-                        <div
-                          className="hover:bg-black hover:text-white p-2 flex justify-center items-center space-x-2 text-center px-4 border-2 border-black cursor-pointer bg-gray-100 font-bold"
-                          onClick={() => {
-                            handleClickHiddenInputFile();
-                          }}
-                        >
-                          <span>{displayImageFood ? "Thay đổi hình ảnh" : "Upload ảnh món ăn"}</span>
-                          <AiFillPicture className="text-2xl" />
-                        </div>
-                        <input
-                          type="file"
-                          ref={hiddenInputFile}
-                          hidden
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) {
-                              field.onChange(file);
-                              setFileUpload(file)
-                              handleUploadImage(file);
-                            }
-                          }}
-                        />
-                        {errors.picture && (
-                          <p className="text-red-500 ">
-                            {errors.picture.message}
-                          </p>
-                        )}
-                      </>
-                    )}
+                <div className="flex flex-col">
+                  <label htmlFor="email">Email</label>
+                  <input disabled={readOnly}
+                    {...register("email", {
+                      required: "Hãy nhập email",
+                      pattern: {
+                        value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                        message: "Email không hợp lệ!"
+                      }
+                    })}
+                    className={`${errors.email ? "border-red-500" : "border-black"} 
+                    ${readOnly ? "bg-gray-50 cursor-not-allowed" : ""} outline-none p-2 border-2  rounded-xl`}
+                    type="email"
+                    id="email"
+                    placeholder="Nhập email"
                   />
-                </div>} */}
+                  {errors.email && <p className="text-red-500">{errors.email.message}</p>}
+                </div>
 
-                {displayImageFood && <div className="w-full h-[300px]">
-                  <img src={displayImageFood} className="h-full w-full object-cover" alt="" />
-                </div>}
+                <div className="flex flex-col">
+                  <label id="userName" htmlFor="">Mật khẩu</label>
+                  <div className="relative  ">
+                    <input disabled={readOnly} {...register("password", { required: "Hãy nhập mật khẩu *" })} className={`${errors.userName ? "border-red-500" : "border-black"} ${readOnly ? "bg-gray-50 cursor-not-allowed" : ""}  outline-none p-2 border-2  rounded-xl password w-full`} type="password" id="foodName" placeholder="Nhập tên nhân viên" />
+                    <div className="absolute top-0 right-3 h-full flex items-center">
+                      {showPassword ? <FaRegEye onClick={() => showPass()} className="" />
+                        : <FaRegEyeSlash onClick={() => showPass()} className="" />}
+                    </div>
+                    
+                  </div>
+                  {errors.password && <p className="text-red-500">{errors.password?.message}</p>}
+
+                </div>
+
                 <div className="flex justify-between pt-4 font-bold space-x-2 ">
-                  {addFood && <button type="submit" onClick={handleSubmit(onSubmitAddFood)} className="border-2 py-2 px-6 border-black rounded-xl hover:bg-red-600 hover:text-white">Lưu
+                  {addFood && <button type="submit" onClick={handleSubmit(onSubmitAddModerator)} className="border-2 py-2 px-6 border-black rounded-xl hover:bg-red-600 hover:text-white">Lưu
                   </button>}
                   {!addFood &&
                     <div>
                       {startEdit ?
                         <div className="flex space-x-2">
-                          <button onClick={handleSubmit(onSubmitAddFood)} className="border-2 py-2 px-6 border-black rounded-xl hover:bg-red-600 hover:text-white text-nowrap">Lưu thay đổi</button>
-                          <button className="border-2 py-2 px-6 border-black rounded-xl hover:bg-red-600 hover:text-white text-nowrap">Hủy thay đổi</button>
+                          <button onClick={handleSubmit(onSubmitAddModerator)} className="border-2 py-2 px-6 border-black rounded-xl hover:bg-red-600 hover:text-white text-nowrap">Lưu thay đổi</button>
+                          <div onClick={() => handleCancelEdit()} className="border-2 py-2 px-6 border-black rounded-xl hover:bg-red-600 hover:text-white text-nowrap">Hủy thay đổi</div>
                         </div> : <button onClick={() => {
                           setStartEdit(!startEdit)
                           setReadOnly(false)
@@ -584,14 +534,9 @@ export const EmployeeManagement = () => {
                   <button
                     onClick={() => {
                       setReadOnly(false)
-                      settakeFoodItem(null)
+                      setTakeOneStaff(null)
                       setStartEdit(false)
                       setModalFoods(!modalFoods)
-                      // setValue("costPrice", 0);
-                      // setValue("revenue", 0);
-                      // setCostPrice("0");
-                      // setSellingPrice("0");
-                      setDisplayImageFood("")
                       reset()
                     }}
                     className="border-2 py-2 px-6 border-black  text-black rounded-xl hover:bg-red-600 hover:text-white">Đóng</button>
@@ -600,14 +545,9 @@ export const EmployeeManagement = () => {
             </div>
             <div onClick={() => {
               setReadOnly(false)
-              settakeFoodItem(null)
-              setAddFood(false)
+              setTakeOneStaff(null)
+              setStartEdit(false)
               setModalFoods(!modalFoods)
-              // setValue("costPrice", 0);
-              // setValue("revenue", 0);
-              // setCostPrice("0");
-              // setSellingPrice("0");
-              setDisplayImageFood("")
               reset()
             }} className="absolute top-2 right-2 p-1 hover:bg-gray-200 hover:bg-opacity-20 rounded-full hover:cursor-pointer">
               <IoClose className=" text-xl text-white" />
@@ -616,33 +556,27 @@ export const EmployeeManagement = () => {
         </div>
       </div >
     }
-    {openModalConfirmDeleteFood &&
+    {openModalConfirmDeleteStaff &&
       <div className="z-50 absolute top-0 left-0 h-screen w-full ">
         <div
           className=" fixed h-full w-full bg-black bg-opacity-50 flex  overflow-y-scroll justify-center ">
           <div data-aos="fade-down" className="relative rounded-2xl h-fit w-11/12 sm:w-9/12 md:w-3/5 lg:w-[30%] bg-white mt-36  flex flex-col border-2 border-black">
             <div className="py-8 px-4" >
-              <div className="text-center font-bold text-xl  mb-5">Bạn có chắc muốn xóa món <br></br>"{foodItem?.foodName}"</div>
+              <div className="text-center font-bold text-[18px]">Bạn có chắc muốn xóa nhân viên</div>
+              <div className="text-center text-xl mb-5  font-bold text-red-500">{staffData?.userName}</div>
               <div className="flex justify-between px-10 font-bold">
                 <button onClick={() => {
-                  setOpenModalConfirmDeleteFood(!openModalConfirmDeleteFood)
+                  setOpenModalConfirmDeleteStaff(!openModalConfirmDeleteStaff)
                   handleDeleteFood()
 
                 }} className="border-2 py-2 px-6 border-black rounded-2xl hover:bg-red-600 hover:text-white">Xóa</button>
                 <button onClick={() => {
-                  settakeFoodItem(null)
-                  setAddFood(false)
-                  setModalFoods(!modalFoods)
-                  setValue("costPrice", 0);
-                  setValue("revenue", 0);
-                  setDisplayImageFood("")
-                  reset()
-                  setDisplayImageFood("")
-                  setOpenModalConfirmDeleteFood(!openModalConfirmDeleteFood)
+                  // reset()
+                  setOpenModalConfirmDeleteStaff(!openModalConfirmDeleteStaff)
                 }} className="border-2 py-2 px-6 border-black bg-black text-white rounded-2xl">Đóng</button>
               </div>
             </div>
-            <div onClick={() => setOpenModalConfirmDeleteFood(!openModalConfirmDeleteFood)} className="absolute top-2 right-2 p-1 hover:bg-gray-200 rounded-full hover:cursor-pointer">
+            <div onClick={() => setOpenModalConfirmDeleteStaff(!openModalConfirmDeleteStaff)} className="absolute top-2 right-2 p-1 hover:bg-gray-200 rounded-full hover:cursor-pointer">
               <IoClose className=" text-xl" />
             </div>
           </div>

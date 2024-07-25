@@ -230,7 +230,7 @@ export const CategoryManagement = () => {
       title: 'Tên doanh mục món ăn',
       dataIndex: 'categoryName',
       key: 'categoryName',
-      width: 100,
+      width: 150,
       ...getColumnSearchProps('categoryName'),
     },
     // {
@@ -240,7 +240,7 @@ export const CategoryManagement = () => {
     //   width: 50,
     // },
     {
-      title: 'Action',
+      title: 'Hành động',
       key: 'operation',
       fixed: 'right',
       width: 25,
@@ -293,7 +293,7 @@ export const CategoryManagement = () => {
       <div className="flex w-full items-end space-x-4">
         <div className="flex flex-col flex-1">
           <label htmlFor="" id="categoryName" className="text-xl text-slate-800 font-bold pb-2">Tên doanh mục món ăn</label>
-          <input placeholder="Hãy nhập tên daonh mục "  {...register("categoryName", { required: "Hãy nhập tên doanh mục !" })} id="categoryName" name="categoryName" type="text" className={` ${errors.categoryName ? " border-red-400 outline-none" : "border-gray-300"} h-[40px] rounded-xl border-2   px-4`} />
+          <input placeholder="Hãy nhập tên doanh mục "  {...register("categoryName", { required: "Hãy nhập tên doanh mục !" })} id="categoryName" name="categoryName" type="text" className={` ${errors.categoryName ? " border-red-400 outline-none" : "border-gray-300"} h-[40px] rounded-xl border-2   px-4`} />
         </div>
         <button type="submit" className="flex text-white h-fit bg-slate-800 font-bold items-center space-x-4 p-2 border-2 rounded-2xl border-slate-800 hover:bg-black hover:text-white  hover:border-black">
           <span className="text-nowrap">Thêm danh mục</span> <FaCirclePlus />

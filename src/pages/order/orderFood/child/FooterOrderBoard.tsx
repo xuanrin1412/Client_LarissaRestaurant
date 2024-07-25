@@ -1,9 +1,9 @@
-import { MdOutlineReportProblem } from "react-icons/md";
-import { ITableHaveOrders } from "../../area/Area";
-import { useDispatch } from "react-redux";
 import { setOpenModalPayment } from "../../../../Redux/foodsSlice";
 import { formatCurrency } from "../../../../utils/formartCurrency";
 import { IFoodSlice } from "../../../../common/types/foods";
+import { MdOutlineReportProblem } from "react-icons/md";
+import { ITableHaveOrders } from "../../area/Area";
+import { useDispatch } from "react-redux";
 interface IFooterOrderBoard {
     handleConfirmOrder: () => void,
     FoodInOrder: ITableHaveOrders | undefined,
@@ -41,7 +41,7 @@ const FooterOrderBoard = ({ handleConfirmOrder, FoodInOrder, data, total, subTot
             </div>
         </dialog>
         {FoodInOrder ? (
-            <span onClick={()=>{
+            <span onClick={() => {
                 dispatch(setOpenModalPayment(true))
             }} className="cursor-pointer bg-primary h-full flex items-center px-2 border-l-2 border-black text-white">
                 Thanh Toán {formatCurrency(subTotal)} VND ({totalQuantityFoods})
@@ -53,9 +53,6 @@ const FooterOrderBoard = ({ handleConfirmOrder, FoodInOrder, data, total, subTot
                 </span>
             )
         )}
-
-        
-
     </div>
 }
 

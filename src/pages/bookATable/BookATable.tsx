@@ -139,10 +139,10 @@ const BookATable: React.FC = () => {
                     />
                 </div>
                 {/* TOTAL PERSON */}
-                <div className={`${numberPerson ? "bg-primary  border-2 border-black" : " bg-black"} flex items-center`}>
+                <div className={`${numberPerson ? "bg-primary  border-2 border-black" : " bg-black"} flex items-center  w-full  lg:w-[250px]`}>
                     <div className={`${numberPerson ? "bg-primary" : " bg-black"} text-nowrap px-4 py-2 text-white`}>Tổng khách</div>
                     <input value={numberPerson} type="number" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNumberPerson(e.target.value)} placeholder="Nhập số người"
-                        className={`${numberPerson ? "bg-primary" : " bg-black"} w-full lg:w-[150px] text-white outline-none`} />
+                        className={`${numberPerson ? "bg-primary" : " bg-black"} w-full  text-white outline-none`} />
                 </div>
                 {/* cHOOSE SPACE */}
                 <div className={`${selectSpace ? "bg-primary border-2 border-black" : "bg-black"} relative px-4 py-2  text-white flex items-center w-full  lg:w-[250px]`}>

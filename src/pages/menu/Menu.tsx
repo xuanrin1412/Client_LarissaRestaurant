@@ -1,17 +1,17 @@
-import { useEffect, useRef, useState } from "react";
-import { getCategoryWFood } from "../../Redux/foodsSlice";
 import { RootState, useAppDispatch, useAppSelector } from "../../Redux/store";
-import { IMenu } from "../../common/types/menu";
 import { createFoodCustomerArr } from "../../Redux/foodsCustomer";
 import { formatCurrency } from "../../utils/formartCurrency";
+import { getCategoryWFood } from "../../Redux/foodsSlice";
+import { useEffect, useRef, useState } from "react";
+import { IMenu } from "../../common/types/menu";
+import { FaStar } from "react-icons/fa6";
 
 const Menu: React.FC = () => {
     const dispatch = useAppDispatch();
-    const [showCategoryBar, setShowCategoryBar] = useState<boolean>(false);
     const [activeCategory, setActiveCategory] = useState<string>();
     const categoryRefs = useRef<{ [key: string]: HTMLDivElement }>({});
+    const [showCategoryBar, setShowCategoryBar] = useState<boolean>(false);
     const categoryWFood: IMenu[] = useAppSelector((state: RootState) => state.foods.categoryWFood);
-    console.log("categoryWFood123312", categoryWFood);
 
     const scrollCategoryBar = () => {
         if (window.scrollY > 80) {
@@ -59,9 +59,6 @@ const Menu: React.FC = () => {
 
     return (
         <div className="mt-header">
-            {/* <div data-aos="zoom-in" className="banner text-white font-greatVibes text-4xl mb-10">
-                The Taste Of The Food Life
-            </div> */}
             {showCategoryBar && (
                 <div className="absolute top-0 left-0 lg:top-[30px] lg:left-10 z-10 ">
                     <div className="fixed w-[400px] flex flex-row">
@@ -80,7 +77,6 @@ const Menu: React.FC = () => {
                     </div>
                 </div>
             )}
-
             {categoryWFood.filter(category => category.food.length > 0).map((category, categoryIndex) => (
                 <div key={categoryIndex} className="mb-10 lg:mb-20 first:mt-20">
                     <div
@@ -93,7 +89,7 @@ const Menu: React.FC = () => {
                     <div className="w-11/12 lg:w-[95%] xl:w-11/12 mx-auto grid lg:grid-cols-2 flex-wrap ">
                         {category.food.map((item, index) => (
                             <div key={index} className={`${index % 2 === 0 ? "lg:border-r-2" : ""}  flex flex-col sm:flex-row items-center px-2 sm:px-4 md:px-8 py-5 hover:bg-gray-100 relative group `}>
-                                <div className="flex w-full sm:w-fit  items-center justify-start space-x-6">
+                                <div className="flex w-full sm:w-fit  items-center justify-start space-x-6 relative">
                                     <div className="w-36  h-36 sm:w-48 sm:h-48 ">
                                         <img
                                             className="h-full w-full object-cover rounded-full"
@@ -102,9 +98,12 @@ const Menu: React.FC = () => {
                                         />
                                     </div>
                                     <div className="flex sm:hidden flex-col justify-between text-xl flex-wrap w-full max-w-[160px]">
+
                                         <div className="font-bold  flex-1">{item.foodName}</div>
                                         {item.revenue && <div className="font-bold text-nowrap">{formatCurrency(item.revenue)} VNĐ</div>}
                                     </div>
+                                    {item.favourite ? <div className=" absolute top-5 -left-8 text-yellow-300 bg-black rounded-full p-1 border-2 border-white"><FaStar className="text-3xl" /></div> :"" }
+                                    
                                 </div>
                                 <div className="flex-1 pl-4  px-0 md:px-4  space-y-2 pt-2 sm:pt-0">
                                     <div className="hidden sm:flex justify-between text-xl">
@@ -114,10 +113,7 @@ const Menu: React.FC = () => {
                                     <div className="text-justify">{item.description || "No description available"}</div>
                                 </div>
                                 <div className="absolute invisible top-0 left-0 h-full w-full flex items-center justify-center group-hover:visible">
-                                    {/* <div className=" p-3 bg-black hover:cursor-pointer  text-white border-solid border-2 border-white">Thêm vào giỏ hàng</div> */}
                                     <div onClick={() => {
-                                        console.log("itemiiiii0", item);
-
                                         dispatch(createFoodCustomerArr({ food: item, quantity: 1 }))
                                     }} className="button-borders">
                                         <button className="primary-button"> Thêm vào giỏ hàng

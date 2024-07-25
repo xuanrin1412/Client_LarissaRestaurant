@@ -19,6 +19,7 @@
     "antd": "^5.18.3",
     "aos": "^2.3.4",
     "axios": "^1.7.2",
+    "crypto-js": "^4.2.0",
     "date-fns": "^3.6.0",
     "dayjs": "^1.11.11",
     "flowbite": "^2.3.0",
@@ -42,6 +43,7 @@
   },
   "devDependencies": {
     "@types/aos": "^3.0.7",
+    "@types/crypto-js": "^4.2.2",
     "@types/js-cookie": "^3.0.6",
     "@types/jsonwebtoken": "^9.0.6",
     "@types/react": "^18.2.66",

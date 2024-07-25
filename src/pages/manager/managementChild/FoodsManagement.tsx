@@ -37,8 +37,8 @@ export const FoodsManagement = () => {
   const [foodItem, setFoodItem] = useState<IFoods>()
   const [dataFoods, setDataFoods] = useState<IdataFoods[]>()
   const [modalFoods, setModalFoods] = useState<boolean>(false)
-  console.log("modalFoods",modalFoods);
-  
+  console.log("modalFoods", modalFoods);
+
   const [deletedFood, setDeletedFood] = useState<boolean>(false)
   const [listCategory, setListCategory] = useState<IdataCategory[]>()
   const [takeFoodItem, settakeFoodItem] = useState<IFoods | null>(null)
@@ -368,7 +368,7 @@ export const FoodsManagement = () => {
         setDisplayImageFood("")
         reset()
         toast.success("Thêm món ăn thành công !")
-  
+
       } catch (error) {
         dispatch(setLoadingImage(false))
         if (error instanceof AxiosError && error.response) {

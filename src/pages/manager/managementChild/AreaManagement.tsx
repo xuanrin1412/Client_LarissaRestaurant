@@ -1,5 +1,5 @@
 import { Button, Input, InputRef, Space, Table, TableColumnType, type TableColumnsType } from 'antd';
-import { apiAddArea, apiDeleteArea, apiGetAllArea } from "../../../API/api";
+import { apiAddArea, apiDeleteArea, apiGetAllArea, apiUpdateArea } from "../../../API/api";
 import { FilterDropdownProps } from "antd/es/table/interface";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { FaEdit, FaRegTrashAlt } from "react-icons/fa";
@@ -12,14 +12,19 @@ import { toast } from "react-toastify";
 import { AxiosError } from "axios";
 
 
+interface IgetDataArea {
+  _id: string,
+  areaName: string
+}
 interface IdataArea {
+  key: number,
   _id: string,
   areaName: string
 }
 type DataIndex = keyof IdataArea;
 export const AreaManagement = () => {
   const [dataArea, setDataArea] = useState<IdataArea[]>()
-  console.log("dataCategory", dataArea);
+  console.log("dataArea", dataArea);
   type Inputs = {
     areaName: string
   }
@@ -49,7 +54,7 @@ export const AreaManagement = () => {
       console.log("res 123", res);
     } catch (error) {
       if (error instanceof AxiosError && error.response) {
-        console.log("Error fetching ApiAddCategory", error.response.data.error);
+        console.log("Error fetching ApiAddArea", error.response.data.error);
         setError("areaName", {
           message: error.response.data.error,
         })
@@ -61,12 +66,12 @@ export const AreaManagement = () => {
 
   const [openModalConfirmDeleteCate, setOpenModalConfirmDeleteCate] = useState<boolean>(false)
   const [areaItem, setAreaItem] = useState<IdataArea>()
-  const handleOpenModalDeleteCategory = async (areaItem: IdataArea) => {
+  const handleOpenModalDeleteArea = async (areaItem: IdataArea) => {
     setOpenModalConfirmDeleteCate(!openModalConfirmDeleteCate)
     setAreaItem(areaItem)
   }
 
-  const handleDeleteCategory = async () => {
+  const handleDeleteArea = async () => {
     try {
       const res = await apiDeleteArea(areaItem?._id)
       setAddedArea(true)
@@ -75,14 +80,56 @@ export const AreaManagement = () => {
     } catch (error) {
       if (error instanceof AxiosError && error.response) {
         console.log("Error fetching 668a363a61856939d2d74abd", error.response.data.statusError);
-        if (error.response.data.statusError == "Category have foods") {
-          toast.error("Danh mục món ăn đang chứa món ăn không thể xóa doanh mục!")
-        }
+        // if (error.response.data.statusError == " have foods") {
+        //   toast.error("Danh mục món ăn đang chứa món ăn không thể xóa doanh mục!")
+        // }
       }
     }
   }
 
   console.log(watch("areaName"))
+
+
+
+
+
+  const [renameArea, setRenameArea] = useState<string>()
+  console.log("renameArea", renameArea);
+  const [openModalEditArea, setOpenModalEditArea] = useState<boolean>(false)
+  const handleOpenModalEditArea = (record: IdataArea) => {
+    console.log("click handleOpenModalEditArea", record);
+    setOpenModalEditArea(!openModalEditArea)
+    setAreaItem(record)
+    setRenameArea(record.areaName)
+  }
+  const handleUpdateArea = async () => {
+    console.log("idArea:,", areaItem?._id, "AreaName:", renameArea);
+    try {
+      const res = await apiUpdateArea({ idArea: areaItem?._id, areaName: renameArea })
+      setAddedArea(true)
+      reset()
+      console.log("res 123", res);
+      setOpenModalEditArea(false)
+      toast.success("Cập nhật tên khu vực thành công")
+    } catch (error) {
+      if (error instanceof AxiosError && error.response) {
+        console.log("Error fetching apiUpdateArea ", error.response);
+        toast.error(error.response.data.error)
+      }
+    }
+  }
+
+
+
+
+
+
+
+
+
+
+
+
 
   const [searchText, setSearchText] = useState('');
   const [searchedColumn, setSearchedColumn] = useState('');
@@ -180,17 +227,17 @@ export const AreaManagement = () => {
   });
   const columns: TableColumnsType<IdataArea> = [
     {
-      title: 'Id',
-      width: 50,
-      dataIndex: '_id',
-      key: '_id',
+      title: 'No.',
+      width: 30,
+      dataIndex: 'key',
+      key: 'key',
       // fixed: 'left',
     },
     {
       title: 'Tên khu vực',
       dataIndex: 'areaName',
       key: 'areaName',
-      width: 30,
+      width: 150,
       ...getColumnSearchProps('areaName'),
     },
     // {
@@ -200,14 +247,14 @@ export const AreaManagement = () => {
     //   width: 50,
     // },
     {
-      title: 'Action',
+      title: 'Hành động',
       key: 'operation',
       fixed: 'right',
       width: 25,
       render: (record) => (
         <div className="flex space-x-4">
-          <FaEdit className="text-[20px]" />
-          <FaRegTrashAlt onClick={() => handleOpenModalDeleteCategory(record)} className="text-[20px]" />
+          <FaEdit  onClick={() => handleOpenModalEditArea(record)} className="text-[20px]" />
+          <FaRegTrashAlt onClick={() => handleOpenModalDeleteArea(record)} className="text-[20px]" />
         </div>
       ),
     },
@@ -217,9 +264,15 @@ export const AreaManagement = () => {
       try {
         const res = await apiGetAllArea()
         console.log("res apiGetAllArea", res);
-
-        setDataArea(res.data.getAllArea)
-        console.log("res apiGetAllCategory", res.data.getAllArea);
+        const area: IgetDataArea[] = res.data.getAllArea
+        setDataArea(area.map((item, index) => {
+          return {
+            key: index + 1,
+            _id: item._id,
+            areaName: item.areaName
+          }
+        }))
+        console.log("res apiGetAllArea", res.data.getAllArea);
       } catch (error) {
         console.log("Error get all bills", error);
       }
@@ -231,7 +284,7 @@ export const AreaManagement = () => {
       setAddedArea(false)
     }
 
-    // if (openModalCategory) {
+    // if (openModalArea) {
     //   document.body.classList.add('modal-open');
     // } else {
     //   document.body.classList.remove('modal-open');
@@ -267,12 +320,42 @@ export const AreaManagement = () => {
               <div className="flex justify-between px-10 font-bold">
                 <button onClick={() => {
                   setOpenModalConfirmDeleteCate(!openModalConfirmDeleteCate)
-                  handleDeleteCategory()
+                  handleDeleteArea()
                 }} className="border-2 py-2 px-6 border-black rounded-2xl hover:bg-red-600 hover:text-white">Xóa</button>
                 <button onClick={() => setOpenModalConfirmDeleteCate(!openModalConfirmDeleteCate)} className="border-2 py-2 px-6 border-black bg-black text-white rounded-2xl">Đóng</button>
               </div>
             </div>
             <div onClick={() => setOpenModalConfirmDeleteCate(!openModalConfirmDeleteCate)} className="absolute top-2 right-2 p-1 hover:bg-gray-200 rounded-full hover:cursor-pointer">
+              <IoClose className=" text-xl" />
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+    {openModalEditArea &&
+      <div className="z-50 absolute top-0 left-0 h-screen w-full ">
+        <div
+          className=" fixed h-full w-full bg-black bg-opacity-50 flex  overflow-y-scroll justify-center ">
+          <div data-aos="fade-down" className="relative rounded-2xl h-fit w-11/12 sm:w-9/12 md:w-3/5 lg:w-[30%] bg-white mt-36  flex flex-col border-2 border-black">
+            <div className="py-8 px-4" >
+              <span className=" text-[18px]">Chỉnh sửa tên danh mục</span>
+              <input value={renameArea} onChange={(e) => setRenameArea(e.target.value)} type="text" className="border-2 border-black w-full rounded-2xl p-2 mb-5" />
+              <div className="flex justify-between px-10 font-bold">
+                <button onClick={() => {
+                  handleUpdateArea()
+                }} className="border-2 py-2 px-6 border-black rounded-2xl hover:bg-red-600 hover:text-white">Lưu</button>
+                <button onClick={() => {
+                  // setAreaItem(undefined)
+                  setRenameArea("")
+                  setOpenModalEditArea(!openModalEditArea)
+                }} className="border-2 py-2 px-6 border-black bg-black text-white rounded-2xl">Đóng</button>
+              </div>
+            </div>
+            <div onClick={() => {
+              // setAreaItem(undefined)
+              setRenameArea("")
+              setOpenModalEditArea(!openModalEditArea)
+            }} className="absolute top-2 right-2 p-1 hover:bg-gray-200 rounded-full hover:cursor-pointer">
               <IoClose className=" text-xl" />
             </div>
           </div>
